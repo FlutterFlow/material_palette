@@ -7,8 +7,11 @@ import 'package:material_palette/src/shader_definitions.dart';
 /// A shader wrapper that applies a radial smoke dissolve effect to its child.
 ///
 /// Smokes outward from a configurable center point with an organic turbulence-
-/// noise edge and smoky glow. The smoke ping-pongs automatically; [speed]
-/// controls how fast.
+/// noise edge and smoky glow.
+///
+/// In `running` mode the [speed] param controls how fast the ping-pong
+/// animation runs. In `animation` mode the shader receives 0-1 progress
+/// directly from the provided [Animation].
 class RadialSmokeShaderWrap extends StatelessWidget {
   RadialSmokeShaderWrap({
     super.key,
@@ -33,10 +36,14 @@ class RadialSmokeShaderWrap extends StatelessWidget {
     return ShaderWrap(
       shaderPath: 'packages/material_palette/shaders/radial_smoke.frag',
       uniformsCallback: (uniforms, size, time) {
+        final progress = animationMode == ShaderAnimationMode.running
+            ? pingPong(time * params.get('speed'))
+            : time;
+
         final smokeColor = params.getColor('smokeColor');
         uniforms
           ..setSize(size)
-          ..setFloat(time)
+          ..setFloat(progress)
           ..setFloat(params.get('burnCenterX'))
           ..setFloat(params.get('burnCenterY'))
           ..setFloat(params.get('burnScale'))
@@ -45,8 +52,7 @@ class RadialSmokeShaderWrap extends StatelessWidget {
           ..setFloat(params.get('glowIntensity'))
           ..setFloat(smokeColor.r)
           ..setFloat(smokeColor.g)
-          ..setFloat(smokeColor.b)
-          ..setFloat(params.get('speed'));
+          ..setFloat(smokeColor.b);
       },
       animationMode: animationMode,
       animation: animation,

@@ -16,7 +16,6 @@ uniform float uNoiseScale;
 uniform float uEdgeWidth;
 uniform float uGlowIntensity;
 uniform vec3 uFireColor;      // RGB fire color
-uniform float uSpeed;         // burn speed multiplier
 
 // Child texture
 uniform sampler2D uTexture;
@@ -83,9 +82,8 @@ void main() {
     float dist = length(adjustedUV - adjustedCenter);
     float normalizedDist = dist / (0.5 * uBurnScale);
 
-    // Ping-pong progress from elapsed time and speed
-    float t = uTime * uSpeed;
-    float progress = abs(mod(t, 2.0) - 1.0);
+    // Progress is now 0-1, computed in Dart
+    float progress = uTime;
 
     // Burn line: radial distance + fbm noise distortion
     float noiseVal = fbmNoise(uv * uNoiseScale);

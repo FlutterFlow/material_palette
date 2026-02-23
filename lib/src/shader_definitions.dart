@@ -831,7 +831,7 @@ final clickRippleShaderDef = ShaderDefinition(
   defaults: ShaderParams(
     values: {
       'amplitude': 0.07, 'frequency': 15.0, 'decay': 4.0,
-      'speed': 2.0, 'rippleLifetime': 3.0,
+      'speed': 2.0, 'rippleDuration': 3.0,
     },
     colors: {
       'bgColor': const Color(0xFF202329),
@@ -842,7 +842,7 @@ final clickRippleShaderDef = ShaderDefinition(
     'frequency': const SliderRange('Frequency', min: 5.0, max: 40.0),
     'decay': const SliderRange('Decay', min: 1.0, max: 10.0),
     'speed': const SliderRange('Speed', min: 0.5, max: 5.0),
-    'rippleLifetime': const SliderRange('Lifetime', min: 1.0, max: 8.0),
+    'rippleDuration': const SliderRange('Duration', min: 1.0, max: 8.0),
   }),
 );
 

@@ -15,7 +15,6 @@ uniform float uPixelSize;     // size of each pixel block in screen pixels
 uniform float uEdgeWidth;     // dissolve transition zone width in UV space
 uniform float uScatter;       // scatter intensity (0 = no movement)
 uniform float uNoiseAmount;   // per-cell randomness in dissolve timing
-uniform float uSpeed;         // animation speed
 
 // Child texture
 uniform sampler2D uTexture;
@@ -51,9 +50,8 @@ void main() {
         dir = vec2(1.0, 0.0);
     }
 
-    // Ping-pong progress from elapsed time and speed
-    float t = uTime * uSpeed;
-    float progress = abs(mod(t, 2.0) - 1.0);
+    // Progress is now 0-1, computed in Dart
+    float progress = uTime;
 
     // Cell size in UV space
     vec2 cellSizeUV = vec2(uPixelSize) / uSize;

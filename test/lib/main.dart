@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'animation_demo_page.dart';
 import 'dynamic_shader_preview_page.dart';
 import 'shared_components.dart';
 import 'shader_wrap_demo_page.dart';
@@ -65,6 +66,7 @@ class _TestDemosHomeState extends State<TestDemosHome> {
   static const _pages = <Widget>[
     ShaderWrapDemoPage(),
     DynamicShaderPreviewPage(),
+    AnimationDemoPage(),
   ];
 
   @override
@@ -88,6 +90,10 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               NavigationRailDestination(
                 icon: Icon(Icons.tune),
                 label: Text('Dynamic Preview'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.animation),
+                label: Text('Animations'),
               ),
             ],
           ),

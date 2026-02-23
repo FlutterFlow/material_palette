@@ -7,8 +7,11 @@ import 'package:material_palette/src/shader_definitions.dart';
 /// A shader wrapper that applies a radial pixel dissolve effect to its child.
 ///
 /// Dissolves outward from a configurable center point, breaking the child into
-/// discrete pixel blocks that scatter radially. The dissolve ping-pongs
-/// automatically; [speed] controls how fast.
+/// discrete pixel blocks that scatter radially.
+///
+/// In `running` mode the [speed] param controls how fast the ping-pong
+/// animation runs. In `animation` mode the shader receives 0-1 progress
+/// directly from the provided [Animation].
 class RadialPixelDissolveShaderWrap extends StatelessWidget {
   RadialPixelDissolveShaderWrap({
     super.key,
@@ -33,17 +36,20 @@ class RadialPixelDissolveShaderWrap extends StatelessWidget {
     return ShaderWrap(
       shaderPath: 'packages/material_palette/shaders/radial_pixel_dissolve.frag',
       uniformsCallback: (uniforms, size, time) {
+        final progress = animationMode == ShaderAnimationMode.running
+            ? pingPong(time * params.get('speed'))
+            : time;
+
         uniforms
           ..setSize(size)
-          ..setFloat(time)
+          ..setFloat(progress)
           ..setFloat(params.get('centerX'))
           ..setFloat(params.get('centerY'))
           ..setFloat(params.get('scale'))
           ..setFloat(params.get('pixelSize'))
           ..setFloat(params.get('edgeWidth'))
           ..setFloat(params.get('scatter'))
-          ..setFloat(params.get('noiseAmount'))
-          ..setFloat(params.get('speed'));
+          ..setFloat(params.get('noiseAmount'));
       },
       animationMode: animationMode,
       animation: animation,

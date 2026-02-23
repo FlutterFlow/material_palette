@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_shaders/flutter_shaders.dart';
 import 'package:material_palette/src/animated_sampler_repaint.dart';
+import 'package:material_palette/src/shader_animation.dart';
 import 'package:material_palette/src/shader_types.dart';
 
 export 'package:material_palette/src/shader_types.dart';
@@ -52,7 +53,7 @@ class ShaderWrap extends StatefulWidget {
 }
 
 class _ShaderWrapState extends State<ShaderWrap>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   Ticker? _ticker;
   final ValueNotifier<double> _time = ValueNotifier<double>(0.0);
 
@@ -71,7 +72,11 @@ class _ShaderWrapState extends State<ShaderWrap>
         _ticker!.start();
         break;
       case ShaderAnimationMode.animation:
-        widget.animation!.addListener(_onAnimationTick);
+        final anim = widget.animation!;
+        if (anim is ShaderAnimation) {
+          anim.attach(this);
+        }
+        anim.addListener(_onAnimationTick);
         break;
       case ShaderAnimationMode.static:
         break;
@@ -97,7 +102,11 @@ class _ShaderWrapState extends State<ShaderWrap>
           _time.value = 0.0;
           break;
         case ShaderAnimationMode.animation:
-          oldWidget.animation?.removeListener(_onAnimationTick);
+          final oldAnim = oldWidget.animation;
+          oldAnim?.removeListener(_onAnimationTick);
+          if (oldAnim is ShaderAnimation) {
+            oldAnim.detach();
+          }
           break;
         case ShaderAnimationMode.static:
           break;
@@ -112,7 +121,11 @@ class _ShaderWrapState extends State<ShaderWrap>
   void dispose() {
     _ticker?.dispose();
     if (widget.animationMode == ShaderAnimationMode.animation) {
-      widget.animation?.removeListener(_onAnimationTick);
+      final anim = widget.animation;
+      anim?.removeListener(_onAnimationTick);
+      if (anim is ShaderAnimation) {
+        anim.detach();
+      }
     }
     _time.dispose();
     super.dispose();

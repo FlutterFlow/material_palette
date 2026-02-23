@@ -8,7 +8,10 @@ import 'package:material_palette/src/shader_definitions.dart';
 ///
 /// Divides the child into a grid of square pixel blocks that scatter outward
 /// along a directional dissolve sweep, creating a "Thanos snap" disintegration.
-/// The dissolve ping-pongs automatically; [speed] controls how fast.
+///
+/// In `running` mode the [speed] param controls how fast the ping-pong
+/// animation runs. In `animation` mode the shader receives 0-1 progress
+/// directly from the provided [Animation].
 class PixelDissolveShaderWrap extends StatelessWidget {
   PixelDissolveShaderWrap({
     super.key,
@@ -33,16 +36,19 @@ class PixelDissolveShaderWrap extends StatelessWidget {
     return ShaderWrap(
       shaderPath: 'packages/material_palette/shaders/pixel_dissolve.frag',
       uniformsCallback: (uniforms, size, time) {
+        final progress = animationMode == ShaderAnimationMode.running
+            ? pingPong(time * params.get('speed'))
+            : time;
+
         uniforms
           ..setSize(size)
-          ..setFloat(time)
+          ..setFloat(progress)
           ..setFloat(params.get('dirX'))
           ..setFloat(params.get('dirY'))
           ..setFloat(params.get('pixelSize'))
           ..setFloat(params.get('edgeWidth'))
           ..setFloat(params.get('scatter'))
-          ..setFloat(params.get('noiseAmount'))
-          ..setFloat(params.get('speed'));
+          ..setFloat(params.get('noiseAmount'));
       },
       animationMode: animationMode,
       animation: animation,

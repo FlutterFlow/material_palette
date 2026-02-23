@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_shaders/flutter_shaders.dart';
+import 'package:material_palette/src/shader_animation.dart';
 import 'package:material_palette/src/shader_wrap.dart';
 import 'package:material_palette/src/shader_params.dart';
 import 'package:material_palette/src/shader_definitions.dart';
@@ -8,6 +9,10 @@ import 'package:material_palette/src/shader_definitions.dart';
 ///
 /// Each tap creates a radial smoke that expands outward then contracts back
 /// before disappearing. Supports up to 10 simultaneous tap points.
+///
+/// Per-tap progress (biphasic expand/contract ramp) is computed in Dart.
+/// If the [animation] is a [ShaderAnimation], its [Curve] is applied to
+/// each tap's progress for eased per-tap animation.
 class TappableSmokeShaderWrap extends StatefulWidget {
   TappableSmokeShaderWrap({
     super.key,
@@ -62,6 +67,26 @@ class _TappableSmokeShaderWrapState
         click.elapsed > lifetime / speed);
   }
 
+  /// Computes 0-1 biphasic progress for a single tap.
+  double _tapProgress(ShaderTouchPoint click) {
+    final speed = widget.params.get('speed');
+    final lifetime = widget.params.get('burnLifetime');
+    final rawTime = click.elapsed * speed;
+    final halfLife = lifetime * 0.5;
+    double linear;
+    if (rawTime < halfLife) {
+      linear = rawTime / halfLife;
+    } else {
+      linear = 1.0 - (rawTime - halfLife) / halfLife;
+    }
+    linear = linear.clamp(0.0, 1.0);
+
+    final curve = (widget.animation is ShaderAnimation)
+        ? (widget.animation as ShaderAnimation).curve
+        : Curves.linear;
+    return curve.transform(linear);
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = widget.params;
@@ -84,16 +109,16 @@ class _TappableSmokeShaderWrapState
           }
         }
 
-        // Times (always send 10, padding with zeros)
+        // Per-tap progress (always send 10, padding with zeros)
         for (int i = 0; i < TappableSmokeShaderWrap.maxClicks; i++) {
           if (i < clicks.length) {
-            uniforms.setFloat(clicks[i].elapsed);
+            uniforms.setFloat(_tapProgress(clicks[i]));
           } else {
             uniforms.setFloat(0.0);
           }
         }
 
-        // Smoke parameters
+        // Smoke parameters (no longer sending speed or burnLifetime)
         final smokeColor = p.getColor('smokeColor');
         uniforms.setFloat(p.get('noiseScale'));
         uniforms.setFloat(p.get('edgeWidth'));
@@ -101,9 +126,7 @@ class _TappableSmokeShaderWrapState
         uniforms.setFloat(smokeColor.r);
         uniforms.setFloat(smokeColor.g);
         uniforms.setFloat(smokeColor.b);
-        uniforms.setFloat(p.get('speed'));
         uniforms.setFloat(p.get('burnRadius'));
-        uniforms.setFloat(p.get('burnLifetime'));
       },
       animationMode: widget.animationMode,
       animation: widget.animation,

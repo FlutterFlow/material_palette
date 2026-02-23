@@ -15,7 +15,6 @@ uniform float uNoiseScale;
 uniform float uEdgeWidth;
 uniform float uGlowIntensity;
 uniform vec3 uSmokeColor;     // RGB smoke color
-uniform float uSpeed;         // burn speed multiplier
 
 // Child texture
 uniform sampler2D uTexture;
@@ -80,9 +79,8 @@ void main() {
         dir = vec2(1.0, 0.0);
     }
 
-    // Ping-pong progress from elapsed time and speed
-    float t = uTime * uSpeed;
-    float progress = abs(mod(t, 2.0) - 1.0);
+    // Progress is now 0-1, computed in Dart
+    float progress = uTime;
 
     // Burn line: directional gradient + turbulence noise distortion
     float noiseVal = turbulenceNoise(uv * uNoiseScale);

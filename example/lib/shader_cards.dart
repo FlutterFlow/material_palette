@@ -340,7 +340,7 @@ class _ClickRippleShaderCardState extends State<ClickRippleShaderCard> {
             ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
             const SizedBox(height: 12),
             const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['rippleLifetime']!, value: _params.get('rippleLifetime'), onChanged: (v) => setState(() => _params = _params.withValue('rippleLifetime', v))),
+            ControlSlider.fromRange(range: _ui['rippleDuration']!, value: _params.get('rippleDuration'), onChanged: (v) => setState(() => _params = _params.withValue('rippleDuration', v))),
           ],
         ),
       ],

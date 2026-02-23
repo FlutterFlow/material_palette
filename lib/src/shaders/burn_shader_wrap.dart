@@ -8,7 +8,10 @@ import 'package:material_palette/src/shader_definitions.dart';
 ///
 /// Animates a diagonal burn that progressively makes the child transparent
 /// along an organic FBM-noise edge with a fire glow.
-/// The burn ping-pongs automatically; [speed] controls how fast.
+///
+/// In `running` mode the [speed] param controls how fast the ping-pong
+/// animation runs. In `animation` mode the shader receives 0-1 progress
+/// directly from the provided [Animation].
 class BurnShaderWrap extends StatelessWidget {
   BurnShaderWrap({
     super.key,
@@ -33,10 +36,16 @@ class BurnShaderWrap extends StatelessWidget {
     return ShaderWrap(
       shaderPath: 'packages/material_palette/shaders/burn.frag',
       uniformsCallback: (uniforms, size, time) {
+        // In running mode, compute ping-pong progress from raw elapsed time.
+        // In animation mode, time is already 0-1 from the Animation.
+        final progress = animationMode == ShaderAnimationMode.running
+            ? pingPong(time * params.get('speed'))
+            : time;
+
         final fireColor = params.getColor('fireColor');
         uniforms
           ..setSize(size)
-          ..setFloat(time)
+          ..setFloat(progress)
           ..setFloat(params.get('dirX'))
           ..setFloat(params.get('dirY'))
           ..setFloat(params.get('noiseScale'))
@@ -44,8 +53,7 @@ class BurnShaderWrap extends StatelessWidget {
           ..setFloat(params.get('glowIntensity'))
           ..setFloat(fireColor.r)
           ..setFloat(fireColor.g)
-          ..setFloat(fireColor.b)
-          ..setFloat(params.get('speed'));
+          ..setFloat(fireColor.b);
       },
       animationMode: animationMode,
       animation: animation,

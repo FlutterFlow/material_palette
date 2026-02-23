@@ -5,6 +5,10 @@ import 'package:material_palette/src/shader_params.dart';
 import 'package:material_palette/src/shader_definitions.dart';
 
 /// A shader wrapper that applies a click/touch-triggered ripple effect.
+///
+/// Per-tap timing is normalized to 0-1 progress in Dart and sent to the
+/// shader alongside [rippleDuration] so that wave propagation still works
+/// correctly in real-time units.
 class ClickableRippleShaderWrap extends StatefulWidget {
   ClickableRippleShaderWrap({
     super.key,
@@ -55,14 +59,15 @@ class _ClickableRippleShaderWrapState
   }
 
   void _removeExpiredClicks() {
-    _clicks.removeWhere((click) =>
-        click.elapsed > widget.params.get('rippleLifetime'));
+    final duration = widget.params.get('rippleDuration');
+    _clicks.removeWhere((click) => click.elapsed > duration);
   }
 
   @override
   Widget build(BuildContext context) {
     final p = widget.params;
     final clicks = widget.touchPoints ?? _clicks;
+    final rippleDuration = p.get('rippleDuration');
 
     return ShaderWrap(
       shaderPath: 'packages/material_palette/shaders/click_ripple.frag',
@@ -81,10 +86,11 @@ class _ClickableRippleShaderWrapState
           }
         }
 
-        // Times (always send 10, padding with zeros)
+        // Per-tap progress normalized to 0-1 (always send 10, padding with zeros)
         for (int i = 0; i < ClickableRippleShaderWrap.maxClicks; i++) {
           if (i < clicks.length) {
-            uniforms.setFloat(clicks[i].elapsed);
+            uniforms.setFloat(
+                (clicks[i].elapsed / rippleDuration).clamp(0.0, 1.0));
           } else {
             uniforms.setFloat(0.0);
           }
@@ -95,6 +101,7 @@ class _ClickableRippleShaderWrapState
         uniforms.setFloat(p.get('frequency'));
         uniforms.setFloat(p.get('decay'));
         uniforms.setFloat(p.get('speed'));
+        uniforms.setFloat(rippleDuration);
 
         // Background color (RGBA)
         uniforms.setFloat(widget.backgroundColor.r);

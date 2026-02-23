@@ -1,4 +1,5 @@
 export 'package:material_palette/src/shader_types.dart';
+export 'package:material_palette/src/shader_animation.dart';
 export 'package:material_palette/src/shader_params.dart';
 export 'package:material_palette/src/shader_fill.dart';
 export 'package:material_palette/src/shader_wrap.dart';

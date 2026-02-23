@@ -13,9 +13,7 @@ uniform float uNoiseScale;
 uniform float uEdgeWidth;
 uniform float uGlowIntensity;
 uniform vec3 uFireColor;      // RGB fire color
-uniform float uSpeed;         // burn speed multiplier
 uniform float uBurnRadius;    // radius of each burn tap
-uniform float uBurnLifetime;  // total lifetime of a burn tap
 
 // Child texture
 uniform sampler2D uTexture;
@@ -89,15 +87,8 @@ void main() {
     for (int i = 0; i < 10; i++) {
         if (i >= clickCount) break;
 
-        float tapTime = uTimes[i] * uSpeed;
-        float halfLife = uBurnLifetime * 0.5;
-        float tapProgress;
-        if (tapTime < halfLife) {
-            tapProgress = tapTime / halfLife;           // expand: 0->1
-        } else {
-            tapProgress = 1.0 - (tapTime - halfLife) / halfLife;  // contract: 1->0
-        }
-        tapProgress = clamp(tapProgress, 0.0, 1.0);
+        // Per-tap progress is now 0-1, computed in Dart
+        float tapProgress = uTimes[i];
 
         // Radial distance from this tap point (in UV space, aspect-corrected)
         vec2 origin = uTouchPoints[i] / uSize;

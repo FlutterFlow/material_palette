@@ -5,12 +5,13 @@ precision highp float;
 uniform vec2 uSize;
 uniform float uClickCount;
 uniform vec2 uTouchPoints[10];
-uniform float uTimes[10];
+uniform float uTimes[10];       // Per-tap progress (0-1)
 // Controllable ripple parameters
 uniform float uAmplitude;      // Wave amplitude (default 0.07)
 uniform float uFrequency;      // Wave frequency (default 15.0)
 uniform float uDecay;          // How fast ripples fade (default 4.0)
 uniform float uSpeed;          // How fast ripples propagate (default 2.0)
+uniform float uRippleDuration; // Duration in seconds for each ripple
 uniform vec4 uBgColor;         // Background color (RGBA, default transparent)
 uniform sampler2D uTexture;
 
@@ -34,8 +35,11 @@ void main()
         delta.x *= aspect;
         float dist = length(delta);
 
+        // Convert 0-1 progress back to real time for wave propagation
+        float realTime = uTimes[i] * uRippleDuration;
+
         // Delay ripple based on distance from click point
-        float t = max(0.0, uTimes[i] - dist / uSpeed);
+        float t = max(0.0, realTime - dist / uSpeed);
 
         // Damped sinusoidal wave
         float rippleAmount = uAmplitude * sin(uFrequency * t) * exp(-uDecay * t);

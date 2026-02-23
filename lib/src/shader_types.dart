@@ -69,6 +69,15 @@ class SliderRange {
   const SliderRange(this.label, {required this.min, required this.max});
 }
 
+/// Converts a monotonically increasing value into a 0→1→0 ping-pong wave.
+///
+/// Useful for converting raw elapsed time (scaled by speed) into an
+/// oscillating progress value in `running` animation mode.
+double pingPong(double t) {
+  final mod = t % 2.0;
+  return mod <= 1.0 ? mod : 2.0 - mod;
+}
+
 /// A smudge gesture for interactive shaders (start → end drag).
 class ShaderSmudgeData {
   final Offset startPosition;

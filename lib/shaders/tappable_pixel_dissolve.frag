@@ -13,9 +13,7 @@ uniform float uPixelSize;     // size of each pixel block in screen pixels
 uniform float uEdgeWidth;     // dissolve transition zone width
 uniform float uScatter;       // scatter intensity (0 = no movement)
 uniform float uNoiseAmount;   // per-cell randomness in dissolve timing
-uniform float uSpeed;         // animation speed
 uniform float uRadius;        // radius of each tap dissolve
-uniform float uLifetime;      // total lifetime of a tap dissolve
 
 // Child texture
 uniform sampler2D uTexture;
@@ -83,15 +81,8 @@ void main() {
             for (int i = 0; i < 10; i++) {
                 if (i >= clickCount) break;
 
-                float tapTime = uTimes[i] * uSpeed;
-                float halfLife = uLifetime * 0.5;
-                float tapProgress;
-                if (tapTime < halfLife) {
-                    tapProgress = tapTime / halfLife;
-                } else {
-                    tapProgress = 1.0 - (tapTime - halfLife) / halfLife;
-                }
-                tapProgress = clamp(tapProgress, 0.0, 1.0);
+                // Per-tap progress is now 0-1, computed in Dart
+                float tapProgress = uTimes[i];
 
                 // Radial distance from this tap point (aspect-corrected)
                 vec2 origin = uTouchPoints[i] / uSize;
@@ -155,15 +146,8 @@ void main() {
         for (int i = 0; i < 10; i++) {
             if (i >= clickCount) break;
 
-            float tapTime = uTimes[i] * uSpeed;
-            float halfLife = uLifetime * 0.5;
-            float tapProgress;
-            if (tapTime < halfLife) {
-                tapProgress = tapTime / halfLife;
-            } else {
-                tapProgress = 1.0 - (tapTime - halfLife) / halfLife;
-            }
-            tapProgress = clamp(tapProgress, 0.0, 1.0);
+            // Per-tap progress is now 0-1, computed in Dart
+            float tapProgress = uTimes[i];
 
             vec2 origin = uTouchPoints[i] / uSize;
             vec2 delta = cellCenterUV - origin;

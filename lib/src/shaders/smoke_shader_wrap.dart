@@ -8,7 +8,10 @@ import 'package:material_palette/src/shader_definitions.dart';
 ///
 /// Animates a diagonal smoke that progressively makes the child transparent
 /// along an organic turbulence-noise edge with a smoky glow.
-/// The smoke ping-pongs automatically; [speed] controls how fast.
+///
+/// In `running` mode the [speed] param controls how fast the ping-pong
+/// animation runs. In `animation` mode the shader receives 0-1 progress
+/// directly from the provided [Animation].
 class SmokeShaderWrap extends StatelessWidget {
   SmokeShaderWrap({
     super.key,
@@ -33,10 +36,14 @@ class SmokeShaderWrap extends StatelessWidget {
     return ShaderWrap(
       shaderPath: 'packages/material_palette/shaders/smoke.frag',
       uniformsCallback: (uniforms, size, time) {
+        final progress = animationMode == ShaderAnimationMode.running
+            ? pingPong(time * params.get('speed'))
+            : time;
+
         final smokeColor = params.getColor('smokeColor');
         uniforms
           ..setSize(size)
-          ..setFloat(time)
+          ..setFloat(progress)
           ..setFloat(params.get('dirX'))
           ..setFloat(params.get('dirY'))
           ..setFloat(params.get('noiseScale'))
@@ -44,8 +51,7 @@ class SmokeShaderWrap extends StatelessWidget {
           ..setFloat(params.get('glowIntensity'))
           ..setFloat(smokeColor.r)
           ..setFloat(smokeColor.g)
-          ..setFloat(smokeColor.b)
-          ..setFloat(params.get('speed'));
+          ..setFloat(smokeColor.b);
       },
       animationMode: animationMode,
       animation: animation,
