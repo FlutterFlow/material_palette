@@ -110,6 +110,7 @@ class _TappableDemoPageState extends State<TappableDemoPage> {
   double _delaySec = 0.0;
   bool _reverse = true;
   bool _invert = false;
+  bool _persistTaps = false;
   double _rangeStart = 0.0;
   double _rangeEnd = 1.0;
 
@@ -174,6 +175,7 @@ class _TappableDemoPageState extends State<TappableDemoPage> {
           key: ValueKey('burn_$_shaderKey'),
           params: _currentParams,
           tapConfig: tapConfig,
+          persistTaps: _persistTaps,
           child: child,
         );
       case _TappableType.smoke:
@@ -181,6 +183,7 @@ class _TappableDemoPageState extends State<TappableDemoPage> {
           key: ValueKey('smoke_$_shaderKey'),
           params: _currentParams,
           tapConfig: tapConfig,
+          persistTaps: _persistTaps,
           child: child,
         );
       case _TappableType.pixelDissolve:
@@ -188,6 +191,7 @@ class _TappableDemoPageState extends State<TappableDemoPage> {
           key: ValueKey('pixel_$_shaderKey'),
           params: _currentParams,
           tapConfig: tapConfig,
+          persistTaps: _persistTaps,
           child: child,
         );
     }
@@ -324,6 +328,20 @@ class _TappableDemoPageState extends State<TappableDemoPage> {
                       contentPadding: EdgeInsets.zero,
                       onChanged: (v) {
                         _invert = v;
+                        _rebuild();
+                      },
+                    ),
+                    SwitchListTile(
+                      title: const Text('Persist taps',
+                          style: TextStyle(fontSize: 13)),
+                      subtitle: const Text(
+                          'Keep taps until buffer wraps',
+                          style: TextStyle(fontSize: 11, color: Colors.white54)),
+                      value: _persistTaps,
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (v) {
+                        _persistTaps = v;
                         _rebuild();
                       },
                     ),

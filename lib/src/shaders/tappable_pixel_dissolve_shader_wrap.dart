@@ -26,6 +26,7 @@ class TappablePixelDissolveShaderWrap extends StatefulWidget {
     this.tapConfig,
     this.cache = false,
     this.interactive = true,
+    this.persistTaps = false,
     this.touchPoints,
   }) : params = params ?? tappablePixelDissolveShaderDef.defaults;
 
@@ -41,6 +42,11 @@ class TappablePixelDissolveShaderWrap extends StatefulWidget {
   final ShaderAnimationConfig? tapConfig;
   final bool cache;
   final bool interactive;
+
+  /// When false (default), expired taps are automatically removed after their
+  /// animation completes. When true, taps persist until displaced by new taps
+  /// filling the circular buffer ([maxClicks]).
+  final bool persistTaps;
   final List<ShaderTouchPoint>? touchPoints;
 
   static const int maxClicks = 10;
@@ -68,21 +74,37 @@ class _TappablePixelDissolveShaderWrapState
         _clicks.removeAt(0);
       }
     });
+    if (!widget.persistTaps) {
+      _scheduleCleanup();
+    }
   }
 
-  void _removeExpiredClicks() {
+  double _tapLifetimeSec() {
     final config = widget.tapConfig;
-    final double lifetimeSec;
     if (config != null) {
       final delaySec = config.delay.inMicroseconds / 1e6;
       final durationSec = config.duration.inMicroseconds / 1e6;
-      lifetimeSec = delaySec + (config.reverse ? durationSec * 2 : durationSec);
+      return delaySec + (config.reverse ? durationSec * 2 : durationSec);
     } else {
       final speed = widget.params.get('speed');
       final lifetime = widget.params.get('lifetime');
-      lifetimeSec = lifetime / speed;
+      return lifetime / speed;
     }
+  }
+
+  void _removeExpiredClicks() {
+    if (widget.persistTaps) return;
+    final lifetimeSec = _tapLifetimeSec();
     _clicks.removeWhere((click) => click.elapsed > lifetimeSec);
+  }
+
+  void _scheduleCleanup() {
+    final delayMs = (_tapLifetimeSec() * 1000).ceil() + 50;
+    Future.delayed(Duration(milliseconds: delayMs), () {
+      if (mounted) {
+        setState(() => _removeExpiredClicks());
+      }
+    });
   }
 
   /// Computes per-tap progress using [tapConfig] when available,

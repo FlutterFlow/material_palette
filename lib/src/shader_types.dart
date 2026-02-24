@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 
 /// Controls how a shader widget drives its time uniform.
 enum ShaderAnimationMode {
-  /// The shader is set directly to [time] passed to the widget.
-  /// No internal ticker is created.
+  /// The shader animation is set based on the value of [time] passed to the widget.
+  /// No internal ticker is created and the shader is not animated unless the widget is rebuilt.
   implicit,
 
-  /// The shader animation runs continuously via an internal ticker.
+  /// The shader animation runs continuously via an internal ticker without rebuilding the widget.
   /// Interactive shaders (pointer-driven) require this mode.
   continuous,
 
-  /// An exact animation behavior runs via a [ShaderAnimationConfig].
+  /// An exact animation behavior runs based on the settings passed as a [ShaderAnimationConfig]
+  /// without rebuilding the widget.
   explicit,
 }
 

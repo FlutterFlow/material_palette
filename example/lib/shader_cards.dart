@@ -99,6 +99,64 @@ class PresetGenerator {
   }
 }
 
+// ============ ANIMATION CURVE ENTRIES ============
+
+class _CurveEntry {
+  final String name;
+  final Curve curve;
+  const _CurveEntry(this.name, this.curve);
+}
+
+const _kCurveEntries = <_CurveEntry>[
+  _CurveEntry('linear', Curves.linear),
+  _CurveEntry('easeIn', Curves.easeIn),
+  _CurveEntry('easeInOut', Curves.easeInOut),
+  _CurveEntry('easeOut', Curves.easeOut),
+  _CurveEntry('bounce', Curves.bounceOut),
+  _CurveEntry('elastic', Curves.elasticInOut),
+];
+
+Widget _buildCurveChips({
+  required int selectedIndex,
+  required ValueChanged<int> onChanged,
+}) {
+  return Wrap(
+    spacing: 4,
+    runSpacing: 4,
+    children: List.generate(_kCurveEntries.length, (i) {
+      return ChoiceChip(
+        label: Text(_kCurveEntries[i].name, style: const TextStyle(fontSize: 10)),
+        selected: i == selectedIndex,
+        onSelected: (_) => onChanged(i),
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      );
+    }),
+  );
+}
+
+ShaderAnimationConfig _buildAnimConfig({
+  required int curveIndex,
+  required double durationSec,
+  required double delaySec,
+  required bool loop,
+  required bool reverse,
+  required bool invert,
+  required double rangeStart,
+  required double rangeEnd,
+}) {
+  return ShaderAnimationConfig(
+    curve: _kCurveEntries[curveIndex].curve,
+    duration: Duration(milliseconds: (durationSec * 1000).round()),
+    delay: Duration(milliseconds: (delaySec * 1000).round()),
+    loop: loop,
+    reverse: reverse,
+    invert: invert,
+    rangeStart: rangeStart,
+    rangeEnd: rangeEnd,
+  );
+}
+
 // ============ SHADER CARD WIDGET ============
 
 /// Main shader card widget that displays shader preview with title and description
@@ -1958,8 +2016,20 @@ class BurnShaderCard extends StatefulWidget {
 class _BurnShaderCardState extends State<BurnShaderCard> {
   ShaderParams _params = burnShaderDef.defaults;
   bool _showControls = false;
+  bool _useExplicit = false;
+  int _curveIndex = 2;
+  double _durationSec = 3.0;
+  double _delaySec = 0.0;
+  bool _loop = true;
+  bool _reverse = true;
+  bool _invert = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _animKey = 0;
 
   ShaderUIDefaults get _ui => burnShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _animKey++);
 
   @override
   Widget build(BuildContext context) {
@@ -1972,13 +2042,18 @@ class _BurnShaderCardState extends State<BurnShaderCard> {
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: BurnShaderWrap(
-            params: _params,
-            child: Image.asset(
-              ShaderImageAssets.burn,
-              fit: BoxFit.cover,
-              width: dimensions.width,
-              height: dimensions.height,
+          child: KeyedSubtree(
+            key: ValueKey('burn_$_animKey'),
+            child: BurnShaderWrap(
+              params: _params,
+              animationMode: _useExplicit ? ShaderAnimationMode.explicit : ShaderAnimationMode.continuous,
+              animationConfig: _useExplicit ? _buildAnimConfig(curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec, loop: _loop, reverse: _reverse, invert: _invert, rangeStart: _rangeStart, rangeEnd: _rangeEnd) : null,
+              child: Image.asset(
+                ShaderImageAssets.burn,
+                fit: BoxFit.cover,
+                width: dimensions.width,
+                height: dimensions.height,
+              ),
             ),
           ),
         ),
@@ -2001,8 +2076,22 @@ class _BurnShaderCardState extends State<BurnShaderCard> {
             ControlSlider.fromRange(range: _ui['glowIntensity']!, value: _params.get('glowIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('glowIntensity', v))),
             ControlColorPicker(label: 'Fire Color', color: _params.getColor('fireColor'), onChanged: (c) => setState(() => _params = _params.withColor('fireColor', c))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            const ControlSectionTitle('Animation'),
+            ControlSegmentedButton<bool>(label: 'Mode', value: _useExplicit, options: const [(false, 'Continuous'), (true, 'Explicit')], onChanged: (v) { _useExplicit = v; _rebuild(); }),
+            if (!_useExplicit)
+              ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            if (_useExplicit) ...[
+              const SizedBox(height: 8),
+              _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+              const SizedBox(height: 8),
+              ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.5, max: 10.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+              ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 3.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Loop', style: TextStyle(fontSize: 12)), value: _loop, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _loop = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+              ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+              ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+            ],
           ],
         ),
       ],
@@ -2024,8 +2113,20 @@ class RadialBurnShaderCard extends StatefulWidget {
 class _RadialBurnShaderCardState extends State<RadialBurnShaderCard> {
   ShaderParams _params = radialBurnShaderDef.defaults;
   bool _showControls = false;
+  bool _useExplicit = false;
+  int _curveIndex = 2;
+  double _durationSec = 3.0;
+  double _delaySec = 0.0;
+  bool _loop = true;
+  bool _reverse = true;
+  bool _invert = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _animKey = 0;
 
   ShaderUIDefaults get _ui => radialBurnShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _animKey++);
 
   @override
   Widget build(BuildContext context) {
@@ -2038,13 +2139,18 @@ class _RadialBurnShaderCardState extends State<RadialBurnShaderCard> {
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: RadialBurnShaderWrap(
-            params: _params,
-            child: Image.asset(
-              ShaderImageAssets.radialBurn,
-              fit: BoxFit.cover,
-              width: dimensions.width,
-              height: dimensions.height,
+          child: KeyedSubtree(
+            key: ValueKey('radialBurn_$_animKey'),
+            child: RadialBurnShaderWrap(
+              params: _params,
+              animationMode: _useExplicit ? ShaderAnimationMode.explicit : ShaderAnimationMode.continuous,
+              animationConfig: _useExplicit ? _buildAnimConfig(curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec, loop: _loop, reverse: _reverse, invert: _invert, rangeStart: _rangeStart, rangeEnd: _rangeEnd) : null,
+              child: Image.asset(
+                ShaderImageAssets.radialBurn,
+                fit: BoxFit.cover,
+                width: dimensions.width,
+                height: dimensions.height,
+              ),
             ),
           ),
         ),
@@ -2068,8 +2174,22 @@ class _RadialBurnShaderCardState extends State<RadialBurnShaderCard> {
             ControlSlider.fromRange(range: _ui['glowIntensity']!, value: _params.get('glowIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('glowIntensity', v))),
             ControlColorPicker(label: 'Fire Color', color: _params.getColor('fireColor'), onChanged: (c) => setState(() => _params = _params.withColor('fireColor', c))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            const ControlSectionTitle('Animation'),
+            ControlSegmentedButton<bool>(label: 'Mode', value: _useExplicit, options: const [(false, 'Continuous'), (true, 'Explicit')], onChanged: (v) { _useExplicit = v; _rebuild(); }),
+            if (!_useExplicit)
+              ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            if (_useExplicit) ...[
+              const SizedBox(height: 8),
+              _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+              const SizedBox(height: 8),
+              ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.5, max: 10.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+              ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 3.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Loop', style: TextStyle(fontSize: 12)), value: _loop, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _loop = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+              ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+              ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+            ],
           ],
         ),
       ],
@@ -2091,8 +2211,25 @@ class TappableBurnShaderCard extends StatefulWidget {
 class _TappableBurnShaderCardState extends State<TappableBurnShaderCard> {
   ShaderParams _params = tappableBurnShaderDef.defaults;
   bool _showControls = false;
+  int _curveIndex = 0;
+  double _durationSec = 1.5;
+  double _delaySec = 0.0;
+  bool _reverse = true;
+  bool _invert = false;
+  bool _persistTaps = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _tapKey = 0;
 
   ShaderUIDefaults get _ui => tappableBurnShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _tapKey++);
+
+  ShaderAnimationConfig _buildTapConfig() => _buildAnimConfig(
+    curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec,
+    loop: false, reverse: _reverse, invert: _invert,
+    rangeStart: _rangeStart, rangeEnd: _rangeEnd,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -2106,7 +2243,10 @@ class _TappableBurnShaderCardState extends State<TappableBurnShaderCard> {
           width: dimensions.width,
           height: dimensions.height,
           child: TappableBurnShaderWrap(
+            key: ValueKey('tapBurn_$_tapKey'),
             params: _params,
+            tapConfig: _buildTapConfig(),
+            persistTaps: _persistTaps,
             child: Image.asset(
               ShaderImageAssets.tapBurn,
               fit: BoxFit.cover,
@@ -2130,10 +2270,17 @@ class _TappableBurnShaderCardState extends State<TappableBurnShaderCard> {
             ControlSlider.fromRange(range: _ui['glowIntensity']!, value: _params.get('glowIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('glowIntensity', v))),
             ControlColorPicker(label: 'Fire Color', color: _params.getColor('fireColor'), onChanged: (c) => setState(() => _params = _params.withColor('fireColor', c))),
             ControlSlider.fromRange(range: _ui['burnRadius']!, value: _params.get('burnRadius'), onChanged: (v) => setState(() => _params = _params.withValue('burnRadius', v))),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['burnLifetime']!, value: _params.get('burnLifetime'), onChanged: (v) => setState(() => _params = _params.withValue('burnLifetime', v))),
+            const ControlSectionTitle('Tap Animation'),
+            _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+            const SizedBox(height: 8),
+            ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.2, max: 5.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+            ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 2.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Persist taps', style: TextStyle(fontSize: 12)), value: _persistTaps, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _persistTaps = v; _rebuild(); }),
+            ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+            ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
           ],
         ),
       ],
@@ -2155,8 +2302,20 @@ class SmokeShaderCard extends StatefulWidget {
 class _SmokeShaderCardState extends State<SmokeShaderCard> {
   ShaderParams _params = smokeShaderDef.defaults;
   bool _showControls = false;
+  bool _useExplicit = false;
+  int _curveIndex = 2;
+  double _durationSec = 3.0;
+  double _delaySec = 0.0;
+  bool _loop = true;
+  bool _reverse = true;
+  bool _invert = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _animKey = 0;
 
   ShaderUIDefaults get _ui => smokeShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _animKey++);
 
   @override
   Widget build(BuildContext context) {
@@ -2169,13 +2328,18 @@ class _SmokeShaderCardState extends State<SmokeShaderCard> {
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: SmokeShaderWrap(
-            params: _params,
-            child: Image.asset(
-              ShaderImageAssets.smoke,
-              fit: BoxFit.cover,
-              width: dimensions.width,
-              height: dimensions.height,
+          child: KeyedSubtree(
+            key: ValueKey('smoke_$_animKey'),
+            child: SmokeShaderWrap(
+              params: _params,
+              animationMode: _useExplicit ? ShaderAnimationMode.explicit : ShaderAnimationMode.continuous,
+              animationConfig: _useExplicit ? _buildAnimConfig(curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec, loop: _loop, reverse: _reverse, invert: _invert, rangeStart: _rangeStart, rangeEnd: _rangeEnd) : null,
+              child: Image.asset(
+                ShaderImageAssets.smoke,
+                fit: BoxFit.cover,
+                width: dimensions.width,
+                height: dimensions.height,
+              ),
             ),
           ),
         ),
@@ -2198,8 +2362,22 @@ class _SmokeShaderCardState extends State<SmokeShaderCard> {
             ControlSlider.fromRange(range: _ui['glowIntensity']!, value: _params.get('glowIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('glowIntensity', v))),
             ControlColorPicker(label: 'Smoke Color', color: _params.getColor('smokeColor'), onChanged: (c) => setState(() => _params = _params.withColor('smokeColor', c))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            const ControlSectionTitle('Animation'),
+            ControlSegmentedButton<bool>(label: 'Mode', value: _useExplicit, options: const [(false, 'Continuous'), (true, 'Explicit')], onChanged: (v) { _useExplicit = v; _rebuild(); }),
+            if (!_useExplicit)
+              ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            if (_useExplicit) ...[
+              const SizedBox(height: 8),
+              _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+              const SizedBox(height: 8),
+              ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.5, max: 10.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+              ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 3.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Loop', style: TextStyle(fontSize: 12)), value: _loop, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _loop = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+              ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+              ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+            ],
           ],
         ),
       ],
@@ -2221,8 +2399,20 @@ class RadialSmokeShaderCard extends StatefulWidget {
 class _RadialSmokeShaderCardState extends State<RadialSmokeShaderCard> {
   ShaderParams _params = radialSmokeShaderDef.defaults;
   bool _showControls = false;
+  bool _useExplicit = false;
+  int _curveIndex = 2;
+  double _durationSec = 3.0;
+  double _delaySec = 0.0;
+  bool _loop = true;
+  bool _reverse = true;
+  bool _invert = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _animKey = 0;
 
   ShaderUIDefaults get _ui => radialSmokeShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _animKey++);
 
   @override
   Widget build(BuildContext context) {
@@ -2235,13 +2425,18 @@ class _RadialSmokeShaderCardState extends State<RadialSmokeShaderCard> {
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: RadialSmokeShaderWrap(
-            params: _params,
-            child: Image.asset(
-              ShaderImageAssets.radialSmoke,
-              fit: BoxFit.cover,
-              width: dimensions.width,
-              height: dimensions.height,
+          child: KeyedSubtree(
+            key: ValueKey('radialSmoke_$_animKey'),
+            child: RadialSmokeShaderWrap(
+              params: _params,
+              animationMode: _useExplicit ? ShaderAnimationMode.explicit : ShaderAnimationMode.continuous,
+              animationConfig: _useExplicit ? _buildAnimConfig(curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec, loop: _loop, reverse: _reverse, invert: _invert, rangeStart: _rangeStart, rangeEnd: _rangeEnd) : null,
+              child: Image.asset(
+                ShaderImageAssets.radialSmoke,
+                fit: BoxFit.cover,
+                width: dimensions.width,
+                height: dimensions.height,
+              ),
             ),
           ),
         ),
@@ -2265,8 +2460,22 @@ class _RadialSmokeShaderCardState extends State<RadialSmokeShaderCard> {
             ControlSlider.fromRange(range: _ui['glowIntensity']!, value: _params.get('glowIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('glowIntensity', v))),
             ControlColorPicker(label: 'Smoke Color', color: _params.getColor('smokeColor'), onChanged: (c) => setState(() => _params = _params.withColor('smokeColor', c))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            const ControlSectionTitle('Animation'),
+            ControlSegmentedButton<bool>(label: 'Mode', value: _useExplicit, options: const [(false, 'Continuous'), (true, 'Explicit')], onChanged: (v) { _useExplicit = v; _rebuild(); }),
+            if (!_useExplicit)
+              ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            if (_useExplicit) ...[
+              const SizedBox(height: 8),
+              _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+              const SizedBox(height: 8),
+              ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.5, max: 10.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+              ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 3.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Loop', style: TextStyle(fontSize: 12)), value: _loop, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _loop = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+              ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+              ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+            ],
           ],
         ),
       ],
@@ -2288,8 +2497,25 @@ class TappableSmokeShaderCard extends StatefulWidget {
 class _TappableSmokeShaderCardState extends State<TappableSmokeShaderCard> {
   ShaderParams _params = tappableSmokeShaderDef.defaults;
   bool _showControls = false;
+  int _curveIndex = 0;
+  double _durationSec = 1.5;
+  double _delaySec = 0.0;
+  bool _reverse = true;
+  bool _invert = false;
+  bool _persistTaps = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _tapKey = 0;
 
   ShaderUIDefaults get _ui => tappableSmokeShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _tapKey++);
+
+  ShaderAnimationConfig _buildTapConfig() => _buildAnimConfig(
+    curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec,
+    loop: false, reverse: _reverse, invert: _invert,
+    rangeStart: _rangeStart, rangeEnd: _rangeEnd,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -2303,7 +2529,10 @@ class _TappableSmokeShaderCardState extends State<TappableSmokeShaderCard> {
           width: dimensions.width,
           height: dimensions.height,
           child: TappableSmokeShaderWrap(
+            key: ValueKey('tapSmoke_$_tapKey'),
             params: _params,
+            tapConfig: _buildTapConfig(),
+            persistTaps: _persistTaps,
             child: Image.asset(
               ShaderImageAssets.tapSmoke,
               fit: BoxFit.cover,
@@ -2327,10 +2556,17 @@ class _TappableSmokeShaderCardState extends State<TappableSmokeShaderCard> {
             ControlSlider.fromRange(range: _ui['glowIntensity']!, value: _params.get('glowIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('glowIntensity', v))),
             ControlColorPicker(label: 'Smoke Color', color: _params.getColor('smokeColor'), onChanged: (c) => setState(() => _params = _params.withColor('smokeColor', c))),
             ControlSlider.fromRange(range: _ui['burnRadius']!, value: _params.get('burnRadius'), onChanged: (v) => setState(() => _params = _params.withValue('burnRadius', v))),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['burnLifetime']!, value: _params.get('burnLifetime'), onChanged: (v) => setState(() => _params = _params.withValue('burnLifetime', v))),
+            const ControlSectionTitle('Tap Animation'),
+            _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+            const SizedBox(height: 8),
+            ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.2, max: 5.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+            ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 2.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Persist taps', style: TextStyle(fontSize: 12)), value: _persistTaps, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _persistTaps = v; _rebuild(); }),
+            ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+            ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
           ],
         ),
       ],
@@ -2352,8 +2588,20 @@ class PixelDissolveShaderCard extends StatefulWidget {
 class _PixelDissolveShaderCardState extends State<PixelDissolveShaderCard> {
   ShaderParams _params = pixelDissolveShaderDef.defaults;
   bool _showControls = false;
+  bool _useExplicit = false;
+  int _curveIndex = 2;
+  double _durationSec = 3.0;
+  double _delaySec = 0.0;
+  bool _loop = true;
+  bool _reverse = true;
+  bool _invert = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _animKey = 0;
 
   ShaderUIDefaults get _ui => pixelDissolveShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _animKey++);
 
   @override
   Widget build(BuildContext context) {
@@ -2366,13 +2614,18 @@ class _PixelDissolveShaderCardState extends State<PixelDissolveShaderCard> {
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: PixelDissolveShaderWrap(
-            params: _params,
-            child: Image.asset(
-              ShaderImageAssets.pixelDissolve,
-              fit: BoxFit.cover,
-              width: dimensions.width,
-              height: dimensions.height,
+          child: KeyedSubtree(
+            key: ValueKey('pixelDissolve_$_animKey'),
+            child: PixelDissolveShaderWrap(
+              params: _params,
+              animationMode: _useExplicit ? ShaderAnimationMode.explicit : ShaderAnimationMode.continuous,
+              animationConfig: _useExplicit ? _buildAnimConfig(curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec, loop: _loop, reverse: _reverse, invert: _invert, rangeStart: _rangeStart, rangeEnd: _rangeEnd) : null,
+              child: Image.asset(
+                ShaderImageAssets.pixelDissolve,
+                fit: BoxFit.cover,
+                width: dimensions.width,
+                height: dimensions.height,
+              ),
             ),
           ),
         ),
@@ -2395,8 +2648,22 @@ class _PixelDissolveShaderCardState extends State<PixelDissolveShaderCard> {
             ControlSlider.fromRange(range: _ui['scatter']!, value: _params.get('scatter'), onChanged: (v) => setState(() => _params = _params.withValue('scatter', v))),
             ControlSlider.fromRange(range: _ui['noiseAmount']!, value: _params.get('noiseAmount'), onChanged: (v) => setState(() => _params = _params.withValue('noiseAmount', v))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            const ControlSectionTitle('Animation'),
+            ControlSegmentedButton<bool>(label: 'Mode', value: _useExplicit, options: const [(false, 'Continuous'), (true, 'Explicit')], onChanged: (v) { _useExplicit = v; _rebuild(); }),
+            if (!_useExplicit)
+              ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            if (_useExplicit) ...[
+              const SizedBox(height: 8),
+              _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+              const SizedBox(height: 8),
+              ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.5, max: 10.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+              ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 3.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Loop', style: TextStyle(fontSize: 12)), value: _loop, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _loop = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+              ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+              ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+            ],
           ],
         ),
       ],
@@ -2418,8 +2685,20 @@ class RadialPixelDissolveShaderCard extends StatefulWidget {
 class _RadialPixelDissolveShaderCardState extends State<RadialPixelDissolveShaderCard> {
   ShaderParams _params = radialPixelDissolveShaderDef.defaults;
   bool _showControls = false;
+  bool _useExplicit = false;
+  int _curveIndex = 2;
+  double _durationSec = 3.0;
+  double _delaySec = 0.0;
+  bool _loop = true;
+  bool _reverse = true;
+  bool _invert = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _animKey = 0;
 
   ShaderUIDefaults get _ui => radialPixelDissolveShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _animKey++);
 
   @override
   Widget build(BuildContext context) {
@@ -2432,13 +2711,18 @@ class _RadialPixelDissolveShaderCardState extends State<RadialPixelDissolveShade
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: RadialPixelDissolveShaderWrap(
-            params: _params,
-            child: Image.asset(
-              ShaderImageAssets.radialPixelDissolve,
-              fit: BoxFit.cover,
-              width: dimensions.width,
-              height: dimensions.height,
+          child: KeyedSubtree(
+            key: ValueKey('radialPixelDissolve_$_animKey'),
+            child: RadialPixelDissolveShaderWrap(
+              params: _params,
+              animationMode: _useExplicit ? ShaderAnimationMode.explicit : ShaderAnimationMode.continuous,
+              animationConfig: _useExplicit ? _buildAnimConfig(curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec, loop: _loop, reverse: _reverse, invert: _invert, rangeStart: _rangeStart, rangeEnd: _rangeEnd) : null,
+              child: Image.asset(
+                ShaderImageAssets.radialPixelDissolve,
+                fit: BoxFit.cover,
+                width: dimensions.width,
+                height: dimensions.height,
+              ),
             ),
           ),
         ),
@@ -2462,8 +2746,22 @@ class _RadialPixelDissolveShaderCardState extends State<RadialPixelDissolveShade
             ControlSlider.fromRange(range: _ui['scatter']!, value: _params.get('scatter'), onChanged: (v) => setState(() => _params = _params.withValue('scatter', v))),
             ControlSlider.fromRange(range: _ui['noiseAmount']!, value: _params.get('noiseAmount'), onChanged: (v) => setState(() => _params = _params.withValue('noiseAmount', v))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            const ControlSectionTitle('Animation'),
+            ControlSegmentedButton<bool>(label: 'Mode', value: _useExplicit, options: const [(false, 'Continuous'), (true, 'Explicit')], onChanged: (v) { _useExplicit = v; _rebuild(); }),
+            if (!_useExplicit)
+              ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
+            if (_useExplicit) ...[
+              const SizedBox(height: 8),
+              _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+              const SizedBox(height: 8),
+              ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.5, max: 10.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+              ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 3.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Loop', style: TextStyle(fontSize: 12)), value: _loop, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _loop = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+              SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+              ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+              ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+            ],
           ],
         ),
       ],
@@ -2485,8 +2783,25 @@ class TappablePixelDissolveShaderCard extends StatefulWidget {
 class _TappablePixelDissolveShaderCardState extends State<TappablePixelDissolveShaderCard> {
   ShaderParams _params = tappablePixelDissolveShaderDef.defaults;
   bool _showControls = false;
+  int _curveIndex = 0;
+  double _durationSec = 1.5;
+  double _delaySec = 0.0;
+  bool _reverse = true;
+  bool _invert = false;
+  bool _persistTaps = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _tapKey = 0;
 
   ShaderUIDefaults get _ui => tappablePixelDissolveShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _tapKey++);
+
+  ShaderAnimationConfig _buildTapConfig() => _buildAnimConfig(
+    curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec,
+    loop: false, reverse: _reverse, invert: _invert,
+    rangeStart: _rangeStart, rangeEnd: _rangeEnd,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -2500,7 +2815,10 @@ class _TappablePixelDissolveShaderCardState extends State<TappablePixelDissolveS
           width: dimensions.width,
           height: dimensions.height,
           child: TappablePixelDissolveShaderWrap(
+            key: ValueKey('tapPixel_$_tapKey'),
             params: _params,
+            tapConfig: _buildTapConfig(),
+            persistTaps: _persistTaps,
             child: Image.asset(
               ShaderImageAssets.tapPixelDissolve,
               fit: BoxFit.cover,
@@ -2524,10 +2842,17 @@ class _TappablePixelDissolveShaderCardState extends State<TappablePixelDissolveS
             ControlSlider.fromRange(range: _ui['scatter']!, value: _params.get('scatter'), onChanged: (v) => setState(() => _params = _params.withValue('scatter', v))),
             ControlSlider.fromRange(range: _ui['noiseAmount']!, value: _params.get('noiseAmount'), onChanged: (v) => setState(() => _params = _params.withValue('noiseAmount', v))),
             ControlSlider.fromRange(range: _ui['radius']!, value: _params.get('radius'), onChanged: (v) => setState(() => _params = _params.withValue('radius', v))),
-            ControlSlider.fromRange(range: _ui['speed']!, value: _params.get('speed'), onChanged: (v) => setState(() => _params = _params.withValue('speed', v))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Timing'),
-            ControlSlider.fromRange(range: _ui['lifetime']!, value: _params.get('lifetime'), onChanged: (v) => setState(() => _params = _params.withValue('lifetime', v))),
+            const ControlSectionTitle('Tap Animation'),
+            _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+            const SizedBox(height: 8),
+            ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.2, max: 5.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+            ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 2.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Persist taps', style: TextStyle(fontSize: 12)), value: _persistTaps, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _persistTaps = v; _rebuild(); }),
+            ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+            ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
           ],
         ),
       ],
