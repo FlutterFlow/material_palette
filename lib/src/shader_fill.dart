@@ -28,6 +28,9 @@ class ShaderFill extends StatefulWidget {
     required this.uniformsCallback,
     this.backgroundColor = Colors.transparent,
     this.onPointerDown,
+    this.onPointerMove,
+    this.onPointerUp,
+    this.onPointerCancel,
     this.animationMode = ShaderAnimationMode.continuous,
     this.time = 0,
     this.animationConfig,
@@ -42,6 +45,9 @@ class ShaderFill extends StatefulWidget {
 
   /// Optional pointer down callback for interactive shaders.
   final void Function(PointerDownEvent event)? onPointerDown;
+  final void Function(PointerMoveEvent event)? onPointerMove;
+  final void Function(PointerUpEvent event)? onPointerUp;
+  final void Function(PointerCancelEvent event)? onPointerCancel;
 
   /// Controls how time is driven. Defaults to [ShaderAnimationMode.continuous].
   final ShaderAnimationMode animationMode;
@@ -215,9 +221,15 @@ class _ShaderFillState extends State<ShaderFill>
       shaderWidget = RepaintBoundary(child: shaderWidget);
     }
 
-    if (widget.onPointerDown != null) {
+    if (widget.onPointerDown != null ||
+        widget.onPointerMove != null ||
+        widget.onPointerUp != null ||
+        widget.onPointerCancel != null) {
       shaderWidget = Listener(
         onPointerDown: widget.onPointerDown,
+        onPointerMove: widget.onPointerMove,
+        onPointerUp: widget.onPointerUp,
+        onPointerCancel: widget.onPointerCancel,
         child: shaderWidget,
       );
     }

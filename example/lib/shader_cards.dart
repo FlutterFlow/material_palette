@@ -495,11 +495,17 @@ class _MarbleSmearShaderCardState extends State<MarbleSmearShaderCard> {
             ControlSlider.fromRange(range: _ui['animAmpWarp']!, value: _params.get('animAmpWarp'), onChanged: (v) => setState(() => _params = _params.withValue('animAmpWarp', v))),
             const SizedBox(height: 12),
             const ControlSectionTitle('Color Palette'),
-            ControlColorPicker(label: 'Cream', color: _params.getColor('colorCream'), onChanged: (c) => setState(() => _params = _params.withColor('colorCream', c)), palette: ShaderColorPalette.marble),
-            ControlColorPicker(label: 'Tan', color: _params.getColor('colorTan'), onChanged: (c) => setState(() => _params = _params.withColor('colorTan', c)), palette: ShaderColorPalette.marble),
-            ControlColorPicker(label: 'Brown', color: _params.getColor('colorBrown'), onChanged: (c) => setState(() => _params = _params.withColor('colorBrown', c)), palette: ShaderColorPalette.marble),
-            ControlColorPicker(label: 'Teal', color: _params.getColor('colorTeal'), onChanged: (c) => setState(() => _params = _params.withColor('colorTeal', c)), palette: ShaderColorPalette.marble),
-            ControlColorPicker(label: 'Dark', color: _params.getColor('colorDark'), onChanged: (c) => setState(() => _params = _params.withColor('colorDark', c)), palette: ShaderColorPalette.marble),
+            ColorSchemeGeneratorWidget(
+              colorCount: 5,
+              initialColors: [
+                for (int i = 0; i < 5; i++) _params.getColor('color$i'),
+              ],
+              onColorsChanged: (colors) => setState(() {
+                for (int i = 0; i < colors.length; i++) {
+                  _params = _params.withColor('color$i', colors[i]);
+                }
+              }),
+            ),
             const SizedBox(height: 12),
             const ControlSectionTitle('Lighting'),
             ControlSlider.fromRange(range: _ui['lightDirX']!, value: _params.get('lightDirX'), onChanged: (v) => setState(() => _params = _params.withValue('lightDirX', v))),

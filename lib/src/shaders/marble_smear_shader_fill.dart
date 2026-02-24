@@ -148,28 +148,20 @@ class _MarbleSmearShaderFillState extends State<MarbleSmearShaderFill> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = ShaderFill(
+    return ShaderFill(
       width: widget.width,
       height: widget.height,
       shaderPath: 'packages/material_palette/shaders/marble_smear.frag',
       backgroundColor: widget.backgroundColor,
       uniformsCallback: _setUniforms,
+      onPointerDown: _isInternalInteraction ? _onPointerDown : null,
+      onPointerMove: _isInternalInteraction ? _onPointerMove : null,
+      onPointerUp: _isInternalInteraction ? _onPointerUp : null,
+      onPointerCancel: _isInternalInteraction ? _onPointerCancel : null,
       animationMode: widget.animationMode,
       time: widget.time,
       animationConfig: widget.animationConfig,
       cache: widget.cache,
     );
-
-    if (_isInternalInteraction) {
-      child = Listener(
-        onPointerDown: _onPointerDown,
-        onPointerMove: _onPointerMove,
-        onPointerUp: _onPointerUp,
-        onPointerCancel: _onPointerCancel,
-        child: child,
-      );
-    }
-
-    return child;
   }
 }

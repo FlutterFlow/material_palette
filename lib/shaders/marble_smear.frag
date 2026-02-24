@@ -29,11 +29,11 @@ uniform float uAnimAmpInput;
 uniform float uAnimAmpWarp;
 
 // Color palette uniforms (sRGB)
-uniform vec3 uColorCream;
-uniform vec3 uColorTan;
-uniform vec3 uColorBrown;
-uniform vec3 uColorTeal;
-uniform vec3 uColorDark;
+uniform vec3 uColor0; // cream / lightest vein
+uniform vec3 uColor1; // tan / mid-tone base
+uniform vec3 uColor2; // brown / dark base
+uniform vec3 uColor3; // teal / accent edge
+uniform vec3 uColor4; // dark / valley shadow
 
 // Lighting uniforms
 uniform vec3 uLightDir;
@@ -311,11 +311,11 @@ void main() {
     vec2 fragCoord = FlutterFragCoord().xy;
     
     // Convert palette to linear space
-    vec3 COLOR_CREAM = srgbToLinear(uColorCream);
-    vec3 COLOR_TAN = srgbToLinear(uColorTan);
-    vec3 COLOR_BROWN = srgbToLinear(uColorBrown);
-    vec3 COLOR_TEAL = srgbToLinear(uColorTeal);
-    vec3 COLOR_DARK = srgbToLinear(uColorDark);
+    vec3 COLOR_CREAM = srgbToLinear(uColor0);
+    vec3 COLOR_TAN = srgbToLinear(uColor1);
+    vec3 COLOR_BROWN = srgbToLinear(uColor2);
+    vec3 COLOR_TEAL = srgbToLinear(uColor3);
+    vec3 COLOR_DARK = srgbToLinear(uColor4);
     vec3 LIGHT_SKY_LIN = srgbToLinear(uLightSky);
     vec3 LIGHT_SUN_LIN = srgbToLinear(uLightSun);
 

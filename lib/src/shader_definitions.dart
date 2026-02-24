@@ -720,11 +720,11 @@ final marbleSmearShaderDef = ShaderDefinition(
     const UniformField('animSpeedWarpY'),
     const UniformField('animAmpInput'),
     const UniformField('animAmpWarp'),
-    const UniformField.color('colorCream'),
-    const UniformField.color('colorTan'),
-    const UniformField.color('colorBrown'),
-    const UniformField.color('colorTeal'),
-    const UniformField.color('colorDark'),
+    const UniformField.color('color0'), // cream / lightest vein
+    const UniformField.color('color1'), // tan / mid-tone base
+    const UniformField.color('color2'), // brown / dark base
+    const UniformField.color('color3'), // teal / accent edge
+    const UniformField.color('color4'), // dark / valley shadow
     const UniformField('lightDirX'),
     const UniformField('lightDirY'),
     const UniformField('lightDirZ'),
@@ -750,11 +750,11 @@ final marbleSmearShaderDef = ShaderDefinition(
     },
     colors: {
       'bgColor': const Color(0xFF202329),
-      'colorCream': const Color.fromRGBO(217, 212, 204, 1),
-      'colorTan': const Color.fromRGBO(140, 128, 115, 1),
-      'colorBrown': const Color.fromRGBO(77, 64, 56, 1),
-      'colorTeal': const Color.fromRGBO(89, 115, 133, 1),
-      'colorDark': const Color.fromRGBO(31, 36, 46, 1),
+      'color0': const Color.fromRGBO(217, 212, 204, 1), // cream
+      'color1': const Color.fromRGBO(140, 128, 115, 1), // tan
+      'color2': const Color.fromRGBO(77, 64, 56, 1),    // brown
+      'color3': const Color.fromRGBO(89, 115, 133, 1),  // teal
+      'color4': const Color.fromRGBO(31, 36, 46, 1),    // dark
       'lightSky': const Color.fromRGBO(255, 255, 255, 1),
       'lightSun': const Color.fromRGBO(38, 26, 13, 1),
     },
