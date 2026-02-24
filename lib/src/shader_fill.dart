@@ -90,7 +90,8 @@ class _ShaderFillState extends State<ShaderFill>
   void _onTick(Duration elapsed) {
     switch (widget.animationMode) {
       case ShaderAnimationMode.continuous:
-        _time.value = elapsed.inMilliseconds / 1000.0;
+        const rolloverMs = 24 * 60 * 60 * 1000; // 24 hours to avoid fp error accumulation
+        _time.value = (elapsed.inMilliseconds % rolloverMs) / 1000.0;
         break;
       case ShaderAnimationMode.explicit:
         _time.value =

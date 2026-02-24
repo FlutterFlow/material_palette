@@ -84,7 +84,8 @@ class _ShaderWrapState extends State<ShaderWrap>
   void _onTick(Duration elapsed) {
     switch (widget.animationMode) {
       case ShaderAnimationMode.continuous:
-        _time.value = elapsed.inMilliseconds.toDouble() / 1000;
+        const rolloverMs = 24 * 60 * 60 * 1000; // 24 hours to avoid fp error accumulation
+        _time.value = (elapsed.inMilliseconds % rolloverMs).toDouble() / 1000;
         break;
       case ShaderAnimationMode.explicit:
         _time.value =
