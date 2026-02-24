@@ -1,7 +1,7 @@
 name: material_palette
 description: >
   A collection of procedural material shader widgets for Flutter.
-version: 0.6.0
+version: 0.7.0
 homepage: https://br0nk.github.io/material_palette/
 repository: https://github.com/br0nk/material_palette
 issue_tracker: https://github.com/br0nk/material_palette/issues

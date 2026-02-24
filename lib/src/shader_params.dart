@@ -1,5 +1,6 @@
-import 'dart:ui' as ui show FragmentShader;
+import 'dart:ui' as ui show FragmentShader, lerpDouble;
 
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 import 'package:material_palette/src/shader_types.dart';
 
@@ -41,6 +42,37 @@ class ShaderParams {
     return ShaderParams(
       values: values != null ? {...this.values, ...values} : this.values,
       colors: colors != null ? {...this.colors, ...colors} : this.colors,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ShaderParams &&
+          mapEquals(values, other.values) &&
+          mapEquals(colors, other.colors);
+
+  @override
+  int get hashCode => Object.hash(
+        Object.hashAllUnordered(
+            values.entries.map((e) => Object.hash(e.key, e.value))),
+        Object.hashAllUnordered(
+            colors.entries.map((e) => Object.hash(e.key, e.value))),
+      );
+
+  /// Linearly interpolate between two [ShaderParams].
+  static ShaderParams lerp(ShaderParams a, ShaderParams b, double t) {
+    final allValueKeys = {...a.values.keys, ...b.values.keys};
+    final allColorKeys = {...a.colors.keys, ...b.colors.keys};
+    return ShaderParams(
+      values: {
+        for (final key in allValueKeys)
+          key: ui.lerpDouble(a.get(key), b.get(key), t)!,
+      },
+      colors: {
+        for (final key in allColorKeys)
+          key: Color.lerp(a.getColor(key), b.getColor(key), t)!,
+      },
     );
   }
 
@@ -371,4 +403,15 @@ abstract class ParamGroups {
   static const edgeFadeRanges = {
     'edgeFade': SliderRange('Edge Fade', min: 0.0, max: 3.0),
   };
+}
+
+// ── Tween ───────────────────────────────────────────────────────────────────
+
+/// A [Tween] that interpolates between two [ShaderParams] using
+/// [ShaderParams.lerp].
+class ShaderParamsTween extends Tween<ShaderParams> {
+  ShaderParamsTween({super.begin, super.end});
+
+  @override
+  ShaderParams lerp(double t) => ShaderParams.lerp(begin!, end!, t);
 }

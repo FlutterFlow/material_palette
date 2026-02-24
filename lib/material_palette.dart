@@ -1,6 +1,7 @@
 export 'package:material_palette/src/shader_types.dart';
 export 'package:material_palette/src/shader_animation.dart';
 export 'package:material_palette/src/shader_params.dart';
+export 'package:material_palette/src/animated_shader_params.dart';
 export 'package:material_palette/src/shader_fill.dart';
 export 'package:material_palette/src/shader_wrap.dart';
 export 'package:material_palette/src/shader_definitions.dart';
