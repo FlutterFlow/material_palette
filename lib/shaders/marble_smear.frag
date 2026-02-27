@@ -36,12 +36,13 @@ uniform vec3 uColor3; // teal / accent edge
 uniform vec3 uColor4; // dark / valley shadow
 
 // Lighting uniforms
-uniform vec3 uLightDir;
-uniform vec3 uLightSky;
-uniform vec3 uLightSun;
-uniform float uLightAmbient;
-uniform float uLightDiffuse;
 uniform float uLightIntensity;
+
+const vec3 LIGHT_DIR = vec3(0.89553, 0.19901, -0.39801);
+const float LIGHT_AMBIENT = 0.3;
+const float LIGHT_DIFFUSE = 0.7;
+const vec3 LIGHT_SKY_LIN = vec3(1.0, 1.0, 1.0);
+const vec3 LIGHT_SUN_LIN = vec3(0.01, 0.01, 0.01);
 
 // Smudge settings
 uniform float uSmudgeRadius;
@@ -311,13 +312,11 @@ void main() {
     vec2 fragCoord = FlutterFragCoord().xy;
     
     // Convert palette to linear space
-    vec3 COLOR_CREAM = srgbToLinear(uColor0);
-    vec3 COLOR_TAN = srgbToLinear(uColor1);
-    vec3 COLOR_BROWN = srgbToLinear(uColor2);
-    vec3 COLOR_TEAL = srgbToLinear(uColor3);
-    vec3 COLOR_DARK = srgbToLinear(uColor4);
-    vec3 LIGHT_SKY_LIN = srgbToLinear(uLightSky);
-    vec3 LIGHT_SUN_LIN = srgbToLinear(uLightSun);
+    vec3 COLOR_VEIN = srgbToLinear(uColor0);
+    vec3 COLOR_BASE_LIGHT = srgbToLinear(uColor1);
+    vec3 COLOR_BASE_DARK = srgbToLinear(uColor2);
+    vec3 COLOR_EDGE = srgbToLinear(uColor3);
+    vec3 COLOR_VALLEY = srgbToLinear(uColor4);
 
     // Normalized coordinates
     vec2 p = (2.0 * fragCoord - uSize) / uSize.y;
@@ -330,19 +329,15 @@ void main() {
     // ---- COLORING (in linear space) ----
     vec3 col = vec3(0.0);
 
-    // Base: blend from dark brown to tan based on pattern value
-    col = mix(COLOR_BROWN, COLOR_TAN, f);
+    col = mix(COLOR_BASE_DARK, COLOR_BASE_LIGHT, f);
 
-    // Add cream/white where second warp is strong (creates veins)
     float warp2Strength = dot(warpInfo.zw, warpInfo.zw);
-    col = mix(col, COLOR_CREAM, warp2Strength);
+    col = mix(col, COLOR_VEIN, warp2Strength);
 
-    // Add darker brown in valleys based on first warp y
-    col = mix(col, COLOR_DARK, 0.2 + 0.5 * warpInfo.y * warpInfo.y);
+    col = mix(col, COLOR_VALLEY, 0.2 + 0.5 * warpInfo.y * warpInfo.y);
 
-    // Add teal in high-warp edge regions
     float edgeFactor = abs(warpInfo.z) + abs(warpInfo.w);
-    col = mix(col, COLOR_TEAL, 0.5 * smoothstep(1.2, 1.3, edgeFactor));
+    col = mix(col, COLOR_EDGE, 0.5 * smoothstep(1.2, 1.3, edgeFactor));
 
     // Modulate by pattern value
     col = clamp(col * f * 2.0, 0.0, 1.0);
@@ -356,8 +351,7 @@ void main() {
     ));
 
     // Directional lighting
-    vec3 lightDir = normalize(uLightDir);
-    float diffuse = clamp(uLightAmbient + uLightDiffuse * dot(normal, lightDir), 0.0, 1.0);
+    float diffuse = clamp(LIGHT_AMBIENT + LIGHT_DIFFUSE * dot(normal, LIGHT_DIR), 0.0, 1.0);
 
     // Combine sky (hemisphere) and sun (directional) lighting
     vec3 lighting = LIGHT_SKY_LIN * (normal.y * 0.5 + 0.5) + LIGHT_SUN_LIN * diffuse;

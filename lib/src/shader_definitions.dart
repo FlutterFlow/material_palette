@@ -725,13 +725,6 @@ final marbleSmearShaderDef = ShaderDefinition(
     const UniformField.color('color2'), // brown / dark base
     const UniformField.color('color3'), // teal / accent edge
     const UniformField.color('color4'), // dark / valley shadow
-    const UniformField('lightDirX'),
-    const UniformField('lightDirY'),
-    const UniformField('lightDirZ'),
-    const UniformField.color('lightSky'),
-    const UniformField.color('lightSun'),
-    const UniformField('lightAmbient'),
-    const UniformField('lightDiffuse'),
     const UniformField('lightIntensity'),
     const UniformField('smudgeRadius'),
     const UniformField('smudgeStrength'),
@@ -744,8 +737,7 @@ final marbleSmearShaderDef = ShaderDefinition(
       'animSpeedInputX': 0.27, 'animSpeedInputY': 0.23,
       'animSpeedWarpX': 0.12, 'animSpeedWarpY': 0.14,
       'animAmpInput': 0.02, 'animAmpWarp': 0.02,
-      'lightDirX': 0.9, 'lightDirY': 0.2, 'lightDirZ': -0.4,
-      'lightAmbient': 0.3, 'lightDiffuse': 0.7, 'lightIntensity': 1.0,
+      'lightIntensity': 1.0,
       'smudgeRadius': 0.4, 'smudgeStrength': 0.5, 'smudgeFalloff': 3.0,
     },
     colors: {
@@ -755,8 +747,6 @@ final marbleSmearShaderDef = ShaderDefinition(
       'color2': const Color.fromRGBO(77, 64, 56, 1),    // brown
       'color3': const Color.fromRGBO(89, 115, 133, 1),  // teal
       'color4': const Color.fromRGBO(31, 36, 46, 1),    // dark
-      'lightSky': const Color.fromRGBO(255, 255, 255, 1),
-      'lightSun': const Color.fromRGBO(38, 26, 13, 1),
     },
   ),
   uiDefaults: ShaderUIDefaults({
@@ -770,11 +760,6 @@ final marbleSmearShaderDef = ShaderDefinition(
     'animSpeedInputY': const SliderRange('Anim Speed Y', min: 0.0, max: 1.0),
     'animAmpInput': const SliderRange('Anim Amp Input', min: 0.0, max: 0.1),
     'animAmpWarp': const SliderRange('Anim Amp Warp', min: 0.0, max: 0.1),
-    'lightDirX': const SliderRange('Light X', min: -2.0, max: 2.0),
-    'lightDirY': const SliderRange('Light Y', min: -2.0, max: 2.0),
-    'lightDirZ': const SliderRange('Light Z', min: -2.0, max: 2.0),
-    'lightAmbient': const SliderRange('Ambient', min: 0.0, max: 1.0),
-    'lightDiffuse': const SliderRange('Diffuse', min: 0.0, max: 1.0),
     'lightIntensity': const SliderRange('Intensity', min: 0.0, max: 2.0),
     'smudgeRadius': const SliderRange('Smudge Radius', min: 0.1, max: 1.0),
     'smudgeStrength': const SliderRange('Smudge Strength', min: 0.1, max: 2.0),
