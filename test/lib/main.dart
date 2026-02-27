@@ -93,7 +93,7 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.tune),
-                label: Text('Dynamic Preview'),
+                label: Text('Scale Test'),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.animation),
