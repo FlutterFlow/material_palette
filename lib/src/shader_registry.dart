@@ -30,6 +30,7 @@ abstract class ShaderNames {
   static const String pixelDissolve = 'Pixel Dissolve';
   static const String radialPixelDissolve = 'Pixel Dissolve Radial';
   static const String tapPixelDissolve = 'Pixel Dissolve Tap';
+  static const String tapSlurp = 'Slurp Tap';
 }
 
 /// Data for a shader card
@@ -148,5 +149,9 @@ const List<ShaderCardData> allShaders = [
   ShaderCardData(
     title: ShaderNames.tapPixelDissolve,
     description: 'Tap to create pixel dissolve effects',
+  ),
+  ShaderCardData(
+    title: ShaderNames.tapSlurp,
+    description: 'Tap to create cloth vacuum effects',
   ),
 ];

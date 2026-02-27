@@ -24,6 +24,7 @@ abstract class ShaderImageAssets {
   static const String pixelDissolve = 'assets/images/sunset.jpg';
   static const String radialPixelDissolve = 'assets/images/sunset.jpg';
   static const String tapPixelDissolve = 'assets/images/mountain.jpg';
+  static const String tapSlurp = 'assets/images/mountain.jpg';
 }
 
 // ============ HELPERS ============
@@ -264,6 +265,8 @@ class ShaderCard extends StatelessWidget {
         return RadialPixelDissolveShaderCard(dimensions: dimensions);
       case ShaderNames.tapPixelDissolve:
         return TappablePixelDissolveShaderCard(dimensions: dimensions);
+      case ShaderNames.tapSlurp:
+        return TappableSlurpShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -2874,6 +2877,97 @@ class _TappablePixelDissolveShaderCardState extends State<TappablePixelDissolveS
             ControlSlider.fromRange(range: _ui['scatter']!, value: _params.get('scatter'), onChanged: (v) => setState(() => _params = _params.withValue('scatter', v))),
             ControlSlider.fromRange(range: _ui['noiseAmount']!, value: _params.get('noiseAmount'), onChanged: (v) => setState(() => _params = _params.withValue('noiseAmount', v))),
             ControlSlider.fromRange(range: _ui['radius']!, value: _params.get('radius'), onChanged: (v) => setState(() => _params = _params.withValue('radius', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Tap Animation'),
+            _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+            const SizedBox(height: 8),
+            ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.2, max: 5.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+            ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 2.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Persist taps', style: TextStyle(fontSize: 12)), value: _persistTaps, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _persistTaps = v; _rebuild(); }),
+            ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+            ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+class TappableSlurpShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const TappableSlurpShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<TappableSlurpShaderCard> createState() => _TappableSlurpShaderCardState();
+}
+
+class _TappableSlurpShaderCardState extends State<TappableSlurpShaderCard> {
+  ShaderParams _params = tappableSlurpShaderDef.defaults;
+  bool _showControls = false;
+  int _curveIndex = 0;
+  double _durationSec = 1.5;
+  double _delaySec = 0.0;
+  bool _reverse = true;
+  bool _invert = false;
+  bool _persistTaps = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _tapKey = 0;
+
+  ShaderUIDefaults get _ui => tappableSlurpShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _tapKey++);
+
+  ShaderAnimationConfig _buildTapConfig() => _buildAnimConfig(
+    curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec,
+    loop: false, reverse: _reverse, invert: _invert,
+    rangeStart: _rangeStart, rangeEnd: _rangeEnd,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: TappableSlurpShaderWrap(
+            key: ValueKey('tapSlurp_$_tapKey'),
+            params: _params,
+            tapConfig: _buildTapConfig(),
+            persistTaps: _persistTaps,
+            child: Image.asset(
+              ShaderImageAssets.tapSlurp,
+              fit: BoxFit.cover,
+              width: dimensions.width,
+              height: dimensions.height,
+            ),
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = tappableSlurpShaderDef.defaults),
+          shaderName: 'Slurp Tap',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Slurp Properties'),
+            ControlSlider.fromRange(range: _ui['radius']!, value: _params.get('radius'), onChanged: (v) => setState(() => _params = _params.withValue('radius', v))),
+            ControlSlider.fromRange(range: _ui['gravity']!, value: _params.get('gravity'), onChanged: (v) => setState(() => _params = _params.withValue('gravity', v))),
+            ControlSlider.fromRange(range: _ui['wrinkles']!, value: _params.get('wrinkles'), onChanged: (v) => setState(() => _params = _params.withValue('wrinkles', v))),
+            ControlSlider.fromRange(range: _ui['wrinkleDepth']!, value: _params.get('wrinkleDepth'), onChanged: (v) => setState(() => _params = _params.withValue('wrinkleDepth', v))),
+            ControlSlider.fromRange(range: _ui['foldShading']!, value: _params.get('foldShading'), onChanged: (v) => setState(() => _params = _params.withValue('foldShading', v))),
             const SizedBox(height: 12),
             const ControlSectionTitle('Tap Animation'),
             _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),

@@ -49,3 +49,4 @@ flutter:
     - packages/material_palette/shaders/pixel_dissolve.frag
     - packages/material_palette/shaders/radial_pixel_dissolve.frag
     - packages/material_palette/shaders/tappable_pixel_dissolve.frag
+    - packages/material_palette/shaders/tappable_slurp.frag

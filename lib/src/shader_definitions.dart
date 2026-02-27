@@ -1063,6 +1063,31 @@ final tappablePixelDissolveShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// TAPPABLE SLURP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final tappableSlurpShaderDef = ShaderDefinition(
+  layout: const UniformLayout([]),  // Tappable slurp has fully manual uniform layout
+  defaults: ShaderParams(
+    values: {
+      'radius': 0.30, 'gravity': 2.0,
+      'wrinkles': 8.0, 'wrinkleDepth': 0.15, 'foldShading': 0.5,
+      'speed': 0.70, 'lifetime': 3.0,
+    },
+    colors: {},
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'radius': const SliderRange('Radius', min: 0.05, max: 3.0),
+    'gravity': const SliderRange('Gravity', min: 0.5, max: 5.0),
+    'wrinkles': const SliderRange('Wrinkles', min: 0.0, max: 20.0),
+    'wrinkleDepth': const SliderRange('Wrinkle Depth', min: 0.0, max: 0.5),
+    'foldShading': const SliderRange('Fold Shading', min: 0.0, max: 1.0),
+    'speed': const SliderRange('Speed', min: 0.1, max: 3.0),
+    'lifetime': const SliderRange('Lifetime', min: 1.0, max: 8.0),
+  }),
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1113,4 +1138,5 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.pixelDissolve: pixelDissolveShaderDef,
   ShaderNames.radialPixelDissolve: radialPixelDissolveShaderDef,
   ShaderNames.tapPixelDissolve: tappablePixelDissolveShaderDef,
+  ShaderNames.tapSlurp: tappableSlurpShaderDef,
 };

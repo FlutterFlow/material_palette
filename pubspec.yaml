@@ -55,3 +55,4 @@ flutter:
     - lib/shaders/pixel_dissolve.frag
     - lib/shaders/radial_pixel_dissolve.frag
     - lib/shaders/tappable_pixel_dissolve.frag
+    - lib/shaders/tappable_slurp.frag
