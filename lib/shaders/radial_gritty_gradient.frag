@@ -99,17 +99,14 @@ float orderedDither(vec2 p) {
     return (bayer - 0.5) * 2.0;
 }
 
-// Combined gritty texture
-float grittyTexture(vec2 fragCoord, float time, float gradientT) {
-    vec2 p = fragCoord * uNoiseDensity / 100.0;
-
-    float stipple = stippleNoise(p, time);
-    float dither = orderedDither(fragCoord * uDitherScale) * uDitherStrength * 0.1;
+// Combined gritty texture — all lookups use the quantized cell coordinate
+// so every screen pixel in the same dither cell gets identical values.
+float grittyTexture(vec2 cellCoord, float time) {
+    float stipple = stippleNoise(cellCoord * uNoiseDensity / 100.0, time);
+    float dither = orderedDither(cellCoord) * uDitherStrength * 0.1;
 
     // Mix between neutral (0.5) and stipple; at strength 0 only dither contributes
-    float grit = mix(0.5, stipple, uStippleStrength) + dither;
-
-    return grit;
+    return mix(0.5, stipple, uStippleStrength) + dither;
 }
 
 // ============ RADIAL GRADIENT FUNCTION ============
@@ -200,14 +197,21 @@ vec4 grittyGradientColor(float gradientT, float noise) {
 
 void main() {
     vec2 fragCoord = FlutterFragCoord().xy;
-    vec2 uv = fragCoord / uSize;
     float time = uTime * uAnimSpeed;
+
+    // Snap to dither pixel grid so each cell outputs one discrete color
+    float cellSize = 1.0 / max(uDitherScale, 0.001);
+    vec2 cellCoord = floor(fragCoord / cellSize);
+    vec2 quantized = (cellCoord + 0.5) * cellSize;
+
+    // All sampling uses the quantized coordinate
+    vec2 uv = quantized / uSize;
 
     // Calculate radial gradient position (0 at center, 1 at edge)
     float gradientT = calculateRadialGradient(uv);
 
     // Generate stipple noise
-    float grit = grittyTexture(fragCoord, time, gradientT);
+    float grit = grittyTexture(cellCoord, time);
 
     // Get color with gritty/stippled transition (premultiplied alpha)
     vec4 pmColor = grittyGradientColor(gradientT, grit);
