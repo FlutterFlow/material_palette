@@ -1,3 +1,9 @@
+## 1.0.0
+
+- Fix dithering for gritty gradient and radial gritty gradient shaders.
+- Add dither controls across all gradient shaders.
+- Rename slider parameter for clarity.
+
 ## 0.8.0
 
 - Add tappable slurp shader with gravity, wrinkle, and fold shading controls.
