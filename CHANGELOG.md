@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Update gallery scroll physics and preset gallery.
+
 ## 1.0.1
 
 - Transfer org ownership and update repository URLs.
