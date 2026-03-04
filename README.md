@@ -45,7 +45,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  material_palette: ^0.1.0
+  material_palette: ^1.0.0
 ```
 
 **Important:** Fragment shaders from packages must be declared in your app's `pubspec.yaml`.
