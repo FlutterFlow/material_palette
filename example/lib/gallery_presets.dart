@@ -971,7 +971,7 @@ final List<GalleryPreset> galleryPresets = [
     ),
   ),
   GalleryPreset(
-    name: 'ASCII Alien',
+    name: '8Bit Alien',
     shaderType: ShaderNames.radialVoronoi,
     params: const ShaderParams(
       values: {
@@ -1223,7 +1223,7 @@ final List<GalleryPreset> galleryPresets = [
     ),
   ),
   GalleryPreset(
-    name: 'Tasty Comb',
+    name: 'Tasty Honeycomb',
     shaderType: ShaderNames.voronoi,
     params: const ShaderParams(
       values: {
