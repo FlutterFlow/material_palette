@@ -45,9 +45,8 @@ dependencies:
   material_palette: ^0.1.0
 ```
 
-**Important:** Fragment shaders from packages must be declared the shaders
-you use in your app's `pubspec.yaml`. You can list only the ones you need,
-or include all of them:
+**Important:** Fragment shaders from packages must be declared in your app's `pubspec.yaml`.
+You can list only the ones you need, or include all of them:
 
 ```yaml
 flutter:
