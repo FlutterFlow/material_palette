@@ -733,7 +733,7 @@ final marbleSmearShaderDef = ShaderDefinition(
     const UniformField('smudgeRadius'),
     const UniformField('smudgeStrength'),
     const UniformField('smudgeFalloff'),
-    // Smudge data written manually after layout (count + 3 times + 3x4 positions)
+    // Smudge data written manually after layout (count + 10 times + 10x4 positions)
   ]),
   defaults: ShaderParams(
     values: {

@@ -39,11 +39,20 @@ const vec3 LIGHT_SUN_LIN = vec3(0.01, 0.01, 0.01);
 // Smudge settings (packed)
 uniform vec3 uSmudgeParams; // x=radius, y=strength, z=falloff
 
-// Smudge data (packed for Impeller: max 3 smudges)
+// Smudge data (packed for Impeller: max 10 smudges)
 uniform vec4 uSmudgeMeta; // x=count, y=time0, z=time1, w=time2
+uniform vec4 uSmudgeTimes1; // x=time3, y=time4, z=time5, w=time6
+uniform vec3 uSmudgeTimes2; // x=time7, y=time8, z=time9
 uniform vec4 uSmudge0; // startX, startY, endX, endY
 uniform vec4 uSmudge1;
 uniform vec4 uSmudge2;
+uniform vec4 uSmudge3;
+uniform vec4 uSmudge4;
+uniform vec4 uSmudge5;
+uniform vec4 uSmudge6;
+uniform vec4 uSmudge7;
+uniform vec4 uSmudge8;
+uniform vec4 uSmudge9;
 
 out vec4 fragColor;
 
@@ -185,16 +194,18 @@ vec2 calcSmudgeDisplacement(vec2 pos, vec4 smudge, float smudgeTime) {
 // Get total displacement from all active smudges
 vec2 getTotalSmudgeDisplacement(vec2 pos) {
     vec2 total = vec2(0.0);
+    float count = uSmudgeMeta.x;
 
-    if (uSmudgeMeta.x > 0.0) {
-        total += calcSmudgeDisplacement(pos, uSmudge0, uSmudgeMeta.y);
-    }
-    if (uSmudgeMeta.x > 1.0) {
-        total += calcSmudgeDisplacement(pos, uSmudge1, uSmudgeMeta.z);
-    }
-    if (uSmudgeMeta.x > 2.0) {
-        total += calcSmudgeDisplacement(pos, uSmudge2, uSmudgeMeta.w);
-    }
+    if (count > 0.0) total += calcSmudgeDisplacement(pos, uSmudge0, uSmudgeMeta.y);
+    if (count > 1.0) total += calcSmudgeDisplacement(pos, uSmudge1, uSmudgeMeta.z);
+    if (count > 2.0) total += calcSmudgeDisplacement(pos, uSmudge2, uSmudgeMeta.w);
+    if (count > 3.0) total += calcSmudgeDisplacement(pos, uSmudge3, uSmudgeTimes1.x);
+    if (count > 4.0) total += calcSmudgeDisplacement(pos, uSmudge4, uSmudgeTimes1.y);
+    if (count > 5.0) total += calcSmudgeDisplacement(pos, uSmudge5, uSmudgeTimes1.z);
+    if (count > 6.0) total += calcSmudgeDisplacement(pos, uSmudge6, uSmudgeTimes1.w);
+    if (count > 7.0) total += calcSmudgeDisplacement(pos, uSmudge7, uSmudgeTimes2.x);
+    if (count > 8.0) total += calcSmudgeDisplacement(pos, uSmudge8, uSmudgeTimes2.y);
+    if (count > 9.0) total += calcSmudgeDisplacement(pos, uSmudge9, uSmudgeTimes2.z);
 
     return total;
 }
