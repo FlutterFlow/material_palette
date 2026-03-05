@@ -1,3 +1,8 @@
+
+## 1.2.0
+
+- Fix marble smudge tap behavior.
+
 ## 1.1.0
 
 - Fix uniform bindings on metal targets.
