@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Fix uniform bindings on metal targets.
+
 ## 1.0.2
 
 - Update gallery scroll physics and preset gallery.
