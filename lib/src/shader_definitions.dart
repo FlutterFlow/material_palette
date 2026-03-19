@@ -9,10 +9,18 @@ class ShaderDefinition {
   final ShaderParams defaults;
   final ShaderUIDefaults uiDefaults;
 
+  /// Whether this shader wraps a child widget (true) or renders procedurally (false).
+  final bool hasChildren;
+
+  /// The asset path to the compiled fragment shader.
+  final String assetPath;
+
   const ShaderDefinition({
     required this.layout,
     required this.defaults,
     required this.uiDefaults,
+    required this.hasChildren,
+    required this.assetPath,
   });
 }
 
@@ -21,6 +29,8 @@ class ShaderDefinition {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final grittyGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/gritty_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.linearGradientFields,
     ...ParamGroups.grittyNoiseFields,
@@ -56,6 +66,8 @@ final grittyGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialGrittyGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/radial_gritty_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.radialGradientFields,
     ...ParamGroups.grittyNoiseFields,
@@ -93,6 +105,8 @@ final radialGrittyGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final perlinGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/perlin_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.linearGradientFields,
     ...ParamGroups.noiseFields,
@@ -141,6 +155,8 @@ final perlinGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialPerlinGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/radial_perlin_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.radialGradientFields,
     ...ParamGroups.noiseFields,
@@ -190,6 +206,8 @@ final radialPerlinGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final simplexGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/simplex_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.linearGradientFields,
     ...ParamGroups.noiseFields,
@@ -241,6 +259,8 @@ final simplexGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialSimplexGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/radial_simplex_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.radialGradientFields,
     ...ParamGroups.noiseFields,
@@ -290,6 +310,8 @@ final radialSimplexGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final fbmGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/fbm_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.linearGradientFields,
     ...ParamGroups.noiseFields,
@@ -341,6 +363,8 @@ final fbmGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialFbmGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/radial_fbm_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.radialGradientFields,
     ...ParamGroups.noiseFields,
@@ -394,6 +418,8 @@ final radialFbmGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final turbulenceGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/turbulence_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.linearGradientFields,
     ...ParamGroups.noiseFields,
@@ -444,6 +470,8 @@ final turbulenceGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialTurbulenceGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/radial_turbulence_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.radialGradientFields,
     ...ParamGroups.noiseFields,
@@ -495,6 +523,8 @@ final radialTurbulenceGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final voronoiGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/voronoi_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.linearGradientFields,
     ...ParamGroups.noiseFields,
@@ -551,6 +581,8 @@ final voronoiGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialVoronoiGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/radial_voronoi_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.radialGradientFields,
     ...ParamGroups.noiseFields,
@@ -608,6 +640,8 @@ final radialVoronoiGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final voronoiseGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/voronoise_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.linearGradientFields,
     ...ParamGroups.noiseFields,
@@ -658,6 +692,8 @@ final voronoiseGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialVoronoiseGradientDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/radial_voronoise_gradient.frag',
   layout: UniformLayout([
     ...ParamGroups.radialGradientFields,
     ...ParamGroups.noiseFields,
@@ -710,6 +746,8 @@ final radialVoronoiseGradientDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final marbleSmearShaderDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/marble_smear.frag',
   layout: UniformLayout([
     const UniformField.color('bgColor'),
     const UniformField('warp1Scale'),
@@ -777,6 +815,8 @@ final marbleSmearShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final rippleShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/ripple.frag',
   layout: UniformLayout([
     const UniformField.color('bgColor'),
     const UniformField('origin1X'),
@@ -817,6 +857,8 @@ final rippleShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final clickRippleShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/click_ripple.frag',
   layout: const UniformLayout([]),  // Click ripple has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -841,6 +883,8 @@ final clickRippleShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final burnShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/burn.frag',
   layout: const UniformLayout([]),  // Burn has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -866,6 +910,8 @@ final burnShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialBurnShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/radial_burn.frag',
   layout: const UniformLayout([]),  // Radial burn has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -893,6 +939,8 @@ final radialBurnShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final tappableBurnShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/tappable_burn.frag',
   layout: const UniformLayout([]),  // Tappable burn has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -918,6 +966,8 @@ final tappableBurnShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final smokeShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/smoke.frag',
   layout: const UniformLayout([]),  // Smoke has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -943,6 +993,8 @@ final smokeShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialSmokeShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/radial_smoke.frag',
   layout: const UniformLayout([]),  // Radial smoke has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -970,6 +1022,8 @@ final radialSmokeShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final tappableSmokeShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/tappable_smoke.frag',
   layout: const UniformLayout([]),  // Tappable smoke has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -995,6 +1049,8 @@ final tappableSmokeShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final pixelDissolveShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/pixel_dissolve.frag',
   layout: const UniformLayout([]),  // Pixel dissolve has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -1020,6 +1076,8 @@ final pixelDissolveShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final radialPixelDissolveShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/radial_pixel_dissolve.frag',
   layout: const UniformLayout([]),  // Radial pixel dissolve has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -1047,6 +1105,8 @@ final radialPixelDissolveShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final tappablePixelDissolveShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/tappable_pixel_dissolve.frag',
   layout: const UniformLayout([]),  // Tappable pixel dissolve has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -1072,6 +1132,8 @@ final tappablePixelDissolveShaderDef = ShaderDefinition(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 final tappableSlurpShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/tappable_slurp.frag',
   layout: const UniformLayout([]),  // Tappable slurp has fully manual uniform layout
   defaults: ShaderParams(
     values: {
@@ -1115,7 +1177,7 @@ Map<ShaderMaterialType, ShaderDefinition> get shaderDefinitions => {
   ShaderMaterialType.radialVoronoiseGradient: radialVoronoiseGradientDef,
 };
 
-/// Maps shader card names to their definitions (for all 17 shaders).
+/// Maps shader card names to their definitions.
 Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.gritient: grittyGradientDef,
   ShaderNames.radient: radialGrittyGradientDef,
@@ -1145,3 +1207,34 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.tapPixelDissolve: tappablePixelDissolveShaderDef,
   ShaderNames.tapSlurp: tappableSlurpShaderDef,
 };
+
+/// Canonical list of all shader names in display order.
+const List<String> allShaderNames = [
+  ShaderNames.gritient,
+  ShaderNames.radient,
+  ShaderNames.perlin,
+  ShaderNames.radialPerlin,
+  ShaderNames.simplex,
+  ShaderNames.radialSimplex,
+  ShaderNames.fbm,
+  ShaderNames.radialFbm,
+  ShaderNames.turbulence,
+  ShaderNames.radialTurbulence,
+  ShaderNames.voronoi,
+  ShaderNames.radialVoronoi,
+  ShaderNames.voronoise,
+  ShaderNames.radialVoronoise,
+  ShaderNames.smarble,
+  ShaderNames.ripples,
+  ShaderNames.taplets,
+  ShaderNames.burn,
+  ShaderNames.radialBurn,
+  ShaderNames.tapBurn,
+  ShaderNames.smoke,
+  ShaderNames.radialSmoke,
+  ShaderNames.tapSmoke,
+  ShaderNames.pixelDissolve,
+  ShaderNames.radialPixelDissolve,
+  ShaderNames.tapPixelDissolve,
+  ShaderNames.tapSlurp,
+];
