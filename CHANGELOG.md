@@ -1,4 +1,9 @@
 
+## 1.3.0
+
+- Add presets and update shader definitions.
+- Add UI descriptions for parameters.
+
 ## 1.2.0
 
 - Fix marble smudge tap behavior.
