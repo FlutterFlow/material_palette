@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_palette/material_palette.dart';
 
-import 'gallery_presets.dart';
 import 'shader_cards.dart';
 import 'shader_card_components.dart';
 
@@ -18,6 +17,7 @@ class _GalleryPageState extends State<GalleryPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final swatchSize = (screenWidth - 48) / 3;
+    final presetEntries = presets.values.toList();
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -34,10 +34,10 @@ class _GalleryPageState extends State<GalleryPage> {
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
         ),
-        itemCount: galleryPresets.length,
+        itemCount: presetEntries.length,
         itemBuilder: (context, index) {
           return _GallerySwatch(
-            preset: galleryPresets[index],
+            preset: presetEntries[index],
             size: swatchSize,
           );
         },
@@ -52,7 +52,7 @@ class _GallerySwatch extends StatefulWidget {
     required this.size,
   });
 
-  final GalleryPreset preset;
+  final ShaderPreset preset;
   final double size;
 
   @override
@@ -79,7 +79,7 @@ class _GallerySwatchState extends State<_GallerySwatch> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Text(
-                widget.preset.name,
+                widget.preset.displayName,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
@@ -108,89 +108,89 @@ class _GallerySwatchState extends State<_GallerySwatch> {
 
   void _copyToClipboard(BuildContext context) {
     final paramsCode = PresetGenerator.shaderParams(widget.preset.params);
-    final clipboardText = '${widget.preset.name}\n\n${widget.preset.shaderType}:\n\n$paramsCode';
+    final clipboardText = '${widget.preset.displayName}\n\n${widget.preset.shaderName}:\n\n$paramsCode';
     Clipboard.setData(ClipboardData(text: clipboardText));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Copied "${widget.preset.name}" preset to clipboard'),
+        content: Text('Copied "${widget.preset.displayName}" preset to clipboard'),
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
   Widget _buildShaderFill() {
-    switch (widget.preset.shaderType) {
-      case 'Turbulence':
+    switch (widget.preset.shaderName) {
+      case ShaderNames.turbulence:
         return TurbulenceGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Turbulence Radial':
+      case ShaderNames.radialTurbulence:
         return RadialTurbulenceGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'FBM':
+      case ShaderNames.fbm:
         return FbmGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'FBM Radial':
+      case ShaderNames.radialFbm:
         return RadialFbmGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Simplex':
+      case ShaderNames.simplex:
         return SimplexGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Simplex Radial':
+      case ShaderNames.radialSimplex:
         return RadialSimplexGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Perlin':
+      case ShaderNames.perlin:
         return PerlinGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Perlin Radial':
+      case ShaderNames.radialPerlin:
         return RadialPerlinGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Voronoi':
+      case ShaderNames.voronoi:
         return VoronoiGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Voronoi Radial':
+      case ShaderNames.radialVoronoi:
         return RadialVoronoiGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Voronoise':
+      case ShaderNames.voronoise:
         return VoronoiseGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Voronoise Radial':
+      case ShaderNames.radialVoronoise:
         return RadialVoronoiseGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Grit':
+      case ShaderNames.gritient:
         return GrittyGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Grit Radial':
+      case ShaderNames.radient:
         return RadialGrittyGradientShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           animationMode: ShaderAnimationMode.continuous, cache: true,
         );
-      case 'Smarble':
+      case ShaderNames.smarble:
         return MarbleSmearShaderFill(
           width: widget.size, height: widget.size, params: widget.preset.params,
           backgroundColor: const Color(0xFF202329), interactive: false,
