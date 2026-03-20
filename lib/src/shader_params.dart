@@ -428,6 +428,78 @@ abstract class ParamGroups {
   static const edgeFadeRanges = {
     'edgeFade': SliderRange('Edge Fade', min: 0.0, max: 3.0),
   };
+
+  // ── Parameter descriptions ──
+
+  static const linearGradientDescriptions = {
+    'gradientAngle': 'Direction angle of the linear gradient in degrees',
+    'gradientScale': 'Zoom level of the gradient',
+    'gradientOffset': 'Positional shift along the gradient axis',
+  };
+
+  static const radialGradientDescriptions = {
+    'gradientCenterX': 'Horizontal center of the radial gradient',
+    'gradientCenterY': 'Vertical center of the radial gradient',
+    'gradientScale': 'Zoom level of the gradient',
+    'gradientOffset': 'Positional shift from the gradient center',
+  };
+
+  static const dissolveDirectionDescriptions = {
+    'angle': 'Direction angle of the dissolve sweep in degrees',
+    'scale': 'Scale of the dissolve pattern',
+    'offset': 'Starting offset of the dissolve front',
+  };
+
+  static const grittyNoiseDescriptions = {
+    'noiseDensity': 'Density of the grain particles',
+    'noiseIntensity': 'Blend strength of the noise effect',
+    'stippleStrength': 'Amount of stipple dot overlay',
+    'ditherStrength': 'Strength of the dithering pattern',
+    'ditherScale': 'Scale of the dither pattern',
+    'animSpeed': 'Animation playback speed',
+  };
+
+  static const noiseDescriptions = {
+    'noiseIntensity': 'Blend strength of the noise effect',
+    'ditherStrength': 'Strength of the dithering pattern',
+    'ditherScale': 'Scale of the dither pattern',
+    'animSpeed': 'Animation playback speed',
+  };
+
+  static const gradientColorsDescriptions = {
+    'color0': 'Gradient color stop 1',
+    'color1': 'Gradient color stop 2',
+    'color2': 'Gradient color stop 3',
+    'color3': 'Gradient color stop 4',
+    'color4': 'Gradient color stop 5',
+    'color5': 'Gradient color stop 6',
+    'color6': 'Gradient color stop 7',
+    'color7': 'Gradient color stop 8',
+    'color8': 'Gradient color stop 9',
+    'color9': 'Gradient color stop 10',
+    'colorCount': 'Number of active gradient color stops',
+    'softness': 'Blending softness between adjacent color stops',
+  };
+
+  static const postProcessingDescriptions = {
+    'exposure': 'Overall brightness adjustment',
+    'contrast': 'Tonal contrast adjustment',
+  };
+
+  static const lightingDescriptions = {
+    'bumpStrength': 'Intensity of bump-mapped surface relief',
+    'lightDirX': 'Horizontal direction of the light source',
+    'lightDirY': 'Vertical direction of the light source',
+    'lightDirZ': 'Depth direction of the light source',
+    'lightIntensity': 'Brightness of the light source',
+    'ambient': 'Base ambient illumination level',
+    'specular': 'Intensity of specular highlights',
+    'shininess': 'Tightness of specular highlight spots',
+    'metallic': 'Metallic vs dielectric surface character',
+    'roughness': 'Surface roughness for light scattering',
+    'edgeFade': 'Fade-to-transparent width at edges',
+    'edgeFadeMode': 'Edge fade blending mode',
+  };
 }
 
 // ── Tween ───────────────────────────────────────────────────────────────────

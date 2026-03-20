@@ -15,12 +15,16 @@ class ShaderDefinition {
   /// The asset path to the compiled fragment shader.
   final String assetPath;
 
+  /// Maps each parameter name to a brief description of its role in this shader.
+  final Map<String, String> paramDescriptions;
+
   const ShaderDefinition({
     required this.layout,
     required this.defaults,
     required this.uiDefaults,
     required this.hasChildren,
     required this.assetPath,
+    this.paramDescriptions = const {},
   });
 }
 
@@ -59,6 +63,12 @@ final grittyGradientDef = ShaderDefinition(
     ...ParamGroups.gradientColorsRanges,
     ...ParamGroups.postProcessingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.linearGradientDescriptions,
+    ...ParamGroups.grittyNoiseDescriptions,
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -98,6 +108,12 @@ final radialGrittyGradientDef = ShaderDefinition(
     ...ParamGroups.gradientColorsRanges,
     ...ParamGroups.postProcessingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.radialGradientDescriptions,
+    ...ParamGroups.grittyNoiseDescriptions,
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -148,6 +164,15 @@ final perlinGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.linearGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'noiseScale': 'Frequency scale of the Perlin noise',
+    'noiseContrast': 'Contrast sharpening of the noise pattern',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -199,6 +224,15 @@ final radialPerlinGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.radialGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'noiseScale': 'Frequency scale of the Perlin noise',
+    'noiseContrast': 'Contrast sharpening of the noise pattern',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -252,6 +286,15 @@ final simplexGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.linearGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'noiseScale': 'Frequency scale of the simplex noise',
+    'sharpness': 'Edge sharpness of the noise features',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -303,6 +346,15 @@ final radialSimplexGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.radialGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'noiseScale': 'Frequency scale of the simplex noise',
+    'sharpness': 'Edge sharpness of the noise features',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -356,6 +408,17 @@ final fbmGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.linearGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'octaves': 'Number of noise layers summed together',
+    'lacunarity': 'Frequency multiplier between successive octaves',
+    'persistence': 'Amplitude decay between successive octaves',
+    'noiseScale': 'Base frequency scale of the FBM noise',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -411,6 +474,17 @@ final radialFbmGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.radialGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'octaves': 'Number of noise layers summed together',
+    'lacunarity': 'Frequency multiplier between successive octaves',
+    'persistence': 'Amplitude decay between successive octaves',
+    'noiseScale': 'Base frequency scale of the FBM noise',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -463,6 +537,16 @@ final turbulenceGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.linearGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'octaves': 'Number of turbulence layers summed together',
+    'baseFrequency': 'Base frequency of the turbulence pattern',
+    'noiseScale': 'Frequency scale of the turbulence noise',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -516,6 +600,16 @@ final radialTurbulenceGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.radialGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'octaves': 'Number of turbulence layers summed together',
+    'baseFrequency': 'Base frequency of the turbulence pattern',
+    'noiseScale': 'Frequency scale of the turbulence noise',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -574,6 +668,18 @@ final voronoiGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.linearGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'cellScale': 'Size of the Voronoi cells',
+    'cellJitter': 'Randomness of cell point placement',
+    'distanceType': 'Distance metric used for cell boundaries',
+    'outputMode': 'Which Voronoi distance value to visualize',
+    'cellSmoothness': 'Smoothing applied to cell edges',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -633,6 +739,18 @@ final radialVoronoiGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.radialGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'cellScale': 'Size of the Voronoi cells',
+    'cellJitter': 'Randomness of cell point placement',
+    'distanceType': 'Distance metric used for cell boundaries',
+    'outputMode': 'Which Voronoi distance value to visualize',
+    'cellSmoothness': 'Smoothing applied to cell edges',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -685,6 +803,16 @@ final voronoiseGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.linearGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'cellScale': 'Size of the Voronoise cells',
+    'noiseBlend': 'Blend between Voronoi structure and noise',
+    'edgeSmoothness': 'Smoothing applied to cell edges',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -739,6 +867,16 @@ final radialVoronoiseGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingRanges,
     ...ParamGroups.lightingRanges,
   }),
+  paramDescriptions: {
+    ...ParamGroups.radialGradientDescriptions,
+    ...ParamGroups.noiseDescriptions,
+    'cellScale': 'Size of the Voronoise cells',
+    'noiseBlend': 'Blend between Voronoi structure and noise',
+    'edgeSmoothness': 'Smoothing applied to cell edges',
+    ...ParamGroups.gradientColorsDescriptions,
+    ...ParamGroups.postProcessingDescriptions,
+    ...ParamGroups.lightingDescriptions,
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -808,6 +946,30 @@ final marbleSmearShaderDef = ShaderDefinition(
     'smudgeStrength': const SliderRange('Smudge Strength', min: 0.1, max: 2.0),
     'smudgeFalloff': const SliderRange('Smudge Falloff', min: 0.5, max: 10.0),
   }),
+  paramDescriptions: {
+    'bgColor': 'Background fill color behind the marble',
+    'warp1Scale': 'Scale of the first domain-warp layer',
+    'warp2Scale': 'Scale of the second domain-warp layer',
+    'finalScale': 'Scale of the final marble pattern',
+    'warpStrength': 'Intensity of the domain warping distortion',
+    'contrastPower': 'Contrast curve applied to marble veins',
+    'finalContrast': 'Overall contrast of the final image',
+    'animSpeedInputX': 'Horizontal animation speed of the input noise',
+    'animSpeedInputY': 'Vertical animation speed of the input noise',
+    'animSpeedWarpX': 'Horizontal animation speed of the warp noise',
+    'animSpeedWarpY': 'Vertical animation speed of the warp noise',
+    'animAmpInput': 'Amplitude of input noise animation',
+    'animAmpWarp': 'Amplitude of warp noise animation',
+    'color0': 'Lightest vein',
+    'color1': 'Mid-tone base',
+    'color2': 'Dark base',
+    'color3': 'Accent edge',
+    'color4': 'Valley shadow',
+    'lightIntensity': 'Brightness of the surface lighting',
+    'smudgeRadius': 'Radius of the touch-drag smudge brush',
+    'smudgeStrength': 'Strength of the smudge distortion',
+    'smudgeFalloff': 'Falloff curve of the smudge effect',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -850,6 +1012,18 @@ final rippleShaderDef = ShaderDefinition(
     'origin2Y': const SliderRange('Origin Y', min: -2.0, max: 2.0),
     'originScale': const SliderRange('Origin Scale', min: 0.5, max: 3.0),
   }),
+  paramDescriptions: {
+    'bgColor': 'Background color behind the ripple effect',
+    'origin1X': 'Horizontal position of the first wave origin',
+    'origin1Y': 'Vertical position of the first wave origin',
+    'origin2X': 'Horizontal position of the second wave origin',
+    'origin2Y': 'Vertical position of the second wave origin',
+    'frequency': 'Wave frequency (number of ripples per unit)',
+    'numWaves': 'Number of concentric wave rings',
+    'amplitude': 'Height of the wave distortion',
+    'speed': 'Propagation speed of the ripple waves',
+    'originScale': 'Distance scale applied to wave origins',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -876,6 +1050,14 @@ final clickRippleShaderDef = ShaderDefinition(
     'speed': const SliderRange('Speed', min: 0.5, max: 5.0),
     'rippleDuration': const SliderRange('Duration', min: 1.0, max: 8.0),
   }),
+  paramDescriptions: {
+    'bgColor': 'Background color behind the ripple effect',
+    'amplitude': 'Height of each tap ripple distortion',
+    'frequency': 'Wave frequency of each tap ripple',
+    'decay': 'How quickly each ripple fades out',
+    'speed': 'Propagation speed of tap ripples',
+    'rippleDuration': 'Lifetime of each tap ripple in seconds',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -903,6 +1085,14 @@ final burnShaderDef = ShaderDefinition(
     'glowIntensity': const SliderRange('Glow Intensity', min: 0.0, max: 5.0),
     'speed': const SliderRange('Speed', min: 0.01, max: 1.0),
   }),
+  paramDescriptions: {
+    ...ParamGroups.dissolveDirectionDescriptions,
+    'noiseScale': 'Frequency scale of the burn edge noise',
+    'edgeWidth': 'Width of the glowing burn edge',
+    'glowIntensity': 'Brightness of the fire glow at the edge',
+    'speed': 'Speed of the burn dissolve progression',
+    'fireColor': 'Color of the fire glow at the burn edge',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -932,6 +1122,16 @@ final radialBurnShaderDef = ShaderDefinition(
     'glowIntensity': const SliderRange('Glow Intensity', min: 0.0, max: 5.0),
     'speed': const SliderRange('Speed', min: 0.01, max: 1.0),
   }),
+  paramDescriptions: {
+    'burnCenterX': 'Horizontal center of the radial burn origin',
+    'burnCenterY': 'Vertical center of the radial burn origin',
+    'burnScale': 'Radius scale of the radial burn',
+    'noiseScale': 'Frequency scale of the burn edge noise',
+    'edgeWidth': 'Width of the glowing burn edge',
+    'glowIntensity': 'Brightness of the fire glow at the edge',
+    'speed': 'Speed of the burn dissolve progression',
+    'fireColor': 'Color of the fire glow at the burn edge',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -959,6 +1159,15 @@ final tappableBurnShaderDef = ShaderDefinition(
     'burnRadius': const SliderRange('Burn Radius', min: 0.001, max: 3.0),
     'burnLifetime': const SliderRange('Lifetime', min: 1.0, max: 8.0),
   }),
+  paramDescriptions: {
+    'noiseScale': 'Frequency scale of the burn edge noise',
+    'edgeWidth': 'Width of the glowing burn edge',
+    'glowIntensity': 'Brightness of the fire glow at the edge',
+    'speed': 'Speed of each tap burn expansion',
+    'burnRadius': 'Radius of each tap burn spot',
+    'burnLifetime': 'Lifetime of each tap burn in seconds',
+    'fireColor': 'Color of the fire glow at the burn edge',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -986,6 +1195,14 @@ final smokeShaderDef = ShaderDefinition(
     'glowIntensity': const SliderRange('Glow Intensity', min: 0.0, max: 5.0),
     'speed': const SliderRange('Speed', min: 0.01, max: 1.0),
   }),
+  paramDescriptions: {
+    ...ParamGroups.dissolveDirectionDescriptions,
+    'noiseScale': 'Frequency scale of the smoke edge noise',
+    'edgeWidth': 'Width of the wispy smoke edge',
+    'glowIntensity': 'Brightness of the smoke glow at the edge',
+    'speed': 'Speed of the smoke dissolve progression',
+    'smokeColor': 'Color of the smoke wisps at the dissolve edge',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1015,6 +1232,16 @@ final radialSmokeShaderDef = ShaderDefinition(
     'glowIntensity': const SliderRange('Glow Intensity', min: 0.0, max: 5.0),
     'speed': const SliderRange('Speed', min: 0.01, max: 1.0),
   }),
+  paramDescriptions: {
+    'burnCenterX': 'Horizontal center of the radial smoke origin',
+    'burnCenterY': 'Vertical center of the radial smoke origin',
+    'burnScale': 'Radius scale of the radial smoke',
+    'noiseScale': 'Frequency scale of the smoke edge noise',
+    'edgeWidth': 'Width of the wispy smoke edge',
+    'glowIntensity': 'Brightness of the smoke glow at the edge',
+    'speed': 'Speed of the smoke dissolve progression',
+    'smokeColor': 'Color of the smoke wisps at the dissolve edge',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1042,6 +1269,15 @@ final tappableSmokeShaderDef = ShaderDefinition(
     'burnRadius': const SliderRange('Burn Radius', min: 0.001, max: 3.0),
     'burnLifetime': const SliderRange('Lifetime', min: 1.0, max: 8.0),
   }),
+  paramDescriptions: {
+    'noiseScale': 'Frequency scale of the smoke edge noise',
+    'edgeWidth': 'Width of the wispy smoke edge',
+    'glowIntensity': 'Brightness of the smoke glow at the edge',
+    'speed': 'Speed of each tap smoke expansion',
+    'burnRadius': 'Radius of each tap smoke spot',
+    'burnLifetime': 'Lifetime of each tap smoke in seconds',
+    'smokeColor': 'Color of the smoke wisps at the dissolve edge',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1069,6 +1305,14 @@ final pixelDissolveShaderDef = ShaderDefinition(
     'noiseAmount': const SliderRange('Noise', min: 0.0, max: 1.0),
     'speed': const SliderRange('Speed', min: 0.01, max: 1.0),
   }),
+  paramDescriptions: {
+    ...ParamGroups.dissolveDirectionDescriptions,
+    'pixelSize': 'Size of each dissolving pixel block',
+    'edgeWidth': 'Width of the dissolve transition edge',
+    'scatter': 'Randomness of pixel dissolve positions',
+    'noiseAmount': 'Amount of noise added to the dissolve pattern',
+    'speed': 'Speed of the pixel dissolve progression',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1098,6 +1342,16 @@ final radialPixelDissolveShaderDef = ShaderDefinition(
     'noiseAmount': const SliderRange('Noise', min: 0.0, max: 1.0),
     'speed': const SliderRange('Speed', min: 0.01, max: 1.0),
   }),
+  paramDescriptions: {
+    'centerX': 'Horizontal center of the radial dissolve',
+    'centerY': 'Vertical center of the radial dissolve',
+    'scale': 'Radius scale of the radial dissolve',
+    'pixelSize': 'Size of each dissolving pixel block',
+    'edgeWidth': 'Width of the dissolve transition edge',
+    'scatter': 'Randomness of pixel dissolve positions',
+    'noiseAmount': 'Amount of noise added to the dissolve pattern',
+    'speed': 'Speed of the pixel dissolve progression',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1125,6 +1379,15 @@ final tappablePixelDissolveShaderDef = ShaderDefinition(
     'radius': const SliderRange('Radius', min: 0.001, max: 3.0),
     'lifetime': const SliderRange('Lifetime', min: 1.0, max: 8.0),
   }),
+  paramDescriptions: {
+    'pixelSize': 'Size of each dissolving pixel block',
+    'edgeWidth': 'Width of the dissolve transition edge',
+    'scatter': 'Randomness of pixel dissolve positions',
+    'noiseAmount': 'Amount of noise added to the dissolve pattern',
+    'speed': 'Speed of each tap dissolve expansion',
+    'radius': 'Radius of each tap dissolve spot',
+    'lifetime': 'Lifetime of each tap dissolve in seconds',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1152,6 +1415,15 @@ final tappableSlurpShaderDef = ShaderDefinition(
     'speed': const SliderRange('Speed', min: 0.1, max: 3.0),
     'lifetime': const SliderRange('Lifetime', min: 1.0, max: 8.0),
   }),
+  paramDescriptions: {
+    'gravity': 'Strength of the slurp effect',
+    'easing': 'Easing curve steepness for the suction animation',
+    'wrinkles': 'Number of radial wrinkle folds',
+    'wrinkleDepth': 'Depth of the wrinkle fold distortion',
+    'foldShading': 'Shading intensity on wrinkle folds',
+    'speed': 'Speed of each tap slurp animation',
+    'lifetime': 'Lifetime of each tap slurp in seconds',
+  },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
