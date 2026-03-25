@@ -69,15 +69,17 @@ enum PresetNames {
 
 class ShaderPreset {
   final String displayName;
+  final String description;
   final String shaderName;
   final ShaderParams params;
 
-  const ShaderPreset({required this.displayName, required this.shaderName, required this.params});
+  const ShaderPreset({required this.displayName, required this.description, required this.shaderName, required this.params});
 }
 
 final presets = <PresetNames, ShaderPreset>{
   PresetNames.tarnishedLiquid: ShaderPreset(
     displayName: 'Tarnished Liquid',
+    description: 'A swirling radial blend of tarnished indigo and steel blue radiating from the center-right, with a dark plum undertone. Its metallic, weathered appearance evokes aged patina — ideal for moody hero sections or premium card backgrounds.',
     shaderName: ShaderNames.radialTurbulence,
     params: const ShaderParams(
       values: {
@@ -106,6 +108,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.probableLiquid: ShaderPreset(
     displayName: 'Probable Liquid',
+    description: 'A left-to-right turbulent flow of warm cream, deep purple, and crimson with an animated liquid feel. The high-octave noise creates rich organic detail — well suited for immersive full-screen backgrounds or onboarding screens.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -134,6 +137,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.rembrandtAgate: ShaderPreset(
     displayName: 'Rembrandt Agate',
+    description: 'A dramatic marble effect with luminous cyan veins and warm red streaks winding through a dark charcoal ground. The chiaroscuro lighting gives it a painterly, old-master quality — perfect for luxury branding, splash screens, or statement backgrounds.',
     shaderName: ShaderNames.smarble,
     params: const ShaderParams(
       values: {
@@ -157,6 +161,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.fervidDivide: ShaderPreset(
     displayName: 'Fervid Divide',
+    description: 'A high-contrast fractal gradient sweeping from the upper-right toward the lower-left, with silver and white bands separated by a deep near-black divide. The metallic sheen and pronounced layering make it striking for editorial layouts or dark-mode section dividers.',
     shaderName: ShaderNames.fbm,
     params: const ShaderParams(
       values: {
@@ -185,6 +190,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.plaidIcecream: ShaderPreset(
     displayName: 'Plaid Icecream',
+    description: 'A static, dithered plaid-like pattern flowing from the upper-right to lower-left, mixing soft pastels — dove grey, periwinkle, vivid blue, blush pink, and cream. The cross-hatched dither gives it a woven textile feel — great for playful card backgrounds or decorative panels.',
     shaderName: ShaderNames.simplex,
     params: const ShaderParams(
       values: {
@@ -213,6 +219,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.nerveMoss: ShaderPreset(
     displayName: 'Nerve Moss',
+    description: 'An animated simplex pattern drifting from the lower-left toward the upper-right, layering white, dusty rose, and deep ocean blues with a fading vignette at the edges. The organic cellular texture recalls moss or neural networks — suitable for science or nature-themed backgrounds.',
     shaderName: ShaderNames.simplex,
     params: const ShaderParams(
       values: {
@@ -241,6 +248,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.charcoalClouds: ShaderPreset(
     displayName: 'Charcoal Clouds',
+    description: 'A slowly churning radial cloudscape emanating from the upper-center, blending pale lavender and soft teal into deep charcoal. The high-octave fractal noise produces a rich, atmospheric haze — excellent for weather-themed hero images or moody full-bleed backgrounds.',
     shaderName: ShaderNames.radialFbm,
     params: const ShaderParams(
       values: {
@@ -269,6 +277,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.verdantPlinth: ShaderPreset(
     displayName: 'Verdant Plinth',
+    description: 'A lush turbulent gradient flowing from the lower-right to upper-left, cycling through lime, emerald, jade, and deep teal with a subtle metallic sheen. The rich green spectrum evokes dense foliage — ideal for eco-friendly branding, nature app backgrounds, or garden-themed panels.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -297,6 +306,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.fearlessProcess: ShaderPreset(
     displayName: 'Fearless Process',
+    description: 'A bold, high-exposure dithered gradient sweeping from the upper-right to lower-left, transitioning from soft pink to slate blue. The heavy ordered dithering creates a retro halftone print effect — works well for stylized banners, poster-inspired UI sections, or risograph-style accents.',
     shaderName: ShaderNames.gritient,
     params: const ShaderParams(
       values: {
@@ -322,6 +332,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.unhappening: ShaderPreset(
     displayName: 'Unhappening',
+    description: 'A radial voronoise pattern centered slightly right-of-center, layering light blue, deep purple, and vivid red cells over a fading vignette. The dithered, crystalline structure has an unsettling, glitchy ambiance — fitting for experimental UI, music app artwork, or abstract feature graphics.',
     shaderName: ShaderNames.radialVoronoise,
     params: const ShaderParams(
       values: {
@@ -350,6 +361,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.rationalFabric: ShaderPreset(
     displayName: 'Rational Fabric',
+    description: 'A high-contrast cellular weave oriented nearly top-to-bottom, with crisp white and near-black cells creating a stark monochrome textile. The dithered edges soften the transition — versatile for minimalist design systems, dark-mode surfaces, or elegant divider textures.',
     shaderName: ShaderNames.voronoise,
     params: const ShaderParams(
       values: {
@@ -378,6 +390,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.duckHoliday: ShaderPreset(
     displayName: 'Duck Holiday',
+    description: 'A warm cellular pattern flowing from the lower-left to upper-right, with bright orange cells dissolving into deep maroon through a heavily dithered, grainy texture. The earthy warmth and organic mosaic feel are great for autumn-themed designs or rustic card backgrounds.',
     shaderName: ShaderNames.voronoise,
     params: const ShaderParams(
       values: {
@@ -406,6 +419,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.gloaming: ShaderPreset(
     displayName: 'Gloaming',
+    description: 'A radial voronoi mosaic of fine, glittering cells emanating from the upper-center, blending sunset orange, deep navy, and dark maroon. The metallic specular highlights evoke twilight — ideal for evening-themed app backgrounds, music players, or atmospheric landing pages.',
     shaderName: ShaderNames.radialVoronoi,
     params: const ShaderParams(
       values: {
@@ -434,6 +448,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.screenGnats: ShaderPreset(
     displayName: 'Screen Gnats',
+    description: 'An animated field of tiny voronoi cells drifting from the lower-left to upper-right, in salmon, sage green, and forest green with a gritty dithered overlay and vignette edges. The buzzing, granular texture mimics insects on a screen — a fun, lively choice for playful backgrounds or loading states.',
     shaderName: ShaderNames.voronoi,
     params: const ShaderParams(
       values: {
@@ -462,6 +477,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.cheerfulSummoning: ShaderPreset(
     displayName: 'Cheerful Summoning',
+    description: 'A warm radial turbulence emanating from the lower-left, swirling copper orange, soft sky blue, and coral pink with a pronounced vignette. The bumpy, metallic surface feels inviting and energetic — well suited for warm welcome screens, event banners, or festive feature graphics.',
     shaderName: ShaderNames.radialTurbulence,
     params: const ShaderParams(
       values: {
@@ -490,6 +506,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.dinoFriend: ShaderPreset(
     displayName: 'Dino Friend',
+    description: 'A cheerful turbulent gradient flowing from the upper-right to lower-left, mixing bubblegum pink, mustard yellow, and forest green in bold, flat bands. The playful palette and low-octave simplicity feel whimsical and kid-friendly — great for children\'s app backgrounds or fun onboarding illustrations.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -518,6 +535,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.stormTossed: ShaderPreset(
     displayName: 'Storm Tossed',
+    description: 'A dramatic radial fractal centered in the lower-right, churning deep navy blue and teal against a dark chocolate ground with strong bump-mapped surface detail. The turbulent, wave-like motion evokes a storm at sea — powerful for weather apps, dramatic hero sections, or nautical-themed designs.',
     shaderName: ShaderNames.radialFbm,
     params: const ShaderParams(
       values: {
@@ -546,6 +564,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.spookyHappening: ShaderPreset(
     displayName: 'Spooky Happening',
+    description: 'A radial simplex glow centered dead-center, pulsing neon mint green, soft lavender, and deep cobalt blue with high contrast and a glossy metallic finish. The eerie, otherworldly luminance is perfect for Halloween themes, sci-fi interfaces, or paranormal-inspired feature graphics.',
     shaderName: ShaderNames.radialSimplex,
     params: const ShaderParams(
       values: {
@@ -574,6 +593,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.hauntedViper: ShaderPreset(
     displayName: 'Haunted Viper',
+    description: 'An animated simplex pattern scrolling from bottom to top, weaving near-black, dark emerald, olive, hot magenta, gold, and deep indigo into a snaking, venomous mosaic. The dithered edges and high contrast produce a dark, hypnotic look — fitting for gaming UIs, alternative music apps, or edgy brand accents.',
     shaderName: ShaderNames.simplex,
     params: const ShaderParams(
       values: {
@@ -602,6 +622,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.twoDOcean: ShaderPreset(
     displayName: '2D Ocean',
+    description: 'A perlin noise gradient flowing from top to bottom, mixing vivid blue and white in crisp, animated wave-like bands with a soft vignette. The flat, graphic quality recalls a stylized cartoon sea — ideal for casual game backgrounds, travel app headers, or aquatic-themed sections.',
     shaderName: ShaderNames.perlin,
     params: const ShaderParams(
       values: {
@@ -630,6 +651,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.tiledWalkway: ShaderPreset(
     displayName: 'Tiled Walkway',
+    description: 'A radial voronoise tile pattern spreading from the upper-left, with rose pink, warm gold, and forest green cells lit by strong specular highlights and a vignette border. The bumpy, mosaic-like surface resembles decorative floor tiles — a good fit for interior-design apps, artisanal branding, or ornamental card backgrounds.',
     shaderName: ShaderNames.radialVoronoise,
     params: const ShaderParams(
       values: {
@@ -658,6 +680,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.rattlerFabric: ShaderPreset(
     displayName: 'Rattler Fabric',
+    description: 'A voronoi cell pattern flowing from bottom to top, blending brick red, golden yellow, burnt orange, and chocolate brown with heavy dithering and low jitter. The reptilian, woven texture recalls snakeskin fabric — striking for fashion-themed UIs, exotic material overlays, or warm textile-inspired backgrounds.',
     shaderName: ShaderNames.voronoi,
     params: const ShaderParams(
       values: {
@@ -686,6 +709,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.warmRipple: ShaderPreset(
     displayName: 'Warm Ripple',
+    description: 'An animated fractal ripple sweeping from the lower-right toward the upper-left, blending sky blue, violet, and deep magenta in broad, gentle undulations. The low-frequency noise and subtle bump lighting give it a warm, silky feel — suitable for meditation apps, music visualizers, or calming gradient backgrounds.',
     shaderName: ShaderNames.fbm,
     params: const ShaderParams(
       values: {
@@ -714,6 +738,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.defrost: ShaderPreset(
     displayName: 'Defrost',
+    description: 'A slowly shifting fractal gradient moving left to right through cerulean, bright blue, and deep navy with detailed, icy surface texture. The cool monochrome palette and crystalline bump mapping evoke melting frost — great for winter-themed interfaces, cold-storage dashboards, or icy splash screens.',
     shaderName: ShaderNames.fbm,
     params: const ShaderParams(
       values: {
@@ -742,6 +767,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.dapple: ShaderPreset(
     displayName: 'Dapple',
+    description: 'A softly animated radial simplex pattern centered slightly left-of-center, flowing through a ten-step gradient from pale lime green through jade to deep blue-teal, with a glossy metallic sheen and vignette edges. The dappled, sunlit quality evokes light filtering through leaves — ideal for nature apps, wellness backgrounds, or garden-themed designs.',
     shaderName: ShaderNames.radialSimplex,
     params: const ShaderParams(
       values: {
@@ -770,6 +796,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.denimStain: ShaderPreset(
     displayName: 'Denim Stain',
+    description: 'A radial stippled gradient emanating from the right-of-center, blending minty cyan, warm salmon, and deep cobalt blue with a grainy, speckled texture. The dithered, stain-like spread recalls ink on denim — works well for casual fashion UIs, craft-inspired cards, or artisanal product backgrounds.',
     shaderName: ShaderNames.radient,
     params: const ShaderParams(
       values: {
@@ -795,6 +822,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.nightHorse: ShaderPreset(
     displayName: 'Night Horse',
+    description: 'An animated marble with luminous veins of pale sky blue, periwinkle, violet, and magenta flowing across a dark charcoal ground. The strong warping and high-contrast lighting create a galloping, nocturnal energy — perfect for creative portfolio backgrounds, nightlife app themes, or bold dark-mode hero sections.',
     shaderName: ShaderNames.smarble,
     params: const ShaderParams(
       values: {
@@ -818,6 +846,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.sensualForm: ShaderPreset(
     displayName: 'Sensual Form',
+    description: 'A richly warped marble with rose pink, dusty coral, warm amber, and olive-green veins undulating across a dark charcoal ground. The strong warp and high final contrast create smooth, body-like contours — suited for beauty and fashion branding, luxury product pages, or sensual dark-mode backgrounds.',
     shaderName: ShaderNames.smarble,
     params: const ShaderParams(
       values: {
@@ -841,6 +870,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.richOre: ShaderPreset(
     displayName: 'Rich Ore',
+    description: 'A mineral-like marble with vivid cyan, cobalt blue, electric indigo, and deep amethyst veins threaded through a dark charcoal ground. The high contrast and fine warp scale produce a geological, cross-section look — excellent for science apps, gemstone branding, or premium dark-mode feature panels.',
     shaderName: ShaderNames.smarble,
     params: const ShaderParams(
       values: {
@@ -864,6 +894,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.reactorCore: ShaderPreset(
     displayName: 'Reactor Core',
+    description: 'A radial perlin pattern radiating from the upper-right, glowing with warm gold, vivid green, and deep teal with strong bump-mapped surface detail and bright specular highlights. The pulsing, radioactive energy is perfect for sci-fi dashboards, power-monitoring UIs, or tech-themed hero backgrounds.',
     shaderName: ShaderNames.radialPerlin,
     params: const ShaderParams(
       values: {
@@ -892,6 +923,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.dawnEgg: ShaderPreset(
     displayName: 'Dawn Egg',
+    description: 'A radial perlin pattern emanating from the upper-right, with soft banded rings transitioning from rosy pink through peach, amber, chartreuse, and into leafy green. The flat, posterized look recalls a sunrise over rolling hills — lovely for morning-routine apps, meditation timers, or warm onboarding backgrounds.',
     shaderName: ShaderNames.radialPerlin,
     params: const ShaderParams(
       values: {
@@ -920,6 +952,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.nightlight: ShaderPreset(
     displayName: 'Nightlight',
+    description: 'A radial voronoi grid emanating from the lower-left, with warm golden cells glowing against deep navy and dark purple, accented by fine dithering. The gentle, lamp-like warmth spreading into darkness is comforting and cozy — ideal for sleep-tracker UIs, nighttime reading modes, or ambient notification backgrounds.',
     shaderName: ShaderNames.radialVoronoi,
     params: const ShaderParams(
       values: {
@@ -948,6 +981,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.algae: ShaderPreset(
     displayName: 'Algae',
+    description: 'A turbulent gradient flowing from bottom to top, weaving vivid blue, lime green, emerald, and dark teal with detailed high-octave noise and subtle bump lighting. The aquatic, biomorphic texture resembles algae blooming underwater — great for marine biology apps, eco-dashboards, or nature-inspired section backgrounds.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -976,6 +1010,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.forestFire: ShaderPreset(
     displayName: 'Forest Fire',
+    description: 'A turbulent gradient climbing from bottom to top, blazing through salmon, bright orange, and deep crimson with high-octave detail and bump-lit surface texture. The intense, smoldering palette evokes a wildfire — powerful for alert screens, emergency-themed UIs, or dramatic promotional banners.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -1004,6 +1039,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.blueWaterCaustics: ShaderPreset(
     displayName: 'Blue Water Caustics',
+    description: 'A fast-animated turbulence flowing from bottom to top, rippling light green, aqua teal, and deep navy blue in bright, shimmering caustic patterns with soft vignette edges. The dancing underwater light effect is perfect for pool or aquarium UIs, tropical travel apps, or refreshing splash screens.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -1032,6 +1068,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.eightBitAlien: ShaderPreset(
     displayName: '8Bit Alien',
+    description: 'A radial voronoi grid emanating from the lower-left, with chunky, posterized cells in light green, teal, and dark navy with a fine dithered overlay. The low cell count and flat shading create a retro, pixelated alien-skin look — fun for gaming interfaces, retro-themed dashboards, or sci-fi accent panels.',
     shaderName: ShaderNames.radialVoronoi,
     params: const ShaderParams(
       values: {
@@ -1060,6 +1097,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.darkWaters: ShaderPreset(
     displayName: 'Dark Waters',
+    description: 'A deep radial fractal spreading from the lower-left, swirling electric blue and dark navy into pitch black with strong bump mapping and a glossy, metallic sheen. The abyssal, light-starved depth evokes the deep ocean — ideal for dark-mode hero sections, deep-sea exploration apps, or mysterious ambient backgrounds.',
     shaderName: ShaderNames.radialFbm,
     params: const ShaderParams(
       values: {
@@ -1088,6 +1126,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.friendlyWaters: ShaderPreset(
     displayName: 'Friendly Waters',
+    description: 'A radial fractal centered near the middle, blending medium cobalt blue and navy into black with softer lighting and brighter ambient than its darker sibling. The approachable, sunlit ocean surface feel is inviting — well suited for travel apps, water-sport dashboards, or calm, aquatic-themed page backgrounds.',
     shaderName: ShaderNames.radialFbm,
     params: const ShaderParams(
       values: {
@@ -1116,6 +1155,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.magmaBall: ShaderPreset(
     displayName: 'Magma Ball',
+    description: 'A radial fractal orb centered slightly above-center, glowing with molten orange, dark crimson, and bright scarlet, with high exposure and heavy bump mapping. The volcanic, incandescent sphere evokes a ball of lava — striking for gaming power-up graphics, volcanic-themed feature art, or bold accent backgrounds.',
     shaderName: ShaderNames.radialFbm,
     params: const ShaderParams(
       values: {
@@ -1144,6 +1184,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.burrowingRootform: ShaderPreset(
     displayName: 'Burrowing Rootform',
+    description: 'A turbulent gradient flowing roughly bottom to top, intertwining dark forest green, neon lime, and warm amber in branching, root-like tendrils with pronounced bump lighting and metallic sheen. The organic, underground feel evokes burrowing roots — unique for botanical apps, biology themes, or earthy feature-section backgrounds.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -1172,6 +1213,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.actualFire: ShaderPreset(
     displayName: 'Actual Fire',
+    description: 'A turbulent gradient sweeping roughly right to left, blending salmon, bright orange, and deep crimson with high contrast, boosted exposure, and animated flame-like motion. The realistic fire-flicker effect is intense — ideal for campfire-themed screens, fireplace ambiance widgets, or dramatic promotional splash backgrounds.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -1200,6 +1242,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.cupricMelt: ShaderPreset(
     displayName: 'Cupric Melt',
+    description: 'A radial simplex pattern centered in the lower-right, mixing white and warm copper orange in a molten, high-bump surface with smooth metallic reflectivity. The glossy, liquid-copper look evokes molten metal cooling — excellent for industrial design apps, premium material showcases, or metallic accent backgrounds.',
     shaderName: ShaderNames.radialSimplex,
     params: const ShaderParams(
       values: {
@@ -1228,6 +1271,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.tuesdayLateness: ShaderPreset(
     displayName: 'Tuesday Lateness',
+    description: 'A fast-animated fractal gradient flowing from bottom to top, cycling through lavender, hot pink, warm brown, and deep indigo with heavy dithering and a flat, posterized feel. The eclectic, hurried palette captures mid-week chaos — fun for productivity app accents, creative dashboards, or quirky placeholder backgrounds.',
     shaderName: ShaderNames.fbm,
     params: const ShaderParams(
       values: {
@@ -1256,6 +1300,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.paintDrying: ShaderPreset(
     displayName: 'Paint Drying',
+    description: 'An animated voronoi pattern drifting from the upper-left to lower-right, with bright yellow, hot pink, and deep navy cells showing pronounced bump-mapped edges and a vignette border. The textured, cracking-paint look evokes drying pigment — great for art-studio apps, creative tool splash screens, or expressive feature backgrounds.',
     shaderName: ShaderNames.voronoi,
     params: const ShaderParams(
       values: {
@@ -1284,6 +1329,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.tastyHoneycomb: ShaderPreset(
     displayName: 'Tasty Honeycomb',
+    description: 'A voronoi cell pattern sweeping from the upper-right to lower-left, with golden amber and dark brown hexagonal cells lit by warm, low-angle specular highlights. The realistic honeycomb texture is warm and appetizing — perfect for food and recipe apps, apiary branding, or artisanal product page backgrounds.',
     shaderName: ShaderNames.voronoi,
     params: const ShaderParams(
       values: {
@@ -1312,6 +1358,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.ditherDay: ShaderPreset(
     displayName: 'Dither Day',
+    description: 'A static, grainy gradient flowing from the lower-right to upper-left, with soft pink and slate blue blended through a prominent ordered-dither pattern. The retro, newspaper-print texture is clean and understated — versatile for minimalist card backgrounds, lo-fi aesthetic banners, or subtle section separators.',
     shaderName: ShaderNames.gritient,
     params: const ShaderParams(
       values: {
@@ -1338,6 +1385,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.sunsetStipple: ShaderPreset(
     displayName: 'Sunset Stipple',
+    description: 'A radial stippled gradient expanding from the upper-left corner, softly blending warm cream, dusty salmon, and muted purple with a grainy, stipple-dot texture. The hazy, golden-hour warmth evokes a stippled sunset — lovely for evening-themed landing pages, warm notification cards, or ambient profile backgrounds.',
     shaderName: ShaderNames.radient,
     params: const ShaderParams(
       values: {
@@ -1365,6 +1413,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.cloudtop: ShaderPreset(
     displayName: 'Cloudtop',
+    description: 'An animated perlin gradient flowing from the lower-right to upper-left, mixing sky blue and soft white in billowy, high-contrast cloud forms. The airy, overhead perspective feels like looking down on a cloud layer — ideal for weather widgets, aviation-themed UIs, or light, uplifting hero backgrounds.',
     shaderName: ShaderNames.perlin,
     params: const ShaderParams(
       values: {
@@ -1393,6 +1442,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.mossyOrb: ShaderPreset(
     displayName: 'Mossy Orb',
+    description: 'A radial perlin pattern emanating from the upper-right, blending pale mint, medium green, and deep forest green with bump-mapped surface detail. The soft, spherical shading and organic noise create a moss-covered stone or planet look — fitting for nature apps, environmental dashboards, or earthy avatar backgrounds.',
     shaderName: ShaderNames.radialPerlin,
     params: const ShaderParams(
       values: {
@@ -1422,6 +1472,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.neonDusk: ShaderPreset(
     displayName: 'Neon Dusk',
+    description: 'An animated simplex pattern scrolling roughly right to left, flowing through a vivid cyan-to-magenta neon spectrum with fine dithering and a fading vignette. The electric, synthwave palette captures a neon-lit twilight — perfect for retrowave-themed UIs, nightclub event apps, or vibrant gradient hero sections.',
     shaderName: ShaderNames.simplex,
     params: const ShaderParams(
       values: {
@@ -1450,6 +1501,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.goldenCompass: ShaderPreset(
     displayName: 'Golden Compass',
+    description: 'A radial simplex pattern centered slightly left-of-center, blending warm gold, polished silver, and deep navy blue with a high-gloss metallic finish. The prestigious, compass-rose luminance evokes fine instrumentation — suited for luxury navigation apps, premium membership cards, or distinguished wayfinding backgrounds.',
     shaderName: ShaderNames.radialSimplex,
     params: const ShaderParams(
       values: {
@@ -1479,6 +1531,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.smokeShade: ShaderPreset(
     displayName: 'Smoke Shade',
+    description: 'A slowly drifting fractal gradient flowing from the lower-right to upper-left, blending warm taupe brown and soft beige in hazy, smoke-like wisps. The muted, earthy neutrals and gentle texture create a refined calm — versatile for coffee-shop branding, neutral card backgrounds, or sophisticated placeholder surfaces.',
     shaderName: ShaderNames.fbm,
     params: const ShaderParams(
       values: {
@@ -1507,6 +1560,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.martianIce: ShaderPreset(
     displayName: 'Martian Ice',
+    description: 'A radial fractal spreading from the bottom-right edge, blending icy pale blue-grey, warm dusty rose-brown, and dark espresso with subtle bump-mapped texture. The alien, frozen-desert palette evokes a Martian polar cap — compelling for space exploration apps, planetary science UIs, or otherworldly feature backgrounds.',
     shaderName: ShaderNames.radialFbm,
     params: const ShaderParams(
       values: {
@@ -1536,6 +1590,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.emberFlow: ShaderPreset(
     displayName: 'Ember Flow',
+    description: 'A turbulent gradient flowing from the upper-right to lower-left, streaming salmon, bright orange, and deep crimson in animated, ember-like filaments with metallic sheen. The smoldering, flowing warmth evokes drifting embers — great for cozy fireplace widgets, warm notification accents, or autumn-themed section backgrounds.',
     shaderName: ShaderNames.turbulence,
     params: const ShaderParams(
       values: {
@@ -1564,6 +1619,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.cloudRoil: ShaderPreset(
     displayName: 'Cloud Roil',
+    description: 'A radial turbulence expanding from the upper-left, churning indigo, soft sky blue, and deep purple with bump-mapped cloudforms and a strong vignette fade. The roiling, stormy motion feels atmospheric and expansive — ideal for weather dashboards, dramatic hero images, or immersive full-screen backgrounds.',
     shaderName: ShaderNames.radialTurbulence,
     params: const ShaderParams(
       values: {
@@ -1593,6 +1649,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.seafoamCells: ShaderPreset(
     displayName: 'Seafoam Cells',
+    description: 'An animated voronoi pattern flowing from bottom to top, with pale cream-yellow, bright teal, and deep ocean-green cells softly lit with a vignette border. The bubbly, coastal texture evokes seafoam washing ashore — lovely for beach-themed apps, spa branding, or fresh, coastal section backgrounds.',
     shaderName: ShaderNames.voronoi,
     params: const ShaderParams(
       values: {
@@ -1621,6 +1678,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.forestSecret: ShaderPreset(
     displayName: 'Forest Secret',
+    description: 'A radial voronoi grid centered in the upper-middle, with golden-yellow cells glowing amid teal and deep dark-teal with fine dithering and glossy specular highlights. The hidden, jewel-like warmth in a dark canopy evokes a secret forest clearing — fitting for adventure game UIs, nature discovery apps, or enchanting card backgrounds.',
     shaderName: ShaderNames.radialVoronoi,
     params: const ShaderParams(
       values: {
@@ -1650,6 +1708,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.electricHoney: ShaderPreset(
     displayName: 'Electric Honey',
+    description: 'A static voronoise pattern flowing roughly right to left, with vivid bright yellow cells against deep dark purple in a high-contrast, sharp-edged mosaic with strong lighting. The electric buzz of gold on night-sky purple is bold and eye-catching — great for bold CTAs, music app album art, or high-energy promotional backgrounds.',
     shaderName: ShaderNames.voronoise,
     params: const ShaderParams(
       values: {
@@ -1678,6 +1737,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.cobaltPebbles: ShaderPreset(
     displayName: 'Cobalt Pebbles',
+    description: 'A radial voronoise pattern spreading from the lower-center, with cobalt blue, light sky-blue, and deep purple pebble-like cells lit by bright specular highlights and fading into a vignette. The polished, rounded stones feel refined and tactile — suitable for material design showcases, jewellery app backgrounds, or elegant card surfaces.',
     shaderName: ShaderNames.radialVoronoise,
     params: const ShaderParams(
       values: {
@@ -1707,6 +1767,7 @@ final presets = <PresetNames, ShaderPreset>{
   ),
   PresetNames.classicMarble: ShaderPreset(
     displayName: 'Classic Marble',
+    description: 'A richly veined marble with warm ivory, taupe, charcoal, and blue-grey streaks flowing through a dark ground with strong warping and high contrast. The timeless, natural-stone elegance evokes classical architecture — ideal for luxury branding, sophisticated card backgrounds, or premium dark-mode surfaces.',
     shaderName: ShaderNames.smarble,
     params: const ShaderParams(
       values: {
