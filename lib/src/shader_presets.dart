@@ -67,6 +67,10 @@ enum PresetNames {
   classicMarble,
 }
 
+enum WrapPresetNames {
+  defaultRipple,
+}
+
 class ShaderPreset {
   final String displayName;
   final String description;
@@ -1786,6 +1790,25 @@ final presets = <PresetNames, ShaderPreset>{
         'color2': Color.fromRGBO(77, 64, 56, 1),
         'color3': Color.fromRGBO(89, 115, 133, 1),
         'color4': Color.fromRGBO(31, 36, 46, 1),
+      },
+    ),
+  ),
+};
+
+final wrapPresets = <WrapPresetNames, ShaderPreset>{
+  WrapPresetNames.defaultRipple: ShaderPreset(
+    displayName: 'Default Ripple',
+    description: 'The default ripple effect with two wave origins creating an interference pattern. Smooth, continuous waves emanate from opposing corners — a versatile starting point for water-like distortion overlays.',
+    shaderName: ShaderNames.ripples,
+    params: const ShaderParams(
+      values: {
+        'frequency': 1.5, 'numWaves': 5.0, 'amplitude': 1.0, 'speed': 1.0,
+        'origin1X': 1.0, 'origin1Y': -1.0,
+        'origin2X': -1.0, 'origin2Y': 1.0,
+        'originScale': 1.5,
+      },
+      colors: {
+        'bgColor': Color(0xFF202329),
       },
     ),
   ),
