@@ -1,3 +1,7 @@
+## 1.4.0
+
+- Add basic presets for wrap shaders.
+- Update preset gallery in example app.
 
 ## 1.3.0
 
