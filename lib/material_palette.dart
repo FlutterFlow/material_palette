@@ -8,6 +8,7 @@ export 'package:material_palette/src/shader_definitions.dart';
 export 'package:material_palette/src/shader_registry.dart';
 export 'package:material_palette/src/shader_material.dart';
 export 'package:material_palette/src/shader_presets.dart';
+export 'package:material_palette/src/version.dart';
 
 // Gradient fills (linear)
 export 'package:material_palette/src/shaders/gritty_gradient_shader_fill.dart';

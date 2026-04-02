@@ -18,6 +18,11 @@ class ShaderDefinition {
   /// Maps each parameter name to a brief description of its role in this shader.
   final Map<String, String> paramDescriptions;
 
+  /// The last version of the material_palette package in which this shader's
+  /// GLSL implementation was changed. When set, the shader's GLSL source is
+  /// not expected to be changed.
+  final String? stableVersion;
+
   const ShaderDefinition({
     required this.layout,
     required this.defaults,
@@ -25,6 +30,7 @@ class ShaderDefinition {
     required this.hasChildren,
     required this.assetPath,
     this.paramDescriptions = const {},
+    this.stableVersion,
   });
 }
 
@@ -69,6 +75,7 @@ final grittyGradientDef = ShaderDefinition(
     ...ParamGroups.gradientColorsDescriptions,
     ...ParamGroups.postProcessingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -114,6 +121,7 @@ final radialGrittyGradientDef = ShaderDefinition(
     ...ParamGroups.gradientColorsDescriptions,
     ...ParamGroups.postProcessingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -173,6 +181,7 @@ final perlinGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -233,6 +242,7 @@ final radialPerlinGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -295,6 +305,7 @@ final simplexGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -355,6 +366,7 @@ final radialSimplexGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -419,6 +431,7 @@ final fbmGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -485,6 +498,7 @@ final radialFbmGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -547,6 +561,7 @@ final turbulenceGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -610,6 +625,7 @@ final radialTurbulenceGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -680,6 +696,7 @@ final voronoiGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -751,6 +768,7 @@ final radialVoronoiGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -813,6 +831,7 @@ final voronoiseGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -877,6 +896,7 @@ final radialVoronoiseGradientDef = ShaderDefinition(
     ...ParamGroups.postProcessingDescriptions,
     ...ParamGroups.lightingDescriptions,
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -970,6 +990,7 @@ final marbleSmearShaderDef = ShaderDefinition(
     'smudgeStrength': 'Strength of the smudge distortion',
     'smudgeFalloff': 'Falloff curve of the smudge effect',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1024,6 +1045,7 @@ final rippleShaderDef = ShaderDefinition(
     'speed': 'Propagation speed of the ripple waves',
     'originScale': 'Distance scale applied to wave origins',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1058,6 +1080,7 @@ final clickRippleShaderDef = ShaderDefinition(
     'speed': 'Propagation speed of tap ripples',
     'rippleDuration': 'Lifetime of each tap ripple in seconds',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1093,6 +1116,7 @@ final burnShaderDef = ShaderDefinition(
     'speed': 'Speed of the burn dissolve progression',
     'fireColor': 'Color of the fire glow at the burn edge',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1132,6 +1156,7 @@ final radialBurnShaderDef = ShaderDefinition(
     'speed': 'Speed of the burn dissolve progression',
     'fireColor': 'Color of the fire glow at the burn edge',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1168,6 +1193,7 @@ final tappableBurnShaderDef = ShaderDefinition(
     'burnLifetime': 'Lifetime of each tap burn in seconds',
     'fireColor': 'Color of the fire glow at the burn edge',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1203,6 +1229,7 @@ final smokeShaderDef = ShaderDefinition(
     'speed': 'Speed of the smoke dissolve progression',
     'smokeColor': 'Color of the smoke wisps at the dissolve edge',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1242,6 +1269,7 @@ final radialSmokeShaderDef = ShaderDefinition(
     'speed': 'Speed of the smoke dissolve progression',
     'smokeColor': 'Color of the smoke wisps at the dissolve edge',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1278,6 +1306,7 @@ final tappableSmokeShaderDef = ShaderDefinition(
     'burnLifetime': 'Lifetime of each tap smoke in seconds',
     'smokeColor': 'Color of the smoke wisps at the dissolve edge',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1313,6 +1342,7 @@ final pixelDissolveShaderDef = ShaderDefinition(
     'noiseAmount': 'Amount of noise added to the dissolve pattern',
     'speed': 'Speed of the pixel dissolve progression',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1352,6 +1382,7 @@ final radialPixelDissolveShaderDef = ShaderDefinition(
     'noiseAmount': 'Amount of noise added to the dissolve pattern',
     'speed': 'Speed of the pixel dissolve progression',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1388,6 +1419,7 @@ final tappablePixelDissolveShaderDef = ShaderDefinition(
     'radius': 'Radius of each tap dissolve spot',
     'lifetime': 'Lifetime of each tap dissolve in seconds',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1424,6 +1456,7 @@ final tappableSlurpShaderDef = ShaderDefinition(
     'speed': 'Speed of each tap slurp animation',
     'lifetime': 'Lifetime of each tap slurp in seconds',
   },
+  stableVersion: '1.2.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
