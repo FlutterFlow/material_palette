@@ -28,6 +28,8 @@ export 'package:material_palette/src/shaders/radial_voronoi_gradient_shader_fill
 export 'package:material_palette/src/shaders/radial_voronoise_gradient_shader_fill.dart';
 // Special fills
 export 'package:material_palette/src/shaders/marble_smear_shader_fill.dart';
+// Fur fills
+export 'package:material_palette/src/shaders/fur_planar_shader_fill.dart';
 
 // Wraps (post-processing effects)
 export 'package:material_palette/src/shaders/ripple_shader_wrap.dart';
@@ -42,3 +44,5 @@ export 'package:material_palette/src/shaders/pixel_dissolve_shader_wrap.dart';
 export 'package:material_palette/src/shaders/radial_pixel_dissolve_shader_wrap.dart';
 export 'package:material_palette/src/shaders/tappable_pixel_dissolve_shader_wrap.dart';
 export 'package:material_palette/src/shaders/tappable_slurp_shader_wrap.dart';
+// Fur wraps
+export 'package:material_palette/src/shaders/fur_planar_mask_shader_wrap.dart';

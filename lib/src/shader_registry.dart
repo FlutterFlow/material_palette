@@ -31,6 +31,8 @@ abstract class ShaderNames {
   static const String radialPixelDissolve = 'Pixel Dissolve Radial';
   static const String tapPixelDissolve = 'Pixel Dissolve Tap';
   static const String tapSlurp = 'Slurp Tap';
+  static const String furPlanar = 'Fur';
+  static const String furPlanarMask = 'Fur Mask';
 }
 
 /// Data for a shader card
@@ -153,5 +155,13 @@ const List<ShaderCardData> allShaders = [
   ShaderCardData(
     title: ShaderNames.tapSlurp,
     description: 'Tap to create cloth vacuum effects',
+  ),
+  ShaderCardData(
+    title: ShaderNames.furPlanar,
+    description: 'Interactive volumetric fur surface',
+  ),
+  ShaderCardData(
+    title: ShaderNames.furPlanarMask,
+    description: 'Fur grows on masked child regions',
   ),
 ];

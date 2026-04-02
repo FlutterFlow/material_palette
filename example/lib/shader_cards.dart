@@ -269,6 +269,10 @@ class ShaderCard extends StatelessWidget {
         return TappablePixelDissolveShaderCard(dimensions: dimensions);
       case ShaderNames.tapSlurp:
         return TappableSlurpShaderCard(dimensions: dimensions);
+      case ShaderNames.furPlanar:
+        return FurPlanarShaderCard(dimensions: dimensions);
+      case ShaderNames.furPlanarMask:
+        return FurPlanarMaskShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -3012,4 +3016,276 @@ class _TappableSlurpShaderCardState extends State<TappableSlurpShaderCard> {
   }
 
   String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+// ============ FUR PLANAR (FILL) ============
+
+class FurPlanarShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const FurPlanarShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<FurPlanarShaderCard> createState() => _FurPlanarShaderCardState();
+}
+
+class _FurPlanarShaderCardState extends State<FurPlanarShaderCard> {
+  ShaderParams _params = furPlanarShaderDef.defaults;
+  bool _showControls = false;
+  int _curveIndex = 0;
+  double _durationSec = 2.0;
+  double _delaySec = 0.0;
+  bool _reverse = true;
+  bool _invert = false;
+  bool _persistTaps = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _tapKey = 0;
+
+  ShaderUIDefaults get _ui => furPlanarShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _tapKey++);
+
+  ShaderAnimationConfig _buildTapConfig() => _buildAnimConfig(
+    curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec,
+    loop: false, reverse: _reverse, invert: _invert,
+    rangeStart: _rangeStart, rangeEnd: _rangeEnd,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: FurPlanarShaderFill(
+            key: ValueKey('furPlanar_$_tapKey'),
+            width: dimensions.width,
+            height: dimensions.height,
+            backgroundColor: backgroundColor,
+            params: _params,
+            tapConfig: _buildTapConfig(),
+            persistTaps: _persistTaps,
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = furPlanarShaderDef.defaults),
+          shaderName: 'Fur',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Fur Properties'),
+            ControlSlider.fromRange(range: _ui['planeOffset']!, value: _params.get('planeOffset'), onChanged: (v) => setState(() => _params = _params.withValue('planeOffset', v))),
+            ControlSlider.fromRange(range: _ui['furThickness']!, value: _params.get('furThickness'), onChanged: (v) => setState(() => _params = _params.withValue('furThickness', v))),
+            ControlSlider.fromRange(range: _ui['furNoiseStrength']!, value: _params.get('furNoiseStrength'), onChanged: (v) => setState(() => _params = _params.withValue('furNoiseStrength', v))),
+            ControlSlider.fromRange(range: _ui['furNoiseScale']!, value: _params.get('furNoiseScale'), onChanged: (v) => setState(() => _params = _params.withValue('furNoiseScale', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Wave Animation'),
+            ControlSlider.fromRange(range: _ui['furWaveAmplitude']!, value: _params.get('furWaveAmplitude'), onChanged: (v) => setState(() => _params = _params.withValue('furWaveAmplitude', v))),
+            ControlSlider.fromRange(range: _ui['furWaveFreqX']!, value: _params.get('furWaveFreqX'), onChanged: (v) => setState(() => _params = _params.withValue('furWaveFreqX', v))),
+            ControlSlider.fromRange(range: _ui['furWaveFreqY']!, value: _params.get('furWaveFreqY'), onChanged: (v) => setState(() => _params = _params.withValue('furWaveFreqY', v))),
+            ControlSlider.fromRange(range: _ui['furAnimationSpeed']!, value: _params.get('furAnimationSpeed'), onChanged: (v) => setState(() => _params = _params.withValue('furAnimationSpeed', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Lighting'),
+            ControlSlider.fromRange(range: _ui['keyLightDirX']!, value: _params.get('keyLightDirX'), onChanged: (v) => setState(() => _params = _params.withValue('keyLightDirX', v))),
+            ControlSlider.fromRange(range: _ui['keyLightDirY']!, value: _params.get('keyLightDirY'), onChanged: (v) => setState(() => _params = _params.withValue('keyLightDirY', v))),
+            ControlSlider.fromRange(range: _ui['keyLightDirZ']!, value: _params.get('keyLightDirZ'), onChanged: (v) => setState(() => _params = _params.withValue('keyLightDirZ', v))),
+            ControlSlider.fromRange(range: _ui['keyLightIntensity']!, value: _params.get('keyLightIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('keyLightIntensity', v))),
+            ControlSlider.fromRange(range: _ui['fillLightDirX']!, value: _params.get('fillLightDirX'), onChanged: (v) => setState(() => _params = _params.withValue('fillLightDirX', v))),
+            ControlSlider.fromRange(range: _ui['fillLightDirY']!, value: _params.get('fillLightDirY'), onChanged: (v) => setState(() => _params = _params.withValue('fillLightDirY', v))),
+            ControlSlider.fromRange(range: _ui['fillLightDirZ']!, value: _params.get('fillLightDirZ'), onChanged: (v) => setState(() => _params = _params.withValue('fillLightDirZ', v))),
+            ControlSlider.fromRange(range: _ui['fillLightIntensity']!, value: _params.get('fillLightIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('fillLightIntensity', v))),
+            ControlSlider.fromRange(range: _ui['rimLightDirX']!, value: _params.get('rimLightDirX'), onChanged: (v) => setState(() => _params = _params.withValue('rimLightDirX', v))),
+            ControlSlider.fromRange(range: _ui['rimLightDirY']!, value: _params.get('rimLightDirY'), onChanged: (v) => setState(() => _params = _params.withValue('rimLightDirY', v))),
+            ControlSlider.fromRange(range: _ui['rimLightDirZ']!, value: _params.get('rimLightDirZ'), onChanged: (v) => setState(() => _params = _params.withValue('rimLightDirZ', v))),
+            ControlSlider.fromRange(range: _ui['rimLightIntensity']!, value: _params.get('rimLightIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('rimLightIntensity', v))),
+            ControlSlider.fromRange(range: _ui['gradientEps']!, value: _params.get('gradientEps'), onChanged: (v) => setState(() => _params = _params.withValue('gradientEps', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Wavelet'),
+            ControlSlider.fromRange(range: _ui['waveletSpeed']!, value: _params.get('waveletSpeed'), onChanged: (v) => setState(() => _params = _params.withValue('waveletSpeed', v))),
+            ControlSlider.fromRange(range: _ui['waveletFreq']!, value: _params.get('waveletFreq'), onChanged: (v) => setState(() => _params = _params.withValue('waveletFreq', v))),
+            ControlSlider.fromRange(range: _ui['waveletAmplitude']!, value: _params.get('waveletAmplitude'), onChanged: (v) => setState(() => _params = _params.withValue('waveletAmplitude', v))),
+            ControlSlider.fromRange(range: _ui['waveletDecay']!, value: _params.get('waveletDecay'), onChanged: (v) => setState(() => _params = _params.withValue('waveletDecay', v))),
+            ControlSlider.fromRange(range: _ui['waveletWidth']!, value: _params.get('waveletWidth'), onChanged: (v) => setState(() => _params = _params.withValue('waveletWidth', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Tap Animation'),
+            _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+            const SizedBox(height: 8),
+            ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.2, max: 5.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+            ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 2.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Persist taps', style: TextStyle(fontSize: 12)), value: _persistTaps, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _persistTaps = v; _rebuild(); }),
+            ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+            ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+// ============ FUR PLANAR MASK (WRAP) ============
+
+class FurPlanarMaskShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const FurPlanarMaskShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<FurPlanarMaskShaderCard> createState() => _FurPlanarMaskShaderCardState();
+}
+
+class _FurPlanarMaskShaderCardState extends State<FurPlanarMaskShaderCard> {
+  ShaderParams _params = furPlanarMaskedShaderDef.defaults;
+  bool _showControls = false;
+  int _curveIndex = 0;
+  double _durationSec = 2.0;
+  double _delaySec = 0.0;
+  bool _reverse = true;
+  bool _invert = false;
+  bool _persistTaps = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _tapKey = 0;
+
+  ShaderUIDefaults get _ui => furPlanarMaskedShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _tapKey++);
+
+  ShaderAnimationConfig _buildTapConfig() => _buildAnimConfig(
+    curveIndex: _curveIndex, durationSec: _durationSec, delaySec: _delaySec,
+    loop: false, reverse: _reverse, invert: _invert,
+    rangeStart: _rangeStart, rangeEnd: _rangeEnd,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: FurPlanarMaskShaderWrap(
+            key: ValueKey('furMask_$_tapKey'),
+            params: _params,
+            tapConfig: _buildTapConfig(),
+            persistTaps: _persistTaps,
+            child: CustomPaint(
+              size: Size(dimensions.width, dimensions.height),
+              painter: _CheckerboardPainter(
+                color: _params.getColor('maskColor'),
+                cellCount: 8,
+              ),
+            ),
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = furPlanarMaskedShaderDef.defaults),
+          shaderName: 'Fur Mask',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Fur Properties'),
+            ControlSlider.fromRange(range: _ui['planeOffset']!, value: _params.get('planeOffset'), onChanged: (v) => setState(() => _params = _params.withValue('planeOffset', v))),
+            ControlSlider.fromRange(range: _ui['furThickness']!, value: _params.get('furThickness'), onChanged: (v) => setState(() => _params = _params.withValue('furThickness', v))),
+            ControlSlider.fromRange(range: _ui['furNoiseStrength']!, value: _params.get('furNoiseStrength'), onChanged: (v) => setState(() => _params = _params.withValue('furNoiseStrength', v))),
+            ControlSlider.fromRange(range: _ui['furNoiseScale']!, value: _params.get('furNoiseScale'), onChanged: (v) => setState(() => _params = _params.withValue('furNoiseScale', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Wave Animation'),
+            ControlSlider.fromRange(range: _ui['furWaveAmplitude']!, value: _params.get('furWaveAmplitude'), onChanged: (v) => setState(() => _params = _params.withValue('furWaveAmplitude', v))),
+            ControlSlider.fromRange(range: _ui['furWaveFreqX']!, value: _params.get('furWaveFreqX'), onChanged: (v) => setState(() => _params = _params.withValue('furWaveFreqX', v))),
+            ControlSlider.fromRange(range: _ui['furWaveFreqY']!, value: _params.get('furWaveFreqY'), onChanged: (v) => setState(() => _params = _params.withValue('furWaveFreqY', v))),
+            ControlSlider.fromRange(range: _ui['furAnimationSpeed']!, value: _params.get('furAnimationSpeed'), onChanged: (v) => setState(() => _params = _params.withValue('furAnimationSpeed', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Mask'),
+            ControlSlider.fromRange(range: _ui['maskThreshold']!, value: _params.get('maskThreshold'), onChanged: (v) => setState(() => _params = _params.withValue('maskThreshold', v))),
+            ControlSlider.fromRange(range: _ui['edgeLeanStrength']!, value: _params.get('edgeLeanStrength'), onChanged: (v) => setState(() => _params = _params.withValue('edgeLeanStrength', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Lighting'),
+            ControlSlider.fromRange(range: _ui['keyLightDirX']!, value: _params.get('keyLightDirX'), onChanged: (v) => setState(() => _params = _params.withValue('keyLightDirX', v))),
+            ControlSlider.fromRange(range: _ui['keyLightDirY']!, value: _params.get('keyLightDirY'), onChanged: (v) => setState(() => _params = _params.withValue('keyLightDirY', v))),
+            ControlSlider.fromRange(range: _ui['keyLightDirZ']!, value: _params.get('keyLightDirZ'), onChanged: (v) => setState(() => _params = _params.withValue('keyLightDirZ', v))),
+            ControlSlider.fromRange(range: _ui['keyLightIntensity']!, value: _params.get('keyLightIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('keyLightIntensity', v))),
+            ControlSlider.fromRange(range: _ui['fillLightDirX']!, value: _params.get('fillLightDirX'), onChanged: (v) => setState(() => _params = _params.withValue('fillLightDirX', v))),
+            ControlSlider.fromRange(range: _ui['fillLightDirY']!, value: _params.get('fillLightDirY'), onChanged: (v) => setState(() => _params = _params.withValue('fillLightDirY', v))),
+            ControlSlider.fromRange(range: _ui['fillLightDirZ']!, value: _params.get('fillLightDirZ'), onChanged: (v) => setState(() => _params = _params.withValue('fillLightDirZ', v))),
+            ControlSlider.fromRange(range: _ui['fillLightIntensity']!, value: _params.get('fillLightIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('fillLightIntensity', v))),
+            ControlSlider.fromRange(range: _ui['rimLightDirX']!, value: _params.get('rimLightDirX'), onChanged: (v) => setState(() => _params = _params.withValue('rimLightDirX', v))),
+            ControlSlider.fromRange(range: _ui['rimLightDirY']!, value: _params.get('rimLightDirY'), onChanged: (v) => setState(() => _params = _params.withValue('rimLightDirY', v))),
+            ControlSlider.fromRange(range: _ui['rimLightDirZ']!, value: _params.get('rimLightDirZ'), onChanged: (v) => setState(() => _params = _params.withValue('rimLightDirZ', v))),
+            ControlSlider.fromRange(range: _ui['rimLightIntensity']!, value: _params.get('rimLightIntensity'), onChanged: (v) => setState(() => _params = _params.withValue('rimLightIntensity', v))),
+            ControlSlider.fromRange(range: _ui['gradientEps']!, value: _params.get('gradientEps'), onChanged: (v) => setState(() => _params = _params.withValue('gradientEps', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Wavelet'),
+            ControlSlider.fromRange(range: _ui['waveletSpeed']!, value: _params.get('waveletSpeed'), onChanged: (v) => setState(() => _params = _params.withValue('waveletSpeed', v))),
+            ControlSlider.fromRange(range: _ui['waveletFreq']!, value: _params.get('waveletFreq'), onChanged: (v) => setState(() => _params = _params.withValue('waveletFreq', v))),
+            ControlSlider.fromRange(range: _ui['waveletAmplitude']!, value: _params.get('waveletAmplitude'), onChanged: (v) => setState(() => _params = _params.withValue('waveletAmplitude', v))),
+            ControlSlider.fromRange(range: _ui['waveletDecay']!, value: _params.get('waveletDecay'), onChanged: (v) => setState(() => _params = _params.withValue('waveletDecay', v))),
+            ControlSlider.fromRange(range: _ui['waveletWidth']!, value: _params.get('waveletWidth'), onChanged: (v) => setState(() => _params = _params.withValue('waveletWidth', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Tap Animation'),
+            _buildCurveChips(selectedIndex: _curveIndex, onChanged: (i) { _curveIndex = i; _rebuild(); }),
+            const SizedBox(height: 8),
+            ControlSlider(label: 'Duration (s)', value: _durationSec, min: 0.2, max: 5.0, onChanged: (v) { _durationSec = v; _rebuild(); }),
+            ControlSlider(label: 'Delay (s)', value: _delaySec, min: 0.0, max: 2.0, onChanged: (v) { _delaySec = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Reverse', style: TextStyle(fontSize: 12)), value: _reverse, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _reverse = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Invert', style: TextStyle(fontSize: 12)), value: _invert, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _invert = v; _rebuild(); }),
+            SwitchListTile(title: const Text('Persist taps', style: TextStyle(fontSize: 12)), value: _persistTaps, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _persistTaps = v; _rebuild(); }),
+            ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
+            ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+/// Checkerboard painter for the fur mask demo child widget.
+class _CheckerboardPainter extends CustomPainter {
+  final Color color;
+  final int cellCount;
+
+  _CheckerboardPainter({required this.color, this.cellCount = 8});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cellW = size.width / cellCount;
+    final cellH = size.height / cellCount;
+    final darkPaint = Paint()..color = color;
+    final lightPaint = Paint()..color = Colors.white;
+
+    for (int y = 0; y < cellCount; y++) {
+      for (int x = 0; x < cellCount; x++) {
+        final paint = (x + y) % 2 == 0 ? darkPaint : lightPaint;
+        canvas.drawRect(
+          Rect.fromLTWH(x * cellW, y * cellH, cellW, cellH),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_CheckerboardPainter oldDelegate) =>
+      color != oldDelegate.color || cellCount != oldDelegate.cellCount;
 }
