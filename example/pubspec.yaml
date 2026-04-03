@@ -52,3 +52,4 @@ flutter:
     - packages/material_palette/shaders/tappable_slurp.frag
     - packages/material_palette/shaders/fur_planar.frag
     - packages/material_palette/shaders/fur_planar_mask.frag
+    - packages/material_palette/shaders/turbulence_mask.frag

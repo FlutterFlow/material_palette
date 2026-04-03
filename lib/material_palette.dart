@@ -46,3 +46,5 @@ export 'package:material_palette/src/shaders/tappable_pixel_dissolve_shader_wrap
 export 'package:material_palette/src/shaders/tappable_slurp_shader_wrap.dart';
 // Fur wraps
 export 'package:material_palette/src/shaders/fur_planar_mask_shader_wrap.dart';
+// Turbulence wraps
+export 'package:material_palette/src/shaders/turbulence_mask_shader_wrap.dart';

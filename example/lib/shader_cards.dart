@@ -25,6 +25,7 @@ abstract class ShaderImageAssets {
   static const String radialPixelDissolve = 'assets/images/sunset.jpg';
   static const String tapPixelDissolve = 'assets/images/mountain.jpg';
   static const String tapSlurp = 'assets/images/mountain.jpg';
+  static const String turbulenceMask = 'assets/images/sunset.jpg';
 }
 
 // ============ HELPERS ============
@@ -273,6 +274,8 @@ class ShaderCard extends StatelessWidget {
         return FurPlanarShaderCard(dimensions: dimensions);
       case ShaderNames.furPlanarMask:
         return FurPlanarMaskShaderCard(dimensions: dimensions);
+      case ShaderNames.turbulenceMask:
+        return TurbulenceMaskShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -3251,6 +3254,90 @@ class _FurPlanarMaskShaderCardState extends State<FurPlanarMaskShaderCard> {
             SwitchListTile(title: const Text('Persist taps', style: TextStyle(fontSize: 12)), value: _persistTaps, dense: true, contentPadding: EdgeInsets.zero, onChanged: (v) { _persistTaps = v; _rebuild(); }),
             ControlSlider(label: 'Range Start', value: _rangeStart, min: 0.0, max: 1.0, onChanged: (v) { _rangeStart = v; _rebuild(); }),
             ControlSlider(label: 'Range End', value: _rangeEnd, min: 0.0, max: 1.0, onChanged: (v) { _rangeEnd = v; _rebuild(); }),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+class TurbulenceMaskShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const TurbulenceMaskShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<TurbulenceMaskShaderCard> createState() =>
+      _TurbulenceMaskShaderCardState();
+}
+
+class _TurbulenceMaskShaderCardState extends State<TurbulenceMaskShaderCard> {
+  ShaderParams _params = turbulenceMaskShaderDef.defaults;
+  bool _showControls = false;
+
+  ShaderUIDefaults get _ui => turbulenceMaskShaderDef.uiDefaults;
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: TurbulenceMaskShaderWrap(
+            params: _params,
+            child: Image.asset(
+              ShaderImageAssets.turbulenceMask,
+              fit: BoxFit.cover,
+              width: dimensions.width,
+              height: dimensions.height,
+            ),
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () =>
+              setState(() => _params = turbulenceMaskShaderDef.defaults),
+          shaderName: 'Turbulence Mask',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Turbulence'),
+            ControlSlider.fromRange(
+                range: _ui['octaves']!,
+                value: _params.get('octaves'),
+                onChanged: (v) =>
+                    setState(() => _params = _params.withValue('octaves', v))),
+            ControlSlider.fromRange(
+                range: _ui['baseFrequency']!,
+                value: _params.get('baseFrequency'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('baseFrequency', v))),
+            ControlSlider.fromRange(
+                range: _ui['noiseScale']!,
+                value: _params.get('noiseScale'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('noiseScale', v))),
+            ControlSlider.fromRange(
+                range: _ui['animSpeed']!,
+                value: _params.get('animSpeed'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('animSpeed', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Displacement'),
+            ControlSlider.fromRange(
+                range: _ui['displacementStrength']!,
+                value: _params.get('displacementStrength'),
+                onChanged: (v) => setState(() =>
+                    _params = _params.withValue('displacementStrength', v))),
           ],
         ),
       ],

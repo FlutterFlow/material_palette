@@ -58,3 +58,4 @@ flutter:
     - lib/shaders/tappable_slurp.frag
     - lib/shaders/fur_planar.frag
     - lib/shaders/fur_planar_mask.frag
+    - lib/shaders/turbulence_mask.frag

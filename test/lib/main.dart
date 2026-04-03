@@ -6,6 +6,8 @@ import 'implicit_animation_demo_page.dart';
 import 'shared_components.dart';
 import 'shader_wrap_demo_page.dart';
 import 'tappable_demo_page.dart';
+import 'fur_wrap_demo_page.dart';
+import 'turbulence_wrap_demo_page.dart';
 
 void main() {
   runApp(const TestDemosApp());
@@ -71,6 +73,8 @@ class _TestDemosHomeState extends State<TestDemosHome> {
     AnimationDemoPage(),
     TappableDemoPage(),
     ImplicitAnimationDemoPage(),
+    TurbulenceWrapDemoPage(),
+    FurWrapDemoPage(),
   ];
 
   @override
@@ -106,6 +110,14 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               NavigationRailDestination(
                 icon: Icon(Icons.auto_awesome),
                 label: Text('Implicit Anim'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.waves),
+                label: Text('Turbulence'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.grass),
+                label: Text('Fur Wrap'),
               ),
             ],
           ),

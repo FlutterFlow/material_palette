@@ -33,6 +33,7 @@ abstract class ShaderNames {
   static const String tapSlurp = 'Slurp Tap';
   static const String furPlanar = 'Fur';
   static const String furPlanarMask = 'Fur Mask';
+  static const String turbulenceMask = 'Turbulence Mask';
 }
 
 /// Data for a shader card
@@ -163,5 +164,9 @@ const List<ShaderCardData> allShaders = [
   ShaderCardData(
     title: ShaderNames.furPlanarMask,
     description: 'Fur grows on masked child regions',
+  ),
+  ShaderCardData(
+    title: ShaderNames.turbulenceMask,
+    description: 'Turbulence displacement at mask edges',
   ),
 ];

@@ -1713,6 +1713,46 @@ final furPlanarMaskedShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// TURBULENCE MASK (wrap shader)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final turbulenceMaskShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/turbulence_mask.frag',
+  layout: UniformLayout([
+    const UniformField('octaves'),
+    const UniformField('baseFrequency'),
+    const UniformField('noiseScale'),
+    const UniformField('animSpeed'),
+    const UniformField('displacementStrength'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'octaves': 5.0,
+      'baseFrequency': 1.5,
+      'noiseScale': 8.0,
+      'animSpeed': 0.5,
+      'displacementStrength': 0.03,
+    },
+    colors: {},
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'octaves': const SliderRange('Octaves', min: 1.0, max: 8.0),
+    'baseFrequency': const SliderRange('Base Freq', min: 0.5, max: 4.0),
+    'noiseScale': const SliderRange('Noise Scale', min: 0.5, max: 30.0),
+    'animSpeed': const SliderRange('Anim Speed', min: 0.0, max: 3.0),
+    'displacementStrength': const SliderRange('Displacement', min: 0.0, max: 0.1),
+  }),
+  paramDescriptions: {
+    'octaves': 'Number of turbulence layers summed together',
+    'baseFrequency': 'Base frequency of the turbulence pattern',
+    'noiseScale': 'Frequency scale of the turbulence noise in UV space',
+    'animSpeed': 'Speed multiplier for noise evolution over time',
+    'displacementStrength': 'Maximum UV displacement strength',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1766,6 +1806,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.tapSlurp: tappableSlurpShaderDef,
   ShaderNames.furPlanar: furPlanarShaderDef,
   ShaderNames.furPlanarMask: furPlanarMaskedShaderDef,
+  ShaderNames.turbulenceMask: turbulenceMaskShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -1799,6 +1840,7 @@ const List<String> allShaderNames = [
   ShaderNames.tapSlurp,
   ShaderNames.furPlanar,
   ShaderNames.furPlanarMask,
+  ShaderNames.turbulenceMask,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
@@ -1840,6 +1882,7 @@ const List<String> allParamNames = [
   'contrast',
   'contrastPower',
   'decay',
+  'displacementStrength',
   'distanceType',
   'ditherScale',
   'ditherStrength',
