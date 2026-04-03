@@ -49,21 +49,25 @@ void main() {
         vec2 backUV = vec2(backSrcX / uSize.x, uv.y);
 
         // Back face is closer to viewer (draws on top)
+        // Only show if source pixel is non-transparent (skip background)
         if (backUV.x >= 0.0 && backUV.x <= 1.0) {
             vec4 backColor = texture(uTexture, backUV);
-            // Shade based on angle — darker toward the fold
-            float shade = 0.6 + 0.4 * cos(theta);
-            backColor.rgb *= shade;
-            fragColor = backColor;
-        } else if (frontUV.x >= 0.0 && frontUV.x <= 1.0) {
-            vec4 frontColor = texture(uTexture, frontUV);
-            // Darken front face as it curls away
-            float shade = pow(clamp((r - d) / r, 0.0, 1.0), 0.2);
-            frontColor.rgb *= shade;
-            fragColor = frontColor;
-        } else {
-            fragColor = vec4(0.0);
+            if (backColor.a > 0.5) {
+                float shade = 0.6 + 0.4 * cos(theta);
+                fragColor = vec4(backColor.rgb * shade, backColor.a);
+                return;
+            }
         }
+        // Front face (or back face was transparent)
+        if (frontUV.x >= 0.0 && frontUV.x <= 1.0) {
+            vec4 frontColor = texture(uTexture, frontUV);
+            if (frontColor.a > 0.5) {
+                float shade = pow(clamp((r - d) / r, 0.0, 1.0), 0.2);
+                fragColor = vec4(frontColor.rgb * shade, frontColor.a);
+                return;
+            }
+        }
+        fragColor = vec4(0.0);
         return;
     }
 

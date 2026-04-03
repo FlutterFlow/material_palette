@@ -39,9 +39,10 @@ class _PeelWrapDemoPageState extends State<PeelWrapDemoPage> {
           // Preview
           Expanded(
             child: Center(
-              child: KeyedSubtree(
-                key: ValueKey('peel_$_animKey'),
-                child: PeelShaderWrap(
+              child: UnconstrainedBox(
+                child: KeyedSubtree(
+                  key: ValueKey('peel_$_animKey'),
+                  child: PeelShaderWrap(
                   params: _params,
                   animationConfig: ShaderAnimationConfig(
                     duration:
@@ -63,6 +64,7 @@ class _PeelWrapDemoPageState extends State<PeelWrapDemoPage> {
                     child: const Text('Tap Me'),
                   ),
                 ),
+              ),
               ),
             ),
           ),
