@@ -8,6 +8,7 @@ import 'shader_wrap_demo_page.dart';
 import 'tappable_demo_page.dart';
 import 'dither_wrap_demo_page.dart';
 import 'fur_wrap_demo_page.dart';
+import 'peel_wrap_demo_page.dart';
 import 'turbulence_wrap_demo_page.dart';
 
 void main() {
@@ -77,6 +78,7 @@ class _TestDemosHomeState extends State<TestDemosHome> {
     TurbulenceWrapDemoPage(),
     FurWrapDemoPage(),
     DitherWrapDemoPage(),
+    PeelWrapDemoPage(),
   ];
 
   @override
@@ -124,6 +126,10 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               NavigationRailDestination(
                 icon: Icon(Icons.grid_on),
                 label: Text('Dither'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.auto_stories),
+                label: Text('Peel'),
               ),
             ],
           ),

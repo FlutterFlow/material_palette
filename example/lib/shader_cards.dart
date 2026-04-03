@@ -27,6 +27,7 @@ abstract class ShaderImageAssets {
   static const String tapSlurp = 'assets/images/mountain.jpg';
   static const String turbulenceMask = 'assets/images/sunset.jpg';
   static const String dither = 'assets/images/sunset.jpg';
+  static const String peelWrap = 'assets/images/sunset.jpg';
 }
 
 // ============ HELPERS ============
@@ -279,6 +280,8 @@ class ShaderCard extends StatelessWidget {
         return TurbulenceMaskShaderCard(dimensions: dimensions);
       case ShaderNames.ditherWrap:
         return DitherShaderCard(dimensions: dimensions);
+      case ShaderNames.peelWrap:
+        return PeelShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -3406,6 +3409,167 @@ class _DitherShaderCardState extends State<DitherShaderCard> {
                 value: _params.get('colorSteps'),
                 onChanged: (v) => setState(
                     () => _params = _params.withValue('colorSteps', v))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+class PeelShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const PeelShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<PeelShaderCard> createState() => _PeelShaderCardState();
+}
+
+class _PeelShaderCardState extends State<PeelShaderCard> {
+  ShaderParams _params = peelWrapShaderDef.defaults;
+  bool _showControls = false;
+  int _curveIndex = 2; // easeInOut
+  double _durationSec = 3.0;
+  double _delaySec = 0.0;
+  bool _loop = true;
+  bool _reverse = true;
+  bool _invert = false;
+  double _rangeStart = 0.0;
+  double _rangeEnd = 1.0;
+  int _animKey = 0;
+
+  ShaderUIDefaults get _ui => peelWrapShaderDef.uiDefaults;
+
+  void _rebuild() => setState(() => _animKey++);
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: KeyedSubtree(
+            key: ValueKey('peel_$_animKey'),
+            child: PeelShaderWrap(
+              params: _params,
+              animationConfig: _buildAnimConfig(
+                curveIndex: _curveIndex,
+                durationSec: _durationSec,
+                delaySec: _delaySec,
+                loop: _loop,
+                reverse: _reverse,
+                invert: _invert,
+                rangeStart: _rangeStart,
+                rangeEnd: _rangeEnd,
+              ),
+              child: Image.asset(
+                ShaderImageAssets.peelWrap,
+                fit: BoxFit.cover,
+                width: dimensions.width,
+                height: dimensions.height,
+              ),
+            ),
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = peelWrapShaderDef.defaults),
+          shaderName: 'Peel',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Peel Properties'),
+            ControlSlider.fromRange(
+                range: _ui['curlRadius']!,
+                value: _params.get('curlRadius'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('curlRadius', v))),
+            ControlSlider.fromRange(
+                range: _ui['shadowStrength']!,
+                value: _params.get('shadowStrength'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('shadowStrength', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Animation'),
+            _buildCurveChips(
+                selectedIndex: _curveIndex,
+                onChanged: (i) {
+                  _curveIndex = i;
+                  _rebuild();
+                }),
+            const SizedBox(height: 8),
+            ControlSlider(
+                label: 'Duration (s)',
+                value: _durationSec,
+                min: 0.5,
+                max: 10.0,
+                onChanged: (v) {
+                  _durationSec = v;
+                  _rebuild();
+                }),
+            ControlSlider(
+                label: 'Delay (s)',
+                value: _delaySec,
+                min: 0.0,
+                max: 3.0,
+                onChanged: (v) {
+                  _delaySec = v;
+                  _rebuild();
+                }),
+            SwitchListTile(
+                title: const Text('Loop', style: TextStyle(fontSize: 12)),
+                value: _loop,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (v) {
+                  _loop = v;
+                  _rebuild();
+                }),
+            SwitchListTile(
+                title: const Text('Reverse', style: TextStyle(fontSize: 12)),
+                value: _reverse,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (v) {
+                  _reverse = v;
+                  _rebuild();
+                }),
+            SwitchListTile(
+                title: const Text('Invert', style: TextStyle(fontSize: 12)),
+                value: _invert,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (v) {
+                  _invert = v;
+                  _rebuild();
+                }),
+            ControlSlider(
+                label: 'Range Start',
+                value: _rangeStart,
+                min: 0.0,
+                max: 1.0,
+                onChanged: (v) {
+                  _rangeStart = v;
+                  _rebuild();
+                }),
+            ControlSlider(
+                label: 'Range End',
+                value: _rangeEnd,
+                min: 0.0,
+                max: 1.0,
+                onChanged: (v) {
+                  _rangeEnd = v;
+                  _rebuild();
+                }),
           ],
         ),
       ],

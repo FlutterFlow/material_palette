@@ -1781,6 +1781,34 @@ final ditherWrapShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// PEEL WRAP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final peelWrapShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/peel_wrap.frag',
+  layout: UniformLayout([
+    const UniformField('curlRadius'),
+    const UniformField('shadowStrength'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'curlRadius': 80.0,
+      'shadowStrength': 0.5,
+    },
+    colors: {},
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'curlRadius': const SliderRange('Curl Radius', min: 10.0, max: 200.0),
+    'shadowStrength': const SliderRange('Shadow', min: 0.0, max: 1.0),
+  }),
+  paramDescriptions: {
+    'curlRadius': 'Radius of the curl cylinder in pixels',
+    'shadowStrength': 'Darkness of shadow behind the curl',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1836,6 +1864,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.furPlanarMask: furPlanarMaskedShaderDef,
   ShaderNames.turbulenceMask: turbulenceMaskShaderDef,
   ShaderNames.ditherWrap: ditherWrapShaderDef,
+  ShaderNames.peelWrap: peelWrapShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -1871,6 +1900,7 @@ const List<String> allShaderNames = [
   ShaderNames.furPlanarMask,
   ShaderNames.turbulenceMask,
   ShaderNames.ditherWrap,
+  ShaderNames.peelWrap,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
@@ -1911,6 +1941,7 @@ const List<String> allParamNames = [
   'colorCount',
   'contrast',
   'contrastPower',
+  'curlRadius',
   'decay',
   'displacementStrength',
   'distanceType',
@@ -1991,6 +2022,7 @@ const List<String> allParamNames = [
   'roughness',
   'scale',
   'scatter',
+  'shadowStrength',
   'sharpness',
   'shininess',
   'smokeColor',

@@ -35,6 +35,7 @@ abstract class ShaderNames {
   static const String furPlanarMask = 'Fur Mask';
   static const String turbulenceMask = 'Turbulence Mask';
   static const String ditherWrap = 'Dither Wrap';
+  static const String peelWrap = 'Peel Wrap';
 }
 
 /// Data for a shader card
@@ -173,5 +174,9 @@ const List<ShaderCardData> allShaders = [
   ShaderCardData(
     title: ShaderNames.ditherWrap,
     description: 'Bayer ordered dither pixelation effect',
+  ),
+  ShaderCardData(
+    title: ShaderNames.peelWrap,
+    description: '3D page curl/peel transition effect',
   ),
 ];

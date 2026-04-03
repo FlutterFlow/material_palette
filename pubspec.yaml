@@ -60,3 +60,4 @@ flutter:
     - lib/shaders/fur_planar_mask.frag
     - lib/shaders/turbulence_mask.frag
     - lib/shaders/dither_wrap.frag
+    - lib/shaders/peel_wrap.frag
