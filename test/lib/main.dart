@@ -6,6 +6,7 @@ import 'implicit_animation_demo_page.dart';
 import 'shared_components.dart';
 import 'shader_wrap_demo_page.dart';
 import 'tappable_demo_page.dart';
+import 'dither_wrap_demo_page.dart';
 import 'fur_wrap_demo_page.dart';
 import 'turbulence_wrap_demo_page.dart';
 
@@ -75,6 +76,7 @@ class _TestDemosHomeState extends State<TestDemosHome> {
     ImplicitAnimationDemoPage(),
     TurbulenceWrapDemoPage(),
     FurWrapDemoPage(),
+    DitherWrapDemoPage(),
   ];
 
   @override
@@ -118,6 +120,10 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               NavigationRailDestination(
                 icon: Icon(Icons.grass),
                 label: Text('Fur Wrap'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.grid_on),
+                label: Text('Dither'),
               ),
             ],
           ),

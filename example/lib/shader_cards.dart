@@ -26,6 +26,7 @@ abstract class ShaderImageAssets {
   static const String tapPixelDissolve = 'assets/images/mountain.jpg';
   static const String tapSlurp = 'assets/images/mountain.jpg';
   static const String turbulenceMask = 'assets/images/sunset.jpg';
+  static const String dither = 'assets/images/sunset.jpg';
 }
 
 // ============ HELPERS ============
@@ -276,6 +277,8 @@ class ShaderCard extends StatelessWidget {
         return FurPlanarMaskShaderCard(dimensions: dimensions);
       case ShaderNames.turbulenceMask:
         return TurbulenceMaskShaderCard(dimensions: dimensions);
+      case ShaderNames.ditherWrap:
+        return DitherShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -3338,6 +3341,71 @@ class _TurbulenceMaskShaderCardState extends State<TurbulenceMaskShaderCard> {
                 value: _params.get('displacementStrength'),
                 onChanged: (v) => setState(() =>
                     _params = _params.withValue('displacementStrength', v))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+class DitherShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const DitherShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<DitherShaderCard> createState() => _DitherShaderCardState();
+}
+
+class _DitherShaderCardState extends State<DitherShaderCard> {
+  ShaderParams _params = ditherWrapShaderDef.defaults;
+  bool _showControls = false;
+
+  ShaderUIDefaults get _ui => ditherWrapShaderDef.uiDefaults;
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: DitherShaderWrap(
+            params: _params,
+            child: Image.asset(
+              ShaderImageAssets.dither,
+              fit: BoxFit.cover,
+              width: dimensions.width,
+              height: dimensions.height,
+            ),
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = ditherWrapShaderDef.defaults),
+          shaderName: 'Dither',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Dither'),
+            ControlSlider.fromRange(
+                range: _ui['ditherScale']!,
+                value: _params.get('ditherScale'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('ditherScale', v))),
+            ControlSlider.fromRange(
+                range: _ui['colorSteps']!,
+                value: _params.get('colorSteps'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('colorSteps', v))),
           ],
         ),
       ],

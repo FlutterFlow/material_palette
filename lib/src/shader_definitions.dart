@@ -1753,6 +1753,34 @@ final turbulenceMaskShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// DITHER WRAP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final ditherWrapShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/dither_wrap.frag',
+  layout: UniformLayout([
+    const UniformField('ditherScale'),
+    const UniformField('colorSteps'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'ditherScale': 0.4,
+      'colorSteps': 4.0,
+    },
+    colors: {},
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'ditherScale': const SliderRange('Dither Scale', min: 0.05, max: 1.0),
+    'colorSteps': const SliderRange('Color Steps', min: 1.0, max: 16.0),
+  }),
+  paramDescriptions: {
+    'ditherScale': 'Cell size for dither grid (lower = larger pixels)',
+    'colorSteps': 'Number of discrete luminance levels for quantization',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1807,6 +1835,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.furPlanar: furPlanarShaderDef,
   ShaderNames.furPlanarMask: furPlanarMaskedShaderDef,
   ShaderNames.turbulenceMask: turbulenceMaskShaderDef,
+  ShaderNames.ditherWrap: ditherWrapShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -1841,6 +1870,7 @@ const List<String> allShaderNames = [
   ShaderNames.furPlanar,
   ShaderNames.furPlanarMask,
   ShaderNames.turbulenceMask,
+  ShaderNames.ditherWrap,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
