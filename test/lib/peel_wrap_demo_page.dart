@@ -13,13 +13,19 @@ class PeelWrapDemoPage extends StatefulWidget {
 class _PeelWrapDemoPageState extends State<PeelWrapDemoPage> {
   ShaderParams _params = peelWrapShaderDef.defaults;
   double _durationSec = 3.0;
-  bool _loop = true;
+  bool _loop = false;
   bool _reverse = true;
   int _animKey = 0;
+  bool _peeling = false;
 
   ShaderUIDefaults get _ui => peelWrapShaderDef.uiDefaults;
 
-  void _rebuild() => setState(() => _animKey++);
+  void _triggerPeel() {
+    setState(() {
+      _peeling = true;
+      _animKey++;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,31 +46,22 @@ class _PeelWrapDemoPageState extends State<PeelWrapDemoPage> {
           Expanded(
             child: Center(
               child: UnconstrainedBox(
-                child: KeyedSubtree(
-                  key: ValueKey('peel_$_animKey'),
-                  child: PeelShaderWrap(
-                  params: _params,
-                  animationConfig: ShaderAnimationConfig(
-                    duration:
-                        Duration(milliseconds: (_durationSec * 1000).round()),
-                    curve: Curves.easeInOut,
-                    loop: _loop,
-                    reverse: _reverse,
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF8C8CEF),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 64, vertical: 32),
-                      textStyle: const TextStyle(
-                          fontSize: 32, fontWeight: FontWeight.bold),
-                    ),
-                    child: const Text('Tap Me'),
-                  ),
-                ),
-              ),
+                child: _peeling
+                    ? KeyedSubtree(
+                        key: ValueKey('peel_$_animKey'),
+                        child: PeelShaderWrap(
+                          params: _params,
+                          animationConfig: ShaderAnimationConfig(
+                            duration: Duration(
+                                milliseconds: (_durationSec * 1000).round()),
+                            curve: Curves.easeInOut,
+                            loop: _loop,
+                            reverse: _reverse,
+                          ),
+                          child: _buildButton(),
+                        ),
+                      )
+                    : _buildButton(),
               ),
             ),
           ),
@@ -106,10 +103,7 @@ class _PeelWrapDemoPageState extends State<PeelWrapDemoPage> {
                       value: _durationSec,
                       min: 0.5,
                       max: 10.0,
-                      onChanged: (v) {
-                        _durationSec = v;
-                        _rebuild();
-                      },
+                      onChanged: (v) => setState(() => _durationSec = v),
                     ),
                     SwitchListTile(
                       title:
@@ -117,10 +111,7 @@ class _PeelWrapDemoPageState extends State<PeelWrapDemoPage> {
                       value: _loop,
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      onChanged: (v) {
-                        _loop = v;
-                        _rebuild();
-                      },
+                      onChanged: (v) => setState(() => _loop = v),
                     ),
                     SwitchListTile(
                       title: const Text('Reverse',
@@ -128,20 +119,16 @@ class _PeelWrapDemoPageState extends State<PeelWrapDemoPage> {
                       value: _reverse,
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      onChanged: (v) {
-                        _reverse = v;
-                        _rebuild();
-                      },
+                      onChanged: (v) => setState(() => _reverse = v),
                     ),
                     const SizedBox(height: 24),
                     const Divider(color: Colors.white12),
                     const SizedBox(height: 8),
                     ElevatedButton(
-                      onPressed: () {
-                        setState(
-                            () => _params = peelWrapShaderDef.defaults);
-                        _rebuild();
-                      },
+                      onPressed: () => setState(() {
+                        _peeling = false;
+                        _params = peelWrapShaderDef.defaults;
+                      }),
                       child: const Text('Reset'),
                     ),
                   ],
@@ -151,6 +138,19 @@ class _PeelWrapDemoPageState extends State<PeelWrapDemoPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildButton() {
+    return ElevatedButton(
+      onPressed: _triggerPeel,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF8C8CEF),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 64, vertical: 32),
+        textStyle: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      ),
+      child: const Text('Tap Me'),
     );
   }
 }
