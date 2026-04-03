@@ -62,15 +62,11 @@ void main() {
             frontColor.rgb *= shade;
             fragColor = frontColor;
         } else {
-            // Shadow on the surface beneath
-            float shadowFade = 1.0 - d / r;
-            fragColor = vec4(0.0, 0.0, 0.0, uShadowStrength * shadowFade);
+            fragColor = vec4(0.0);
         }
         return;
     }
 
     // ── Zone 3: Past the curl (peeled away) ─────────────────────────
-    // Transparent with fading shadow
-    float shadowFade = clamp(1.0 - (d - r) / r, 0.0, 1.0);
-    fragColor = vec4(0.0, 0.0, 0.0, uShadowStrength * shadowFade * 0.5);
+    fragColor = vec4(0.0);
 }
