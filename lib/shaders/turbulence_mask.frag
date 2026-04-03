@@ -55,9 +55,9 @@ float perlinNoise3D(vec3 p) {
     return mix(n0, n1, u.z);
 }
 
-// ============ TURBULENCE (FBM with abs) ============
+// ============ FBM (zero-centered) ============
 
-float turbulenceNoise3D(vec3 p, int octaves, float baseFreq) {
+float fbmNoise3D(vec3 p, int octaves, float baseFreq) {
     float value = 0.0;
     float amplitude = 0.5;
     float frequency = baseFreq;
@@ -72,7 +72,7 @@ float turbulenceNoise3D(vec3 p, int octaves, float baseFreq) {
     for (int i = 0; i < 8; i++) {
         if (i >= octaves) break;
 
-        value += amplitude * abs(perlinNoise3D(p * frequency));
+        value += amplitude * perlinNoise3D(p * frequency);
         maxValue += amplitude;
         amplitude *= 0.5;
         frequency *= 2.0;
@@ -82,8 +82,8 @@ float turbulenceNoise3D(vec3 p, int octaves, float baseFreq) {
     return value / maxValue;
 }
 
-float animatedTurbulence(vec2 p, float time, int octaves, float baseFreq) {
-    return turbulenceNoise3D(vec3(p, time * 0.3), octaves, baseFreq);
+float animatedFbm(vec2 p, float time, int octaves, float baseFreq) {
+    return fbmNoise3D(vec3(p, time * 0.3), octaves, baseFreq);
 }
 
 // ============ MAIN ============
@@ -98,12 +98,12 @@ void main() {
     vec2 noiseCoord = vec2(uv.x * aspect, uv.y) * uNoiseScale;
     int octaves = int(uOctaves);
 
-    float turbX = animatedTurbulence(noiseCoord, time, octaves, uBaseFrequency);
+    float noiseX = animatedFbm(noiseCoord, time, octaves, uBaseFrequency);
     // Offset by large constant to decorrelate X and Y channels
-    float turbY = animatedTurbulence(noiseCoord + vec2(43.0, 17.0), time, octaves, uBaseFrequency);
+    float noiseY = animatedFbm(noiseCoord + vec2(43.0, 17.0), time, octaves, uBaseFrequency);
 
-    // Map from [0,1] to [-1,1]
-    vec2 displacement = vec2(turbX * 2.0 - 1.0, turbY * 2.0 - 1.0);
+    // FBM is already zero-centered [-1,1], so no bias offset needed
+    vec2 displacement = vec2(noiseX, noiseY);
 
     // Scale by user-controlled strength
     displacement *= uDisplacementStrength;
