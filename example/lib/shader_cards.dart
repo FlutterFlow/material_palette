@@ -3592,27 +3592,7 @@ class CrepuscularRaysShaderCard extends StatefulWidget {
 }
 
 class _CrepuscularRaysShaderCardState extends State<CrepuscularRaysShaderCard> {
-  static const ShaderParams _defaults = ShaderParams(
-    values: {
-      'sunPosX': 0.52,
-      'sunPosY': 0.43,
-      'sunRadius': 0.15,
-      'exposure': 0.27,
-      'decay': 0.95,
-      'density': 1.40,
-      'weight': 0.26,
-      'orbitRadius': 0.14,
-      'orbitSpeed': 0.28,
-      'showSun': 1.0,
-    },
-    colors: {
-      'sunColor': Color.fromRGBO(255, 217, 140, 1),
-      'sunDiscColor': Color.fromRGBO(255, 245, 220, 1),
-      'passColor': Color.fromRGBO(0, 0, 0, 0),
-    },
-  );
-
-  ShaderParams _params = _defaults;
+  ShaderParams _params = crepuscularRaysShaderDef.defaults;
   bool _showControls = false;
 
   ShaderUIDefaults get _ui => crepuscularRaysShaderDef.uiDefaults;
@@ -3651,7 +3631,8 @@ class _CrepuscularRaysShaderCardState extends State<CrepuscularRaysShaderCard> {
           onToggle: () => setState(() => _showControls = !_showControls),
           controlsWidth: dimensions.controlsWidth,
           controlsHeight: controlsHeight,
-          onReset: () => setState(() => _params = _defaults),
+          onReset: () =>
+              setState(() => _params = crepuscularRaysShaderDef.defaults),
           shaderName: 'Crepuscular Rays',
           onCopyPreset: () => _generatePreset(),
           children: [
