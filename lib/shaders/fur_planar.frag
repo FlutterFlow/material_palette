@@ -131,8 +131,12 @@ float wavelet(V pos, vec2 clickPos, float clickTime) {
     float decay = exp(-clickTime * uWaveletDecay);
     if (decay < 0.001) return 0.0;
 
-    vec2 dxy = pos.xy - clickPos;
-    float dist = sqrt(dxy.x * dxy.x + dxy.y * dxy.y + pos.z * pos.z);
+    // clickPos arrives in screen-UV space; project to world XY at the fur plane
+    // (pz = -uPlaneOffset) so distances match pos.xy.
+    vec2 worldClick = clickPos * (CAMERA_DISTANCE - uPlaneOffset);
+    vec2 dxy = pos.xy - worldClick;
+    float dz = pos.z + uPlaneOffset;
+    float dist = sqrt(dxy.x * dxy.x + dxy.y * dxy.y + dz * dz);
     float waveRadius = clickTime * uWaveletSpeed;
 
     float ringDist = abs(dist - waveRadius);
@@ -240,6 +244,9 @@ void main() {
         // Calculate wavelet once per step, reuse for density
         float waveletDisp = totalWavelet(rayPos);
         float density = f(rayPos, waveletDisp);
+
+        // Skip lighting for empty-space regions
+        if (density < 0.001) continue;
 
         // Attenuate light through fur (for self-shadowing)
         lightAccum *= uFurColor - density / LIGHT_ABSORPTION;
