@@ -61,3 +61,4 @@ flutter:
     - lib/shaders/turbulence_mask.frag
     - lib/shaders/dither_wrap.frag
     - lib/shaders/peel_wrap.frag
+    - lib/shaders/crepuscular_rays.frag

@@ -282,6 +282,8 @@ class ShaderCard extends StatelessWidget {
         return DitherShaderCard(dimensions: dimensions);
       case ShaderNames.peelWrap:
         return PeelShaderCard(dimensions: dimensions);
+      case ShaderNames.crepuscularRays:
+        return CrepuscularRaysShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -3579,19 +3581,187 @@ class _PeelShaderCardState extends State<PeelShaderCard> {
   String _generatePreset() => PresetGenerator.shaderParams(_params);
 }
 
+class CrepuscularRaysShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const CrepuscularRaysShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<CrepuscularRaysShaderCard> createState() =>
+      _CrepuscularRaysShaderCardState();
+}
+
+class _CrepuscularRaysShaderCardState extends State<CrepuscularRaysShaderCard> {
+  static const ShaderParams _defaults = ShaderParams(
+    values: {
+      'sunPosX': 0.52,
+      'sunPosY': 0.43,
+      'sunRadius': 0.15,
+      'exposure': 0.27,
+      'decay': 0.95,
+      'density': 1.40,
+      'weight': 0.26,
+      'orbitRadius': 0.14,
+      'orbitSpeed': 0.28,
+      'showSun': 1.0,
+    },
+    colors: {
+      'sunColor': Color.fromRGBO(255, 217, 140, 1),
+      'sunDiscColor': Color.fromRGBO(255, 245, 220, 1),
+      'passColor': Color.fromRGBO(0, 0, 0, 0),
+    },
+  );
+
+  ShaderParams _params = _defaults;
+  bool _showControls = false;
+
+  ShaderUIDefaults get _ui => crepuscularRaysShaderDef.uiDefaults;
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: Container(
+            // Dark sky behind the mask so the rays read clearly.
+            color: const Color(0xFF0B1020),
+            child: CrepuscularRaysShaderWrap(
+              params: _params,
+              // Transparent cells let the shader's mask treat them as sky, so
+              // rays can punch through them; the blue cells act as occluders.
+              child: CustomPaint(
+                size: Size(dimensions.width, dimensions.height),
+                painter: _CheckerboardPainter(
+                  color: Colors.transparent,
+                  lightColor: const Color(0xFF4A90E2),
+                  cellCount: 6,
+                ),
+              ),
+            ),
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = _defaults),
+          shaderName: 'Crepuscular Rays',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Sun'),
+            ControlSlider.fromRange(
+                range: _ui['sunPosX']!,
+                value: _params.get('sunPosX'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('sunPosX', v))),
+            ControlSlider.fromRange(
+                range: _ui['sunPosY']!,
+                value: _params.get('sunPosY'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('sunPosY', v))),
+            ControlSlider.fromRange(
+                range: _ui['sunRadius']!,
+                value: _params.get('sunRadius'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('sunRadius', v))),
+            ControlColorPicker(
+              label: 'Ray Color',
+              color: _params.getColor('sunColor'),
+              onChanged: (c) =>
+                  setState(() => _params = _params.withColor('sunColor', c)),
+            ),
+            ControlColorPicker(
+              label: 'Disc Color',
+              color: _params.getColor('sunDiscColor'),
+              onChanged: (c) => setState(
+                  () => _params = _params.withColor('sunDiscColor', c)),
+            ),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Mask'),
+            ControlColorPicker(
+              label: 'Pass Color',
+              color: _params.getColor('passColor'),
+              onChanged: (c) => setState(
+                  () => _params = _params.withColor('passColor', c)),
+            ),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Rays'),
+            ControlSlider.fromRange(
+                range: _ui['exposure']!,
+                value: _params.get('exposure'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('exposure', v))),
+            ControlSlider.fromRange(
+                range: _ui['decay']!,
+                value: _params.get('decay'),
+                onChanged: (v) =>
+                    setState(() => _params = _params.withValue('decay', v))),
+            ControlSlider.fromRange(
+                range: _ui['density']!,
+                value: _params.get('density'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('density', v))),
+            ControlSlider.fromRange(
+                range: _ui['weight']!,
+                value: _params.get('weight'),
+                onChanged: (v) =>
+                    setState(() => _params = _params.withValue('weight', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Orbit'),
+            ControlSlider.fromRange(
+                range: _ui['orbitRadius']!,
+                value: _params.get('orbitRadius'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('orbitRadius', v))),
+            ControlSlider.fromRange(
+                range: _ui['orbitSpeed']!,
+                value: _params.get('orbitSpeed'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('orbitSpeed', v))),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              title: const Text('Draw sun disc',
+                  style: TextStyle(fontSize: 12)),
+              value: _params.get('showSun') > 0.5,
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              onChanged: (v) => setState(() =>
+                  _params = _params.withValue('showSun', v ? 1.0 : 0.0)),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
 /// Checkerboard painter for the fur mask demo child widget.
 class _CheckerboardPainter extends CustomPainter {
   final Color color;
+  final Color lightColor;
   final int cellCount;
 
-  _CheckerboardPainter({required this.color, this.cellCount = 8});
+  _CheckerboardPainter({
+    required this.color,
+    this.lightColor = Colors.white,
+    this.cellCount = 8,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final cellW = size.width / cellCount;
     final cellH = size.height / cellCount;
     final darkPaint = Paint()..color = color;
-    final lightPaint = Paint()..color = Colors.white;
+    final lightPaint = Paint()..color = lightColor;
 
     for (int y = 0; y < cellCount; y++) {
       for (int x = 0; x < cellCount; x++) {
@@ -3606,5 +3776,7 @@ class _CheckerboardPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_CheckerboardPainter oldDelegate) =>
-      color != oldDelegate.color || cellCount != oldDelegate.cellCount;
+      color != oldDelegate.color ||
+      lightColor != oldDelegate.lightColor ||
+      cellCount != oldDelegate.cellCount;
 }

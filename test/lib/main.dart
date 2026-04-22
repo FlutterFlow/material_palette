@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'animation_demo_page.dart';
+import 'crepuscular_rays_demo_page.dart';
+import 'crepuscular_rays_fbm_demo_page.dart';
 import 'dynamic_shader_preview_page.dart';
 import 'implicit_animation_demo_page.dart';
 import 'shared_components.dart';
@@ -79,6 +81,8 @@ class _TestDemosHomeState extends State<TestDemosHome> {
     FurWrapDemoPage(),
     DitherWrapDemoPage(),
     PeelWrapDemoPage(),
+    CrepuscularRaysDemoPage(),
+    CrepuscularRaysFbmDemoPage(),
   ];
 
   @override
@@ -130,6 +134,14 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               NavigationRailDestination(
                 icon: Icon(Icons.auto_stories),
                 label: Text('Peel'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.wb_sunny),
+                label: Text('Rays'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.cloud),
+                label: Text('Rays+FBM'),
               ),
             ],
           ),

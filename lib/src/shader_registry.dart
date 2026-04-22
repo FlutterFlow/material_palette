@@ -36,6 +36,7 @@ abstract class ShaderNames {
   static const String turbulenceMask = 'Turbulence Mask';
   static const String ditherWrap = 'Dither Wrap';
   static const String peelWrap = 'Peel Wrap';
+  static const String crepuscularRays = 'Crepuscular Rays';
 }
 
 /// Data for a shader card
@@ -178,5 +179,9 @@ const List<ShaderCardData> allShaders = [
   ShaderCardData(
     title: ShaderNames.peelWrap,
     description: '3D page curl/peel transition effect',
+  ),
+  ShaderCardData(
+    title: ShaderNames.crepuscularRays,
+    description: 'Volumetric god rays from a soft sun source',
   ),
 ];

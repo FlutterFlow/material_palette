@@ -1809,6 +1809,78 @@ final peelWrapShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// CREPUSCULAR RAYS (God Rays) WRAP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final crepuscularRaysShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/crepuscular_rays.frag',
+  layout: UniformLayout([
+    const UniformField('sunPosX'),
+    const UniformField('sunPosY'),
+    const UniformField('sunRadius'),
+    const UniformField('exposure'),
+    const UniformField('decay'),
+    const UniformField('density'),
+    const UniformField('weight'),
+    const UniformField('orbitRadius'),
+    const UniformField('orbitSpeed'),
+    const UniformField('showSun'),
+    const UniformField.color('sunColor'),
+    const UniformField.color('sunDiscColor'),
+    const UniformField.colorRgba('passColor'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'sunPosX': 0.5,
+      'sunPosY': 0.25,
+      'sunRadius': 0.11,
+      'exposure': 0.17,
+      'decay': 0.965,
+      'density': 0.85,
+      'weight': 0.25,
+      'orbitRadius': 0.06,
+      'orbitSpeed': 0.15,
+      'showSun': 1.0,
+    },
+    colors: {
+      'sunColor': const Color.fromRGBO(255, 217, 140, 1),
+      'sunDiscColor': const Color.fromRGBO(255, 245, 220, 1),
+      'passColor': const Color.fromRGBO(0, 0, 0, 0),
+    },
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'sunPosX': const SliderRange('Sun X', min: 0.0, max: 1.0),
+    'sunPosY': const SliderRange('Sun Y', min: 0.0, max: 1.0),
+    'sunRadius': const SliderRange('Sun Radius', min: 0.0, max: 0.4),
+    'exposure': const SliderRange('Exposure', min: 0.0, max: 1.5),
+    'decay': const SliderRange('Decay', min: 0.85, max: 1.0),
+    'density': const SliderRange('Density', min: 0.1, max: 2.0),
+    'weight': const SliderRange('Weight', min: 0.0, max: 1.0),
+    'orbitRadius': const SliderRange('Orbit Radius', min: 0.0, max: 0.3),
+    'orbitSpeed': const SliderRange('Orbit Speed', min: 0.0, max: 1.5),
+    'showSun': const SliderRange('Show Sun', min: 0.0, max: 1.0),
+  }),
+  paramDescriptions: {
+    'sunPosX': 'Horizontal anchor of the sun in UV space',
+    'sunPosY': 'Vertical anchor of the sun in UV space',
+    'sunRadius': 'Soft sun disc radius in screen units',
+    'exposure': 'Overall brightness of the rays',
+    'decay': 'Per-step falloff along each ray (higher = longer rays)',
+    'density': 'Step length along each ray (higher = rays spread further)',
+    'weight': 'Per-sample contribution to the accumulated ray sum',
+    'orbitRadius': 'Amplitude of the sun orbit around its anchor (0 = pinned)',
+    'orbitSpeed': 'Angular speed of the sun orbit in radians per second',
+    'showSun':
+        'Opacity of the explicit sun disc drawn behind the wrapped widget',
+    'sunColor': 'Tint of the sunlight passing through the mask',
+    'sunDiscColor': 'Tint of the explicit sun disc overlay',
+    'passColor':
+        'Color that counts as "light passes" in the mask. Transparent (alpha=0, default) uses the classic alpha-driven mask — partial pass for semi-transparent pixels. Any non-transparent color requires an exact match to pass (all-or-nothing); everything else blocks.',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1865,6 +1937,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.turbulenceMask: turbulenceMaskShaderDef,
   ShaderNames.ditherWrap: ditherWrapShaderDef,
   ShaderNames.peelWrap: peelWrapShaderDef,
+  ShaderNames.crepuscularRays: crepuscularRaysShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -1901,6 +1974,7 @@ const List<String> allShaderNames = [
   ShaderNames.turbulenceMask,
   ShaderNames.ditherWrap,
   ShaderNames.peelWrap,
+  ShaderNames.crepuscularRays,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
@@ -1943,6 +2017,7 @@ const List<String> allParamNames = [
   'contrastPower',
   'curlRadius',
   'decay',
+  'density',
   'displacementStrength',
   'distanceType',
   'ditherScale',
@@ -2003,12 +2078,15 @@ const List<String> allParamNames = [
   'numWaves',
   'octaves',
   'offset',
+  'orbitRadius',
+  'orbitSpeed',
   'origin1X',
   'origin1Y',
   'origin2X',
   'origin2Y',
   'originScale',
   'outputMode',
+  'passColor',
   'persistence',
   'pixelSize',
   'planeOffset',
@@ -2025,6 +2103,7 @@ const List<String> allParamNames = [
   'shadowStrength',
   'sharpness',
   'shininess',
+  'showSun',
   'smokeColor',
   'smudgeFalloff',
   'smudgeRadius',
@@ -2033,6 +2112,11 @@ const List<String> allParamNames = [
   'specular',
   'speed',
   'stippleStrength',
+  'sunColor',
+  'sunDiscColor',
+  'sunPosX',
+  'sunPosY',
+  'sunRadius',
   'warp1Scale',
   'warp2Scale',
   'warpStrength',
@@ -2041,6 +2125,7 @@ const List<String> allParamNames = [
   'waveletFreq',
   'waveletSpeed',
   'waveletWidth',
+  'weight',
   'wrinkleDepth',
   'wrinkles',
 ];
