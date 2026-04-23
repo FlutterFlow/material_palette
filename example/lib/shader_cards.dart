@@ -28,6 +28,7 @@ abstract class ShaderImageAssets {
   static const String turbulenceMask = 'assets/images/sunset.jpg';
   static const String dither = 'assets/images/sunset.jpg';
   static const String peelWrap = 'assets/images/sunset.jpg';
+  static const String kuwahara = 'assets/images/mountain.jpg';
 }
 
 // ============ HELPERS ============
@@ -284,6 +285,8 @@ class ShaderCard extends StatelessWidget {
         return PeelShaderCard(dimensions: dimensions);
       case ShaderNames.crepuscularRays:
         return CrepuscularRaysShaderCard(dimensions: dimensions);
+      case ShaderNames.kuwaharaWrap:
+        return KuwaharaShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -3768,4 +3771,70 @@ class _CheckerboardPainter extends CustomPainter {
       color != oldDelegate.color ||
       lightColor != oldDelegate.lightColor ||
       cellCount != oldDelegate.cellCount;
+}
+
+class KuwaharaShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const KuwaharaShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<KuwaharaShaderCard> createState() => _KuwaharaShaderCardState();
+}
+
+class _KuwaharaShaderCardState extends State<KuwaharaShaderCard> {
+  ShaderParams _params = kuwaharaShaderDef.defaults;
+  bool _showControls = false;
+
+  ShaderUIDefaults get _ui => kuwaharaShaderDef.uiDefaults;
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: KuwaharaShaderWrap(
+            params: _params,
+            cache: true,
+            child: Image.asset(
+              ShaderImageAssets.kuwahara,
+              fit: BoxFit.cover,
+              width: dimensions.width,
+              height: dimensions.height,
+            ),
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = kuwaharaShaderDef.defaults),
+          shaderName: 'Kuwahara',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Kuwahara'),
+            ControlSlider.fromRange(
+                range: _ui['kernelRadius']!,
+                value: _params.get('kernelRadius'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('kernelRadius', v))),
+            ControlSlider.fromRange(
+                range: _ui['sharpness']!,
+                value: _params.get('sharpness'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('sharpness', v))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
 }

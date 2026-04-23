@@ -54,3 +54,5 @@ export 'package:material_palette/src/shaders/dither_shader_wrap.dart';
 export 'package:material_palette/src/shaders/peel_shader_wrap.dart';
 // Crepuscular rays wraps
 export 'package:material_palette/src/shaders/crepuscular_rays_shader_wrap.dart';
+// Kuwahara wraps
+export 'package:material_palette/src/shaders/kuwahara_shader_wrap.dart';

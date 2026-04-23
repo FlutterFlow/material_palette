@@ -1881,6 +1881,36 @@ final crepuscularRaysShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// KUWAHARA WRAP (anisotropic painterly filter)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final kuwaharaShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath: 'packages/material_palette/shaders/kuwahara.frag',
+  layout: UniformLayout([
+    const UniformField('kernelRadius'),
+    const UniformField('sharpness'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'kernelRadius': 6.0,
+      'sharpness': 25.0,
+    },
+    colors: {},
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'kernelRadius': const SliderRange('Kernel Radius', min: 1.0, max: 16.0),
+    'sharpness': const SliderRange('Sharpness', min: 1.0, max: 50.0),
+  }),
+  paramDescriptions: {
+    'kernelRadius':
+        'Brush size in pixels (1 = subtle smoothing, 16 = pronounced painterly strokes). Higher values are more expensive — each +1 adds a ring of sector samples',
+    'sharpness':
+        'Anisotropic ellipse bias. Higher values keep the kernel rounder (more uniform blobs); lower values allow strong elongation along detected edges (streak-like brush strokes)',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1938,6 +1968,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.ditherWrap: ditherWrapShaderDef,
   ShaderNames.peelWrap: peelWrapShaderDef,
   ShaderNames.crepuscularRays: crepuscularRaysShaderDef,
+  ShaderNames.kuwaharaWrap: kuwaharaShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -1975,6 +2006,7 @@ const List<String> allShaderNames = [
   ShaderNames.ditherWrap,
   ShaderNames.peelWrap,
   ShaderNames.crepuscularRays,
+  ShaderNames.kuwaharaWrap,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
@@ -2060,6 +2092,7 @@ const List<String> allParamNames = [
   'keyLightDirY',
   'keyLightDirZ',
   'keyLightIntensity',
+  'kernelRadius',
   'lacunarity',
   'lifetime',
   'lightDirX',

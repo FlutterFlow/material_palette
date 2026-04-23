@@ -10,6 +10,7 @@ import 'shader_wrap_demo_page.dart';
 import 'tappable_demo_page.dart';
 import 'dither_wrap_demo_page.dart';
 import 'fur_wrap_demo_page.dart';
+import 'kuwahara_wrap_demo_page.dart';
 import 'peel_wrap_demo_page.dart';
 import 'turbulence_wrap_demo_page.dart';
 
@@ -83,6 +84,7 @@ class _TestDemosHomeState extends State<TestDemosHome> {
     PeelWrapDemoPage(),
     CrepuscularRaysDemoPage(),
     CrepuscularRaysFbmDemoPage(),
+    KuwaharaWrapDemoPage(),
   ];
 
   @override
@@ -142,6 +144,10 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               NavigationRailDestination(
                 icon: Icon(Icons.cloud),
                 label: Text('Rays+FBM'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.brush),
+                label: Text('Kuwahara'),
               ),
             ],
           ),

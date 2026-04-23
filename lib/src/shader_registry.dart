@@ -37,6 +37,7 @@ abstract class ShaderNames {
   static const String ditherWrap = 'Dither Wrap';
   static const String peelWrap = 'Peel Wrap';
   static const String crepuscularRays = 'Crepuscular Rays';
+  static const String kuwaharaWrap = 'Kuwahara Wrap';
 }
 
 /// Data for a shader card
@@ -183,5 +184,9 @@ const List<ShaderCardData> allShaders = [
   ShaderCardData(
     title: ShaderNames.crepuscularRays,
     description: 'Volumetric god rays from a soft sun source',
+  ),
+  ShaderCardData(
+    title: ShaderNames.kuwaharaWrap,
+    description: 'Anisotropic Kuwahara painterly smoothing filter',
   ),
 ];

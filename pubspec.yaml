@@ -62,3 +62,4 @@ flutter:
     - lib/shaders/dither_wrap.frag
     - lib/shaders/peel_wrap.frag
     - lib/shaders/crepuscular_rays.frag
+    - lib/shaders/kuwahara.frag
