@@ -1955,7 +1955,7 @@ final liquidMetalShaderDef = ShaderDefinition(
       'warpFreqMiddle': 2.0,
       'warpFreqHigh': 1.30,
       'seed': 19.37,
-      'sampleEps': 0.00,
+      'sampleEps': 0.003,
       'ambientGain': 0.10,
       'rimGain': 0.0,
       'edgeGain': 3.11,
@@ -2033,6 +2033,141 @@ final liquidMetalShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// LAYERED METAL (procedural fill — noise-rotated pre-warp + iterative swirl)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final layeredMetalShaderDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/layered_metal.frag',
+  layout: UniformLayout([
+    // Pattern / animation
+    const UniformField('patternScale'),
+    const UniformField('swirlTimeScale'),
+    const UniformField('swirlDistortion'),
+    const UniformField('swirlStrength'),
+    const UniformField('swirlFreq'),
+    const UniformField('swirlIterations'),
+    const UniformField('seed'),
+    const UniformField('shapeScale'),
+    const UniformField('shapeProportion'),
+    // Lighting
+    const UniformField('sampleEps'),
+    const UniformField('ambientGain'),
+    const UniformField('rimGain'),
+    // Edge glow
+    const UniformField('edgeGain'),
+    const UniformField.color('edgeTint'),
+    // Palette
+    const UniformField('paletteStops'),
+    const UniformField.colorRgba('color0'),
+    const UniformField.colorRgba('color1'),
+    const UniformField.colorRgba('color2'),
+    const UniformField.colorRgba('color3'),
+    const UniformField.colorRgba('color4'),
+    const UniformField.colorRgba('color5'),
+    const UniformField.colorRgba('color6'),
+    const UniformField.colorRgba('color7'),
+    const UniformField.colorRgba('color8'),
+    const UniformField.colorRgba('color9'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'patternScale': 2.68,
+      'swirlTimeScale': 0.06,
+      'swirlDistortion': 0.18,
+      'swirlStrength': 0.25,
+      'swirlFreq': 0.86,
+      'swirlIterations': 10.0,
+      'seed': 0.0,
+      'shapeScale': 0.59,
+      'shapeProportion': 0.48,
+      'sampleEps': 0.00,
+      'ambientGain': 0.07,
+      'rimGain': 0.16,
+      'edgeGain': 19.77,
+      'paletteStops': 2.0,
+    },
+    colors: {
+      'edgeTint': const Color.fromRGBO(255, 179, 153, 1.0),
+      'color0': const Color.fromRGBO(33, 9, 18, 1.0),
+      'color1': const Color.fromRGBO(85, 166, 193, 1.0),
+      'color2': const Color.fromRGBO(112, 114, 39, 1.0),
+      'color3': const Color.fromRGBO(153, 102, 38, 1.0),
+      'color4': const Color.fromRGBO(128, 107, 64, 1.0),
+      'color5': const Color.fromRGBO(97, 97, 97, 1.0),
+      'color6': const Color.fromRGBO(71, 82, 102, 1.0),
+      'color7': const Color.fromRGBO(56, 77, 122, 1.0),
+      'color8': const Color.fromRGBO(31, 51, 107, 1.0),
+      'color9': const Color.fromRGBO(10, 20, 56, 1.0),
+    },
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'patternScale': const SliderRange('Pattern Scale', min: 0.2, max: 4.0),
+    'swirlTimeScale':
+        const SliderRange('Swirl Speed', min: 0.0, max: 0.5),
+    'swirlDistortion':
+        const SliderRange('Pre-warp', min: 0.0, max: 1.5),
+    'swirlStrength':
+        const SliderRange('Swirl Strength', min: 0.0, max: 1.5),
+    'swirlFreq': const SliderRange('Swirl Freq', min: 0.5, max: 4.0),
+    'swirlIterations':
+        const SliderRange('Iterations', min: 1.0, max: 20.0),
+    'seed': const SliderRange('Seed', min: 0.0, max: 100.0),
+    'shapeScale': const SliderRange('Shape Scale', min: 0.0, max: 3.0),
+    'shapeProportion':
+        const SliderRange('Shape Mix', min: 0.0, max: 1.0),
+    'sampleEps':
+        const SliderRange('Bump Eps ×10⁻³', min: 0.0005, max: 0.02),
+    'ambientGain': const SliderRange('Ambient', min: 0.0, max: 1.0),
+    'rimGain': const SliderRange('Rim', min: 0.0, max: 0.5),
+    'edgeGain': const SliderRange('Edge Glow', min: 0.0, max: 20.0),
+    'paletteStops': const SliderRange('Palette Stops', min: 2.0, max: 10.0),
+  }),
+  paramDescriptions: {
+    'patternScale':
+        'Global zoom on the pattern. Smaller = coarser features',
+    'swirlTimeScale':
+        'Clock rate of the swirl pipeline. 0 freezes the animation',
+    'swirlDistortion':
+        'Strength of the noise-rotated pre-warp applied before the swirl chain',
+    'swirlStrength':
+        'Per-iteration amplitude of the `cos()` offsets in the iterative swirl',
+    'swirlFreq':
+        'Base spatial frequency for the swirl chain; iteration i runs at i × this',
+    'swirlIterations':
+        'Number of swirl iterations. Higher values add finer detail; clamped to [1, 20]',
+    'seed':
+        'Noise seed offset. Sweeping scrolls through uncorrelated noise variants of the same pattern (injected inside the hash `sin()`)',
+    'shapeScale':
+        'Frequency multiplier for the sin/cos base shape (higher = more checker cells)',
+    'shapeProportion':
+        '0..1: biases the black/white split of the base shape. 0.5 is balanced',
+    'sampleEps':
+        'Forward-difference tap offset for the fake surface normal. Smaller = bumpier',
+    'ambientGain':
+        'Strength of the quadratic ambient lift applied to upward-facing normals',
+    'rimGain':
+        'Strength of the cubic rim-highlight on slopes facing away from up',
+    'edgeGain':
+        'Intensity multiplier on the edge/ridge highlight (3-sample luminance edge detector)',
+    'edgeTint':
+        'Colour of the edge/ridge highlight',
+    'paletteStops':
+        'Number of active palette stops. First N of color0..color9 are interpolated. Clamped to [2, 10]',
+    'color0': 'Palette stop 0 (deepest shadow)',
+    'color1': 'Palette stop 1',
+    'color2': 'Palette stop 2',
+    'color3': 'Palette stop 3',
+    'color4': 'Palette stop 4',
+    'color5': 'Palette stop 5',
+    'color6': 'Palette stop 6',
+    'color7': 'Palette stop 7',
+    'color8': 'Palette stop 8',
+    'color9': 'Palette stop 9 (brightest highlight)',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -2092,6 +2227,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.crepuscularRays: crepuscularRaysShaderDef,
   ShaderNames.kuwaharaWrap: kuwaharaShaderDef,
   ShaderNames.liquidMetal: liquidMetalShaderDef,
+  ShaderNames.layeredMetal: layeredMetalShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -2131,6 +2267,7 @@ const List<String> allShaderNames = [
   ShaderNames.crepuscularRays,
   ShaderNames.kuwaharaWrap,
   ShaderNames.liquidMetal,
+  ShaderNames.layeredMetal,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
@@ -2267,6 +2404,8 @@ const List<String> allParamNames = [
   'scatter',
   'seed',
   'shadowStrength',
+  'shapeProportion',
+  'shapeScale',
   'sharpness',
   'shininess',
   'showSun',
@@ -2283,6 +2422,11 @@ const List<String> allParamNames = [
   'sunPosX',
   'sunPosY',
   'sunRadius',
+  'swirlDistortion',
+  'swirlFreq',
+  'swirlIterations',
+  'swirlStrength',
+  'swirlTimeScale',
   'timeScale',
   'warp1Scale',
   'warp2Scale',

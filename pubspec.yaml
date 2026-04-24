@@ -64,3 +64,4 @@ flutter:
     - lib/shaders/crepuscular_rays.frag
     - lib/shaders/kuwahara.frag
     - lib/shaders/liquid_metal.frag
+    - lib/shaders/layered_metal.frag

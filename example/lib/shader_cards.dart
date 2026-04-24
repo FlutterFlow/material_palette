@@ -289,6 +289,8 @@ class ShaderCard extends StatelessWidget {
         return KuwaharaShaderCard(dimensions: dimensions);
       case ShaderNames.liquidMetal:
         return LiquidMetalShaderCard(dimensions: dimensions);
+      case ShaderNames.layeredMetal:
+        return LayeredMetalShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -3922,6 +3924,160 @@ class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
                 value: _params.get('seed'),
                 onChanged: (v) => setState(
                     () => _params = _params.withValue('seed', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Lighting'),
+            ControlSlider.fromRange(
+                range: _ui['sampleEps']!,
+                value: _params.get('sampleEps'),
+                displayScale: 1000.0,
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('sampleEps', v))),
+            ControlSlider.fromRange(
+                range: _ui['ambientGain']!,
+                value: _params.get('ambientGain'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('ambientGain', v))),
+            ControlSlider.fromRange(
+                range: _ui['rimGain']!,
+                value: _params.get('rimGain'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('rimGain', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Edge Glow'),
+            ControlSlider.fromRange(
+                range: _ui['edgeGain']!,
+                value: _params.get('edgeGain'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('edgeGain', v))),
+            ControlColorPicker(
+              label: 'Edge Tint',
+              color: _params.getColor('edgeTint'),
+              onChanged: (c) =>
+                  setState(() => _params = _params.withColor('edgeTint', c)),
+            ),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Palette'),
+            ColorSchemeGeneratorWidget(
+              colorCount: _stops,
+              initialColors: [
+                for (int i = 0; i < _stops; i++) _params.getColor('color$i'),
+              ],
+              onColorsChanged: (colors) => setState(() {
+                for (int i = 0; i < colors.length; i++) {
+                  _params = _params.withColor('color$i', colors[i]);
+                }
+              }),
+            ),
+            ControlSlider.fromRange(
+              range: _ui['paletteStops']!,
+              value: _params.get('paletteStops'),
+              onChanged: (v) => setState(() =>
+                  _params = _params.withValue('paletteStops', v.roundToDouble())),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+class LayeredMetalShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const LayeredMetalShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<LayeredMetalShaderCard> createState() => _LayeredMetalShaderCardState();
+}
+
+class _LayeredMetalShaderCardState extends State<LayeredMetalShaderCard> {
+  ShaderParams _params = layeredMetalShaderDef.defaults;
+  bool _showControls = false;
+
+  ShaderUIDefaults get _ui => layeredMetalShaderDef.uiDefaults;
+
+  int get _stops => _params.get('paletteStops').round().clamp(2, 10);
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: LayeredMetalShaderFill(
+            width: dimensions.width,
+            height: dimensions.height,
+            params: _params,
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () =>
+              setState(() => _params = layeredMetalShaderDef.defaults),
+          shaderName: 'Layered Metal',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Pattern'),
+            ControlSlider.fromRange(
+                range: _ui['patternScale']!,
+                value: _params.get('patternScale'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('patternScale', v))),
+            ControlSlider.fromRange(
+                range: _ui['swirlTimeScale']!,
+                value: _params.get('swirlTimeScale'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('swirlTimeScale', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Swirl'),
+            ControlSlider.fromRange(
+                range: _ui['swirlDistortion']!,
+                value: _params.get('swirlDistortion'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('swirlDistortion', v))),
+            ControlSlider.fromRange(
+                range: _ui['swirlStrength']!,
+                value: _params.get('swirlStrength'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('swirlStrength', v))),
+            ControlSlider.fromRange(
+                range: _ui['swirlFreq']!,
+                value: _params.get('swirlFreq'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('swirlFreq', v))),
+            ControlSlider.fromRange(
+              range: _ui['swirlIterations']!,
+              value: _params.get('swirlIterations'),
+              onChanged: (v) => setState(() => _params =
+                  _params.withValue('swirlIterations', v.roundToDouble())),
+            ),
+            ControlSlider.fromRange(
+                range: _ui['seed']!,
+                value: _params.get('seed'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('seed', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Base Shape'),
+            ControlSlider.fromRange(
+                range: _ui['shapeScale']!,
+                value: _params.get('shapeScale'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('shapeScale', v))),
+            ControlSlider.fromRange(
+                range: _ui['shapeProportion']!,
+                value: _params.get('shapeProportion'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('shapeProportion', v))),
             const SizedBox(height: 12),
             const ControlSectionTitle('Lighting'),
             ControlSlider.fromRange(

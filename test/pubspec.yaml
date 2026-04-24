@@ -58,3 +58,4 @@ flutter:
     - packages/material_palette/shaders/crepuscular_rays.frag
     - packages/material_palette/shaders/kuwahara.frag
     - packages/material_palette/shaders/liquid_metal.frag
+    - packages/material_palette/shaders/layered_metal.frag

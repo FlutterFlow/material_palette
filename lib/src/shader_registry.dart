@@ -39,6 +39,7 @@ abstract class ShaderNames {
   static const String crepuscularRays = 'Crepuscular Rays';
   static const String kuwaharaWrap = 'Kuwahara Wrap';
   static const String liquidMetal = 'Liquid Metal';
+  static const String layeredMetal = 'Layered Metal';
 }
 
 /// Data for a shader card
@@ -193,5 +194,10 @@ const List<ShaderCardData> allShaders = [
   ShaderCardData(
     title: ShaderNames.liquidMetal,
     description: 'Animated liquid-metal heat-map with warped FBM noise',
+  ),
+  ShaderCardData(
+    title: ShaderNames.layeredMetal,
+    description:
+        'Animated layered-metal pattern — noise-warped iterative swirl',
   ),
 ];

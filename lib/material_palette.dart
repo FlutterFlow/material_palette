@@ -29,6 +29,7 @@ export 'package:material_palette/src/shaders/radial_voronoise_gradient_shader_fi
 // Special fills
 export 'package:material_palette/src/shaders/marble_smear_shader_fill.dart';
 export 'package:material_palette/src/shaders/liquid_metal_shader_fill.dart';
+export 'package:material_palette/src/shaders/layered_metal_shader_fill.dart';
 // Fur fills
 export 'package:material_palette/src/shaders/fur_planar_shader_fill.dart';
 
