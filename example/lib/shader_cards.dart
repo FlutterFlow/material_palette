@@ -287,6 +287,8 @@ class ShaderCard extends StatelessWidget {
         return CrepuscularRaysShaderCard(dimensions: dimensions);
       case ShaderNames.kuwaharaWrap:
         return KuwaharaShaderCard(dimensions: dimensions);
+      case ShaderNames.liquidMetal:
+        return LiquidMetalShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -3830,6 +3832,142 @@ class _KuwaharaShaderCardState extends State<KuwaharaShaderCard> {
                 value: _params.get('sharpness'),
                 onChanged: (v) => setState(
                     () => _params = _params.withValue('sharpness', v))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+class LiquidMetalShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const LiquidMetalShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<LiquidMetalShaderCard> createState() => _LiquidMetalShaderCardState();
+}
+
+class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
+  ShaderParams _params = liquidMetalShaderDef.defaults;
+  bool _showControls = false;
+
+  ShaderUIDefaults get _ui => liquidMetalShaderDef.uiDefaults;
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+    final stops = _params.get('paletteStops').round().clamp(2, 10);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: LiquidMetalShaderFill(
+            width: dimensions.width,
+            height: dimensions.height,
+            params: _params,
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = liquidMetalShaderDef.defaults),
+          shaderName: 'Liquid Metal',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Pattern'),
+            ControlSlider.fromRange(
+                range: _ui['patternScale']!,
+                value: _params.get('patternScale'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('patternScale', v))),
+            ControlSlider.fromRange(
+                range: _ui['timeScale']!,
+                value: _params.get('timeScale'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('timeScale', v))),
+            ControlSlider.fromRange(
+                range: _ui['rotAngle']!,
+                value: _params.get('rotAngle'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('rotAngle', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Domain Warp'),
+            ControlSlider.fromRange(
+                range: _ui['warpFreqInner']!,
+                value: _params.get('warpFreqInner'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('warpFreqInner', v))),
+            ControlSlider.fromRange(
+                range: _ui['warpFreqMiddle']!,
+                value: _params.get('warpFreqMiddle'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('warpFreqMiddle', v))),
+            ControlSlider.fromRange(
+                range: _ui['warpFreqHigh']!,
+                value: _params.get('warpFreqHigh'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('warpFreqHigh', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Lighting'),
+            ControlSlider.fromRange(
+                range: _ui['sampleEps']!,
+                value: _params.get('sampleEps'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('sampleEps', v))),
+            ControlSlider.fromRange(
+                range: _ui['ambientGain']!,
+                value: _params.get('ambientGain'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('ambientGain', v))),
+            ControlSlider.fromRange(
+                range: _ui['rimGain']!,
+                value: _params.get('rimGain'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('rimGain', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Edge Glow'),
+            ControlSlider.fromRange(
+                range: _ui['edgeGain']!,
+                value: _params.get('edgeGain'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('edgeGain', v))),
+            ControlColorPicker(
+              label: 'Edge Tint',
+              color: _params.getColor('edgeTint'),
+              onChanged: (c) =>
+                  setState(() => _params = _params.withColor('edgeTint', c)),
+            ),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Luma Weights'),
+            ControlColorPicker(
+              label: 'RGB Weights',
+              color: _params.getColor('lumaWeights'),
+              onChanged: (c) => setState(
+                  () => _params = _params.withColor('lumaWeights', c)),
+            ),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Palette'),
+            ControlSlider.fromRange(
+                range: _ui['paletteStops']!,
+                value: _params.get('paletteStops'),
+                onChanged: (v) => setState(() =>
+                    _params = _params.withValue('paletteStops', v.roundToDouble()))),
+            for (int i = 0; i < stops; i++)
+              ControlColorPicker(
+                label: 'Stop $i',
+                color: _params.getColor('color$i'),
+                onChanged: (c) => setState(
+                    () => _params = _params.withColor('color$i', c)),
+              ),
           ],
         ),
       ],

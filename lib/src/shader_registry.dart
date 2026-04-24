@@ -38,6 +38,7 @@ abstract class ShaderNames {
   static const String peelWrap = 'Peel Wrap';
   static const String crepuscularRays = 'Crepuscular Rays';
   static const String kuwaharaWrap = 'Kuwahara Wrap';
+  static const String liquidMetal = 'Liquid Metal';
 }
 
 /// Data for a shader card
@@ -188,5 +189,9 @@ const List<ShaderCardData> allShaders = [
   ShaderCardData(
     title: ShaderNames.kuwaharaWrap,
     description: 'Anisotropic Kuwahara painterly smoothing filter',
+  ),
+  ShaderCardData(
+    title: ShaderNames.liquidMetal,
+    description: 'Animated liquid-metal heat-map with warped FBM noise',
   ),
 ];

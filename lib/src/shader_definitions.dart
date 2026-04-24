@@ -1911,6 +1911,126 @@ final kuwaharaShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// LIQUID METAL (procedural fill — domain-warped FBM + heightfield shading)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final liquidMetalShaderDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/liquid_metal.frag',
+  layout: UniformLayout([
+    // Pattern / animation
+    const UniformField('rotAngle'),
+    const UniformField('patternScale'),
+    const UniformField('timeScale'),
+    const UniformField('warpFreqInner'),
+    const UniformField('warpFreqMiddle'),
+    const UniformField('warpFreqHigh'),
+    // Lighting
+    const UniformField('sampleEps'),
+    const UniformField('ambientGain'),
+    const UniformField('rimGain'),
+    // Edge glow
+    const UniformField('edgeGain'),
+    const UniformField.color('edgeTint'),
+    const UniformField.color('lumaWeights'),
+    // Palette
+    const UniformField('paletteStops'),
+    const UniformField.colorRgba('color0'),
+    const UniformField.colorRgba('color1'),
+    const UniformField.colorRgba('color2'),
+    const UniformField.colorRgba('color3'),
+    const UniformField.colorRgba('color4'),
+    const UniformField.colorRgba('color5'),
+    const UniformField.colorRgba('color6'),
+    const UniformField.colorRgba('color7'),
+    const UniformField.colorRgba('color8'),
+    const UniformField.colorRgba('color9'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'rotAngle': 0.78,
+      'patternScale': 1.0,
+      'timeScale': 0.05,
+      'warpFreqInner': 3.0,
+      'warpFreqMiddle': 2.0,
+      'warpFreqHigh': 1.3,
+      'sampleEps': 0.005,
+      'ambientGain': 0.2,
+      'rimGain': 0.05,
+      'edgeGain': 7.0,
+      'paletteStops': 3.0,
+    },
+    colors: {
+      'edgeTint': const Color.fromRGBO(255, 179, 153, 1.0),
+      'lumaWeights': const Color.fromRGBO(54, 182, 18, 1.0),
+      'color0': const Color.fromRGBO(0, 0, 77, 1.0),
+      'color1': const Color.fromRGBO(97, 0, 0, 1.0),
+      'color2': const Color.fromRGBO(255, 189, 77, 1.0),
+      'color3': const Color.fromRGBO(140, 31, 20, 1.0),
+      'color4': const Color.fromRGBO(230, 102, 38, 1.0),
+      'color5': const Color.fromRGBO(255, 191, 89, 1.0),
+      'color6': const Color.fromRGBO(255, 235, 153, 1.0),
+      'color7': const Color.fromRGBO(255, 247, 217, 1.0),
+      'color8': const Color.fromRGBO(179, 204, 255, 1.0),
+      'color9': const Color.fromRGBO(64, 89, 140, 1.0),
+    },
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'rotAngle': const SliderRange('Rotation', min: 0.0, max: 6.28318),
+    'patternScale': const SliderRange('Pattern Scale', min: 0.2, max: 4.0),
+    'timeScale': const SliderRange('Flow Speed', min: 0.0, max: 0.5),
+    'warpFreqInner':
+        const SliderRange('Warp Freq (Inner)', min: 0.5, max: 8.0),
+    'warpFreqMiddle':
+        const SliderRange('Warp Freq (Middle)', min: 0.5, max: 6.0),
+    'warpFreqHigh':
+        const SliderRange('Warp Freq (Outer)', min: 0.3, max: 4.0),
+    'sampleEps': const SliderRange('Bump Eps', min: 0.0005, max: 0.02),
+    'ambientGain': const SliderRange('Ambient', min: 0.0, max: 1.0),
+    'rimGain': const SliderRange('Rim', min: 0.0, max: 0.5),
+    'edgeGain': const SliderRange('Edge Glow', min: 0.0, max: 20.0),
+    'paletteStops': const SliderRange('Palette Stops', min: 2.0, max: 10.0),
+  }),
+  paramDescriptions: {
+    'rotAngle':
+        'Rotation angle (radians) of the FBM lattice per octave. Changes the overall grain direction of the noise',
+    'patternScale':
+        'Global zoom on the noise pattern. Smaller values produce coarser, larger features',
+    'timeScale':
+        'Animation flow speed; two warp layers counter-drift at ±this rate. 0 freezes the pattern',
+    'warpFreqInner':
+        'Frequency of the innermost (fastest) domain-warp layer',
+    'warpFreqMiddle': 'Frequency of the middle domain-warp layer',
+    'warpFreqHigh':
+        'Frequency of the outermost (slowest) domain-warp layer',
+    'sampleEps':
+        'Offset used when sampling the forward-difference normal. Smaller values produce bumpier-looking surfaces',
+    'ambientGain':
+        'Strength of the quadratic ambient lift applied to upward-facing normals',
+    'rimGain':
+        'Strength of the cubic rim-highlight applied on top of the ambient lift',
+    'edgeGain':
+        'Intensity multiplier on the edge/ridge highlight (a 3-sample luminance edge detector)',
+    'edgeTint':
+        'Colour of the edge/ridge highlight that reads as glowing cracks',
+    'lumaWeights':
+        'Perceptual luminance weights used for the heightfield. RGB channels map to R/G/B weights (default: Rec. 709)',
+    'paletteStops':
+        'Number of active palette stops; the first N of color0..color9 are interpolated across the pattern. Clamped to [2, 10]',
+    'color0': 'Palette stop 0 (deepest shadow)',
+    'color1': 'Palette stop 1',
+    'color2': 'Palette stop 2',
+    'color3': 'Palette stop 3',
+    'color4': 'Palette stop 4',
+    'color5': 'Palette stop 5',
+    'color6': 'Palette stop 6',
+    'color7': 'Palette stop 7',
+    'color8': 'Palette stop 8',
+    'color9': 'Palette stop 9 (brightest highlight)',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1969,6 +2089,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.peelWrap: peelWrapShaderDef,
   ShaderNames.crepuscularRays: crepuscularRaysShaderDef,
   ShaderNames.kuwaharaWrap: kuwaharaShaderDef,
+  ShaderNames.liquidMetal: liquidMetalShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -2007,11 +2128,13 @@ const List<String> allShaderNames = [
   ShaderNames.peelWrap,
   ShaderNames.crepuscularRays,
   ShaderNames.kuwaharaWrap,
+  ShaderNames.liquidMetal,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
 const List<String> allParamNames = [
   'ambient',
+  'ambientGain',
   'amplitude',
   'angle',
   'animAmpInput',
@@ -2057,8 +2180,10 @@ const List<String> allParamNames = [
   'easing',
   'edgeFade',
   'edgeFadeMode',
+  'edgeGain',
   'edgeLeanStrength',
   'edgeSmoothness',
+  'edgeTint',
   'edgeWidth',
   'exposure',
   'fillLightColor',
@@ -2099,6 +2224,7 @@ const List<String> allParamNames = [
   'lightDirY',
   'lightDirZ',
   'lightIntensity',
+  'lumaWeights',
   'maskColor',
   'maskThreshold',
   'metallic',
@@ -2119,18 +2245,23 @@ const List<String> allParamNames = [
   'origin2Y',
   'originScale',
   'outputMode',
+  'paletteStops',
   'passColor',
+  'patternScale',
   'persistence',
   'pixelSize',
   'planeOffset',
   'radius',
+  'rimGain',
   'rimLightColor',
   'rimLightDirX',
   'rimLightDirY',
   'rimLightDirZ',
   'rimLightIntensity',
   'rippleDuration',
+  'rotAngle',
   'roughness',
+  'sampleEps',
   'scale',
   'scatter',
   'shadowStrength',
@@ -2150,8 +2281,12 @@ const List<String> allParamNames = [
   'sunPosX',
   'sunPosY',
   'sunRadius',
+  'timeScale',
   'warp1Scale',
   'warp2Scale',
+  'warpFreqHigh',
+  'warpFreqInner',
+  'warpFreqMiddle',
   'warpStrength',
   'waveletAmplitude',
   'waveletDecay',
