@@ -1925,6 +1925,7 @@ final liquidMetalShaderDef = ShaderDefinition(
     const UniformField('warpFreqInner'),
     const UniformField('warpFreqMiddle'),
     const UniformField('warpFreqHigh'),
+    const UniformField('seed'),
     // Lighting
     const UniformField('sampleEps'),
     const UniformField('ambientGain'),
@@ -1932,7 +1933,6 @@ final liquidMetalShaderDef = ShaderDefinition(
     // Edge glow
     const UniformField('edgeGain'),
     const UniformField.color('edgeTint'),
-    const UniformField.color('lumaWeights'),
     // Palette
     const UniformField('paletteStops'),
     const UniformField.colorRgba('color0'),
@@ -1949,24 +1949,24 @@ final liquidMetalShaderDef = ShaderDefinition(
   defaults: ShaderParams(
     values: {
       'rotAngle': 0.78,
-      'patternScale': 1.0,
+      'patternScale': 1.20,
       'timeScale': 0.05,
       'warpFreqInner': 3.0,
       'warpFreqMiddle': 2.0,
-      'warpFreqHigh': 1.3,
-      'sampleEps': 0.005,
-      'ambientGain': 0.2,
-      'rimGain': 0.05,
-      'edgeGain': 7.0,
-      'paletteStops': 3.0,
+      'warpFreqHigh': 1.30,
+      'seed': 19.37,
+      'sampleEps': 0.00,
+      'ambientGain': 0.10,
+      'rimGain': 0.0,
+      'edgeGain': 3.11,
+      'paletteStops': 4.0,
     },
     colors: {
-      'edgeTint': const Color.fromRGBO(255, 179, 153, 1.0),
-      'lumaWeights': const Color.fromRGBO(54, 182, 18, 1.0),
-      'color0': const Color.fromRGBO(0, 0, 77, 1.0),
-      'color1': const Color.fromRGBO(97, 0, 0, 1.0),
-      'color2': const Color.fromRGBO(255, 189, 77, 1.0),
-      'color3': const Color.fromRGBO(140, 31, 20, 1.0),
+      'edgeTint': const Color.fromRGBO(255, 192, 153, 1.0),
+      'color0': const Color.fromRGBO(0, 0, 138, 1.0),
+      'color1': const Color.fromRGBO(167, 0, 0, 1.0),
+      'color2': const Color.fromRGBO(0, 0, 0, 1.0),
+      'color3': const Color.fromRGBO(252, 170, 37, 1.0),
       'color4': const Color.fromRGBO(230, 102, 38, 1.0),
       'color5': const Color.fromRGBO(255, 191, 89, 1.0),
       'color6': const Color.fromRGBO(255, 235, 153, 1.0),
@@ -1985,7 +1985,9 @@ final liquidMetalShaderDef = ShaderDefinition(
         const SliderRange('Warp Freq (Middle)', min: 0.5, max: 6.0),
     'warpFreqHigh':
         const SliderRange('Warp Freq (Outer)', min: 0.3, max: 4.0),
-    'sampleEps': const SliderRange('Bump Eps', min: 0.0005, max: 0.02),
+    'seed': const SliderRange('Seed', min: 0.0, max: 100.0),
+    'sampleEps':
+        const SliderRange('Bump Eps ×10⁻³', min: 0.0005, max: 0.02),
     'ambientGain': const SliderRange('Ambient', min: 0.0, max: 1.0),
     'rimGain': const SliderRange('Rim', min: 0.0, max: 0.5),
     'edgeGain': const SliderRange('Edge Glow', min: 0.0, max: 20.0),
@@ -2003,6 +2005,8 @@ final liquidMetalShaderDef = ShaderDefinition(
     'warpFreqMiddle': 'Frequency of the middle domain-warp layer',
     'warpFreqHigh':
         'Frequency of the outermost (slowest) domain-warp layer',
+    'seed':
+        'Noise seed offset. Sweeping this slider scrolls through uncorrelated noise variants of the same pattern (injected inside the hash `sin()` so tiny changes give completely new patterns)',
     'sampleEps':
         'Offset used when sampling the forward-difference normal. Smaller values produce bumpier-looking surfaces',
     'ambientGain':
@@ -2013,8 +2017,6 @@ final liquidMetalShaderDef = ShaderDefinition(
         'Intensity multiplier on the edge/ridge highlight (a 3-sample luminance edge detector)',
     'edgeTint':
         'Colour of the edge/ridge highlight that reads as glowing cracks',
-    'lumaWeights':
-        'Perceptual luminance weights used for the heightfield. RGB channels map to R/G/B weights (default: Rec. 709)',
     'paletteStops':
         'Number of active palette stops; the first N of color0..color9 are interpolated across the pattern. Clamped to [2, 10]',
     'color0': 'Palette stop 0 (deepest shadow)',
@@ -2224,7 +2226,6 @@ const List<String> allParamNames = [
   'lightDirY',
   'lightDirZ',
   'lightIntensity',
-  'lumaWeights',
   'maskColor',
   'maskThreshold',
   'metallic',
@@ -2264,6 +2265,7 @@ const List<String> allParamNames = [
   'sampleEps',
   'scale',
   'scatter',
+  'seed',
   'shadowStrength',
   'sharpness',
   'shininess',

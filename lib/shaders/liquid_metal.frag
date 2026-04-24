@@ -20,6 +20,7 @@ uniform float uTimeScale;       // warp flow speed
 uniform float uWarpFreqInner;   // innermost warp frequency multiplier
 uniform float uWarpFreqMiddle;  // middle warp frequency multiplier
 uniform float uWarpFreqHigh;    // outermost warp frequency multiplier
+uniform float uSeed;            // noise seed offset — cycles to unrelated variants
 
 // Lighting
 uniform float uSampleEps;       // gradient tap offset (smaller = bumpier)
@@ -29,7 +30,9 @@ uniform float uRimGain;         // cubic rim highlight
 // Edge glow
 uniform float uEdgeGain;        // intensity of ridge/crack highlight
 uniform vec3  uEdgeTint;        // colour of the ridge highlight
-uniform vec3  uLumaWeights;     // perceptual-luminance weights (Rec. 709 default)
+
+// Rec. 709 perceptual luminance weights — hardcoded (not a tuning knob).
+const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
 
 // Palette (10 RGBA stops, first `uPaletteStops` active)
 uniform float uPaletteStops;    // active stop count, clamped to [2, 10]
@@ -48,7 +51,9 @@ out vec4 fragColor;
 
 float hash(vec2 p) {
     float h = dot(p, vec2(129.2, 331.3));
-    return -1.0 + 2.0 * fract(sin(h) * 294279.242);
+    // Adding uSeed inside sin() shifts the hash's phase non-linearly — tiny
+    // seed changes produce uncorrelated noise patterns (not just a pan).
+    return -1.0 + 2.0 * fract(sin(h + uSeed) * 294279.242);
 }
 
 // 2D value noise with smoothstep (cubic) interpolation between lattice hashes.
@@ -127,17 +132,20 @@ void main() {
     vec2 p = (-uSize + 2.0 * fragCoord.xy) / uSize.y;
 
     // Three taps for a forward-difference gradient of pattern luminance.
+    // Clamp eps to a small floor so a 0.0 preset can't collapse the three
+    // taps to the same point (which would produce a NaN normal → aliasing).
+    float eps = max(uSampleEps, 5e-4);
     vec4 colc = map(p);
-    vec4 cola = map(p + vec2(uSampleEps, 0.0));
-    vec4 colb = map(p + vec2(0.0, uSampleEps));
+    vec4 cola = map(p + vec2(eps, 0.0));
+    vec4 colb = map(p + vec2(0.0, eps));
 
-    float gc = dot(colc.rgb, uLumaWeights);
-    float ga = dot(cola.rgb, uLumaWeights);
-    float gb = dot(colb.rgb, uLumaWeights);
+    float gc = dot(colc.rgb, LUMA);
+    float ga = dot(cola.rgb, LUMA);
+    float gb = dot(colb.rgb, LUMA);
 
-    // Fake normal from luminance heightfield. Using uSampleEps as the y
-    // component scales the tilt with the tap distance — smaller eps → bumpier.
-    vec3 nor = normalize(vec3(ga - gc, uSampleEps, gb - gc));
+    // Fake normal from luminance heightfield. Using eps as the y component
+    // scales the tilt with the tap distance — smaller eps → bumpier.
+    vec3 nor = normalize(vec3(ga - gc, eps, gb - gc));
 
     vec3 col = colc.rgb;
 
@@ -153,5 +161,10 @@ void main() {
                                           vec2(37.3, 71.9)))
                                   * 42893.2817) - 0.5);
 
-    fragColor = vec4(col, colc.a);
+    // Flutter expects premultiplied-alpha output. Multiplying RGB by alpha
+    // here is what lets transparent palette stops actually read through to
+    // the canvas background (without this, RGB stays opaque even at alpha=0).
+    col = clamp(col, 0.0, 1.0);
+    float a = clamp(colc.a, 0.0, 1.0);
+    fragColor = vec4(col * a, a);
 }

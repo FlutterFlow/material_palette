@@ -159,6 +159,7 @@ class ControlSlider extends StatelessWidget {
     required this.min,
     required this.max,
     required this.onChanged,
+    this.displayScale = 1.0,
   });
 
   ControlSlider.fromRange({
@@ -166,6 +167,7 @@ class ControlSlider extends StatelessWidget {
     required SliderRange range,
     required this.value,
     required this.onChanged,
+    this.displayScale = 1.0,
   }) : label = range.label,
        min = range.min,
        max = range.max;
@@ -175,6 +177,12 @@ class ControlSlider extends StatelessWidget {
   final double min;
   final double max;
   final ValueChanged<double> onChanged;
+
+  /// Multiplier applied to [value] for the numeric text on the right side only.
+  /// Useful for parameters whose native range is too small to read at 2dp (e.g.
+  /// pass `1000` so 0.0005 displays as `0.50`). The slider itself, clamping,
+  /// and [onChanged] all stay on the unscaled, native range.
+  final double displayScale;
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +215,7 @@ class ControlSlider extends StatelessWidget {
           SizedBox(
             width: 45,
             child: Text(
-              value.toStringAsFixed(2),
+              (value * displayScale).toStringAsFixed(2),
               style: const TextStyle(fontSize: 10, color: Colors.white54),
               textAlign: TextAlign.right,
             ),

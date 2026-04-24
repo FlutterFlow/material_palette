@@ -3856,11 +3856,12 @@ class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
 
   ShaderUIDefaults get _ui => liquidMetalShaderDef.uiDefaults;
 
+  int get _stops => _params.get('paletteStops').round().clamp(2, 10);
+
   @override
   Widget build(BuildContext context) {
     final dimensions = widget.dimensions;
     final controlsHeight = calculateControlsHeight(context);
-    final stops = _params.get('paletteStops').round().clamp(2, 10);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -3916,11 +3917,17 @@ class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
                 value: _params.get('warpFreqHigh'),
                 onChanged: (v) => setState(
                     () => _params = _params.withValue('warpFreqHigh', v))),
+            ControlSlider.fromRange(
+                range: _ui['seed']!,
+                value: _params.get('seed'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('seed', v))),
             const SizedBox(height: 12),
             const ControlSectionTitle('Lighting'),
             ControlSlider.fromRange(
                 range: _ui['sampleEps']!,
                 value: _params.get('sampleEps'),
+                displayScale: 1000.0,
                 onChanged: (v) => setState(
                     () => _params = _params.withValue('sampleEps', v))),
             ControlSlider.fromRange(
@@ -3947,27 +3954,24 @@ class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
                   setState(() => _params = _params.withColor('edgeTint', c)),
             ),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Luma Weights'),
-            ControlColorPicker(
-              label: 'RGB Weights',
-              color: _params.getColor('lumaWeights'),
-              onChanged: (c) => setState(
-                  () => _params = _params.withColor('lumaWeights', c)),
-            ),
-            const SizedBox(height: 12),
             const ControlSectionTitle('Palette'),
+            ColorSchemeGeneratorWidget(
+              colorCount: _stops,
+              initialColors: [
+                for (int i = 0; i < _stops; i++) _params.getColor('color$i'),
+              ],
+              onColorsChanged: (colors) => setState(() {
+                for (int i = 0; i < colors.length; i++) {
+                  _params = _params.withColor('color$i', colors[i]);
+                }
+              }),
+            ),
             ControlSlider.fromRange(
-                range: _ui['paletteStops']!,
-                value: _params.get('paletteStops'),
-                onChanged: (v) => setState(() =>
-                    _params = _params.withValue('paletteStops', v.roundToDouble()))),
-            for (int i = 0; i < stops; i++)
-              ControlColorPicker(
-                label: 'Stop $i',
-                color: _params.getColor('color$i'),
-                onChanged: (c) => setState(
-                    () => _params = _params.withColor('color$i', c)),
-              ),
+              range: _ui['paletteStops']!,
+              value: _params.get('paletteStops'),
+              onChanged: (v) => setState(() =>
+                  _params = _params.withValue('paletteStops', v.roundToDouble())),
+            ),
           ],
         ),
       ],
