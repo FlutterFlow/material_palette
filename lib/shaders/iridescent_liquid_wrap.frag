@@ -71,6 +71,7 @@ uniform float uEdgeBandPx;
 // distance, which makes the contour effect appear slightly softer.
 uniform float uEdgeSmoothness;
 
+
 // Domain warp tuning
 uniform float uWarpTimeScale;
 uniform float uWarpFreqInner;
@@ -261,11 +262,17 @@ float maskAt(vec2 uv) {
 
 // Distance along a single ray from `uv` at angle `ang`. Coarse linear walk
 // (NUM_COARSE steps) brackets the first inside→outside crossing; bisection
-// (NUM_BISECT iterations) refines the bracket to sub-pixel resolution.
+// (NUM_BISECT iterations) refines the bracket. 4 iterations narrows the
+// bracket by 16×, so an 8-px coarse step ends at ~0.5 px precision —
+// deliberately less than the 6-iteration ~0.125 px version, because at
+// that finer precision the bisection starts tracking sub-pixel mask
+// rasterisation noise and the rays propagate it as visible jaggies.
+// Coarser per-ray distances let the exp-weighted average across rays
+// blend out the noise instead.
 float rayDistancePx(vec2 uv, float ang,
                     float maxDistPx, float coarseStepPx) {
     const int NUM_COARSE = 8;
-    const int NUM_BISECT = 6;
+    const int NUM_BISECT = 4;
 
     vec2 dir = vec2(cos(ang), sin(ang));
 
@@ -308,17 +315,17 @@ float rayDistancePx(vec2 uv, float ang,
 // "hill" shape the Poisson solve produces, at the cost of a small
 // constant bias (~3–5% high) that's tunable via `uEdgeSmoothness`.
 //
-// 24 rays (vs the 16 of earlier revisions) is the dominant fix for "radial
-// wrinkles emanating from sharp interior corners": the wrinkles are a
-// direct consequence of all pixels sharing the same fixed ray angles, so
-// halving the angular gap from 22.5° to 15° both densifies and dims them.
-// `uEdgeSmoothness` then lets the user crank up exp-weighting smoothness
-// to dissolve any residual pattern at the cost of additional bias.
+// 32 rays at fixed angles is the dominant lever for reducing the residual
+// radial pattern that emanates from sharp interior corners — those
+// wrinkles are a direct consequence of all pixels sharing the same fixed
+// ray angles, so halving the angular gap (22.5° → 11.25°) both densifies
+// and dims them. `uEdgeSmoothness` then lets the user blend across rays
+// to dissolve whatever's left.
 //
 // Worst-case cost is NUM_DIRS × (NUM_COARSE + NUM_BISECT) texture taps.
 // A pixel whose own mask is < 0.5 short-circuits to 0.
 float distanceToEdgePx(vec2 uv, float maxDistPx) {
-    const int NUM_DIRS = 24;
+    const int NUM_DIRS = 32;
 
     if (maskAt(uv) < 0.5) {
         return 0.0;
@@ -327,8 +334,13 @@ float distanceToEdgePx(vec2 uv, float maxDistPx) {
     float coarseStepPx = maxDistPx / 8.0;
     // Smoothing scale (px). Scales with σ so the blend stays consistent
     // across band widths; floored so very small σ values don't drive
-    // softness toward zero (which would re-introduce hard-min facets).
-    float softness     = max(uEdgeBandPx * uEdgeSmoothness, 0.5);
+    // softness toward zero (re-introducing hard-min facets), and *capped*
+    // at 8 px so very large σ + high smoothness doesn't push softness so
+    // far that exp-weighting becomes a plain mean of all rays — at that
+    // point unfound-boundary rays (returning maxDistPx) bias the result
+    // so high that distanceField saturates to 0 and the contour effect
+    // collapses entirely. The cap keeps the field useful at all settings.
+    float softness     = clamp(uEdgeBandPx * uEdgeSmoothness, 0.5, 8.0);
 
     float weightedSum = 0.0;
     float weightTotal = 0.0;
@@ -419,23 +431,29 @@ void main() {
     vec2 p = uv - 0.5;
     int  shapeIdx = int(uBumpShape + 0.5);
 
+    // `max(_, 1e-5)` floors the pow base so `uBumpRadius == 0` and/or the
+    // shape's distance term being exactly zero (e.g. the centre pixel of
+    // the radial dome) don't combine with `uBumpExponent == 0` into an
+    // undefined `pow(0, 0)` — that's implementation-defined in GLSL/SkSL
+    // and on some backends evaluates to NaN, which would propagate
+    // through the entire fragment.
     float bump;
     if (shapeIdx == 0) {
         // RADIAL: dome peaking at center, lit-from-above.
         float dist = length(p + diagA * uBumpShear);
-        bump  = 1.0 - pow(uBumpRadius * dist, uBumpExponent);
+        bump  = 1.0 - pow(max(uBumpRadius * dist, 1e-5), uBumpExponent);
         bump *= pow(uv.y, uBumpTopBias);
         bump *= clamp(pow(uv.y, uBumpFloorBias), uBumpFloorMin, 1.0);
     } else if (shapeIdx == 1) {
         // CYLINDER_H: horizontal ridge (peak on y = 0).
-        bump = 1.0 - pow(uBumpRadius * abs(p.y), uBumpExponent);
+        bump = 1.0 - pow(max(uBumpRadius * abs(p.y), 1e-5), uBumpExponent);
     } else if (shapeIdx == 2) {
         // CYLINDER_V: vertical ridge (peak on x = 0).
-        bump = 1.0 - pow(uBumpRadius * abs(p.x), uBumpExponent);
+        bump = 1.0 - pow(max(uBumpRadius * abs(p.x), 1e-5), uBumpExponent);
     } else if (shapeIdx == 3) {
         // DIAGONAL: ridge along diagA.
         float ridgeDist = abs(p.x + p.y) * 0.70710678;
-        bump = 1.0 - pow(uBumpRadius * ridgeDist, uBumpExponent);
+        bump = 1.0 - pow(max(uBumpRadius * ridgeDist, 1e-5), uBumpExponent);
     } else {
         // PLANE (or any unrecognised value).
         bump = 1.0;

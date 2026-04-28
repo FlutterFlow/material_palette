@@ -4178,11 +4178,11 @@ class _IridescentLiquidWrapShaderCardState
               params: _params,
               child: Center(
                 child: Text(
-                  'FO',
+                  'HD',
                   style: TextStyle(
                     color: _params.getColor('passColor'),
                     fontSize: dimensions.height * 0.55,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                     letterSpacing: -8,
                     height: 1,
                   ),

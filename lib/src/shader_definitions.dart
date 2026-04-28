@@ -2282,9 +2282,9 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     'stripeDiagaBias':
         const SliderRange('Diag Bias', min: 0.0, max: 2.0),
     'stripeTwist': const SliderRange('Twist', min: 0.0, max: 1.0),
-    'bumpRadius': const SliderRange('Bump Radius', min: 0.5, max: 4.0),
+    'bumpRadius': const SliderRange('Bump Radius', min: 0.0, max: 4.0),
     'bumpExponent':
-        const SliderRange('Bump Exponent', min: 0.5, max: 4.0),
+        const SliderRange('Bump Exponent', min: 0.0, max: 4.0),
     'bumpShearX':
         const SliderRange('Bump Shear X', min: -1.0, max: 1.0),
     'bumpShearY':
