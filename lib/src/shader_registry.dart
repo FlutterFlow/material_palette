@@ -40,6 +40,7 @@ abstract class ShaderNames {
   static const String kuwaharaWrap = 'Kuwahara Wrap';
   static const String liquidMetal = 'Liquid Metal';
   static const String layeredMetal = 'Layered Metal';
+  static const String iridescentLiquidWrap = 'Iridescent Liquid';
 }
 
 /// Data for a shader card
@@ -199,5 +200,10 @@ const List<ShaderCardData> allShaders = [
     title: ShaderNames.layeredMetal,
     description:
         'Animated layered-metal pattern — noise-warped iterative swirl',
+  ),
+  ShaderCardData(
+    title: ShaderNames.iridescentLiquidWrap,
+    description:
+        'Iridescent chrome-over-fbm material masked onto the wrapped child',
   ),
 ];

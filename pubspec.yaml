@@ -65,3 +65,4 @@ flutter:
     - lib/shaders/kuwahara.frag
     - lib/shaders/liquid_metal.frag
     - lib/shaders/layered_metal.frag
+    - lib/shaders/iridescent_liquid_wrap.frag

@@ -2168,6 +2168,228 @@ final layeredMetalShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// IRIDESCENT LIQUID WRAP (chrome-over-fbm material masked onto a child)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final iridescentLiquidWrapShaderDef = ShaderDefinition(
+  hasChildren: true,
+  assetPath:
+      'packages/material_palette/shaders/iridescent_liquid_wrap.frag',
+  layout: UniformLayout([
+    // Bump shape selector
+    const UniformField('bumpShape'),
+    // Pattern tuning
+    const UniformField('repetition'),
+    const UniformField('softness'),
+    const UniformField('distortion'),
+    const UniformField('contour'),
+    const UniformField('angleDeg'),
+    const UniformField('stripeDiagaBias'),
+    const UniformField('stripeTwist'),
+    // Bump tuning
+    const UniformField('bumpRadius'),
+    const UniformField('bumpExponent'),
+    const UniformField('bumpShearX'),
+    const UniformField('bumpShearY'),
+    const UniformField('bumpTopBias'),
+    const UniformField('bumpFloorBias'),
+    const UniformField('bumpFloorMin'),
+    // Chromatic aberration
+    const UniformField('shiftRed'),
+    const UniformField('shiftBlue'),
+    // Composition
+    const UniformField.colorRgba('colorBack'),
+    const UniformField.colorRgba('colorTint'),
+    // Mask
+    const UniformField.colorRgba('passColor'),
+    const UniformField('edgeBandPx'),
+    const UniformField('edgeSmoothness'),
+    // Domain warp
+    const UniformField('warpTimeScale'),
+    const UniformField('warpFreqInner'),
+    const UniformField('warpFreqMiddle'),
+    const UniformField('warpFreqHigh'),
+    const UniformField('fbmScaleFactor'),
+    const UniformField('stripeRippleStrength'),
+    const UniformField('bumpWarpWeight'),
+    // Palette
+    const UniformField('paletteStops'),
+    const UniformField.colorRgba('color0'),
+    const UniformField.colorRgba('color1'),
+    const UniformField.colorRgba('color2'),
+    const UniformField.colorRgba('color3'),
+    const UniformField.colorRgba('color4'),
+    const UniformField.colorRgba('color5'),
+    const UniformField.colorRgba('color6'),
+    const UniformField.colorRgba('color7'),
+    const UniformField.colorRgba('color8'),
+    const UniformField.colorRgba('color9'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'bumpShape': 0.0,
+      'repetition': 4.0,
+      'softness': 0.5,
+      'distortion': 0.3,
+      'contour': 0.5,
+      'angleDeg': 0.0,
+      'stripeDiagaBias': 1.0,
+      'stripeTwist': 0.2,
+      'bumpRadius': 1.8,
+      'bumpExponent': 1.2,
+      'bumpShearX': 0.0,
+      'bumpShearY': 0.2,
+      'bumpTopBias': 0.3,
+      'bumpFloorBias': 0.1,
+      'bumpFloorMin': 0.3,
+      'shiftRed': 0.2,
+      'shiftBlue': 0.2,
+      'edgeBandPx': 16.0,
+      'edgeSmoothness': 0.25,
+      'warpTimeScale': 0.05,
+      'warpFreqInner': 0.9,
+      'warpFreqMiddle': 0.6,
+      'warpFreqHigh': 0.3,
+      'fbmScaleFactor': 3.9,
+      'stripeRippleStrength': 0.5,
+      'bumpWarpWeight': 0.2,
+      'paletteStops': 3.0,
+    },
+    colors: {
+      'colorBack': const Color.fromRGBO(0, 0, 0, 0),
+      'colorTint': const Color.fromRGBO(255, 255, 255, 0),
+      'passColor': const Color.fromRGBO(0, 0, 0, 0),
+      'color0': const Color.fromRGBO(0, 0, 76, 1.0),
+      'color1': const Color.fromRGBO(97, 0, 0, 1.0),
+      'color2': const Color.fromRGBO(255, 188, 76, 1.0),
+      'color3': const Color.fromRGBO(140, 31, 20, 1.0),
+      'color4': const Color.fromRGBO(229, 102, 38, 1.0),
+      'color5': const Color.fromRGBO(255, 191, 89, 1.0),
+      'color6': const Color.fromRGBO(255, 235, 153, 1.0),
+      'color7': const Color.fromRGBO(255, 247, 217, 1.0),
+      'color8': const Color.fromRGBO(179, 204, 255, 1.0),
+      'color9': const Color.fromRGBO(64, 89, 140, 1.0),
+    },
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'bumpShape':
+        const SliderRange('Bump Shape', min: 0.0, max: 4.0),
+    'repetition': const SliderRange('Repetition', min: 1.0, max: 10.0),
+    'softness': const SliderRange('Stripe Softness', min: 0.0, max: 1.0),
+    'distortion': const SliderRange('Distortion', min: 0.0, max: 1.0),
+    'contour': const SliderRange('Contour', min: 0.0, max: 1.0),
+    'angleDeg': const SliderRange('Angle°', min: 0.0, max: 360.0),
+    'stripeDiagaBias':
+        const SliderRange('Diag Bias', min: 0.0, max: 2.0),
+    'stripeTwist': const SliderRange('Twist', min: 0.0, max: 1.0),
+    'bumpRadius': const SliderRange('Bump Radius', min: 0.5, max: 4.0),
+    'bumpExponent':
+        const SliderRange('Bump Exponent', min: 0.5, max: 4.0),
+    'bumpShearX':
+        const SliderRange('Bump Shear X', min: -1.0, max: 1.0),
+    'bumpShearY':
+        const SliderRange('Bump Shear Y', min: -1.0, max: 1.0),
+    'bumpTopBias':
+        const SliderRange('Top Bias', min: 0.0, max: 2.0),
+    'bumpFloorBias':
+        const SliderRange('Floor Bias', min: 0.0, max: 2.0),
+    'bumpFloorMin':
+        const SliderRange('Floor Min', min: 0.0, max: 1.0),
+    'shiftRed': const SliderRange('Shift R', min: 0.0, max: 1.0),
+    'shiftBlue': const SliderRange('Shift B', min: 0.0, max: 1.0),
+    'edgeBandPx':
+        const SliderRange('Edge Band σ (px)', min: 2.0, max: 48.0),
+    'edgeSmoothness':
+        const SliderRange('Edge Smoothness', min: 0.05, max: 1.0),
+    'warpTimeScale':
+        const SliderRange('Flow Speed', min: 0.0, max: 0.5),
+    'warpFreqInner':
+        const SliderRange('Warp Freq (Inner)', min: 0.1, max: 4.0),
+    'warpFreqMiddle':
+        const SliderRange('Warp Freq (Middle)', min: 0.1, max: 4.0),
+    'warpFreqHigh':
+        const SliderRange('Warp Freq (Outer)', min: 0.1, max: 2.0),
+    'fbmScaleFactor':
+        const SliderRange('FBM Scale', min: 0.5, max: 8.0),
+    'stripeRippleStrength':
+        const SliderRange('Stripe / FBM Mix', min: 0.0, max: 1.0),
+    'bumpWarpWeight':
+        const SliderRange('Bump Warp', min: 0.0, max: 1.0),
+    'paletteStops':
+        const SliderRange('Palette Stops', min: 2.0, max: 10.0),
+  }),
+  paramDescriptions: {
+    'bumpShape':
+        'Bump surface preset. 0 = radial dome, 1 = horizontal cylinder, 2 = vertical cylinder, 3 = diagonal ridge, 4 = flat plane',
+    'repetition':
+        'Stripe density across the masked shape (1 = a couple of bands, 10 = dense pinstripes)',
+    'softness': 'Stripe edge blur — 0 = crisp, 1 = soft',
+    'distortion':
+        'How much the warp noise displaces the stripe phase (0 = clean stripes, 1 = strongly liquid)',
+    'contour':
+        'Stripe bending and edge softening at the masked shape boundary',
+    'angleDeg': 'Pattern rotation in degrees',
+    'stripeDiagaBias':
+        'Linear bias of the stripe direction along the BL↔TR diagonal (0 disables for a symmetric look)',
+    'stripeTwist':
+        'Per-pixel rotation perturbation that flows the pattern along the diagonal',
+    'bumpRadius':
+        'Inverse radius of the bump shape — larger = tighter peak / faster falloff',
+    'bumpExponent':
+        'Bump falloff exponent — 1 = linear cone, 2 = parabolic dome',
+    'bumpShearX':
+        'Horizontal shear of the radial dome along the diagonal (0 = circular)',
+    'bumpShearY':
+        'Vertical shear of the radial dome along the diagonal (0 = circular)',
+    'bumpTopBias':
+        '"Lit from above" gradient exponent applied to the radial dome',
+    'bumpFloorBias':
+        'Secondary downward gradient exponent floored by Floor Min',
+    'bumpFloorMin':
+        'Lower bound of the secondary gradient so bottom stripes survive',
+    'shiftRed':
+        'Red-channel chromatic aberration amount on the stripe pattern',
+    'shiftBlue':
+        'Blue-channel chromatic aberration amount on the stripe pattern',
+    'colorBack':
+        'Background colour painted under transparent regions of the mask (alpha = strength)',
+    'colorTint':
+        'Colour-burn tint composited over the iridescent material (alpha = strength)',
+    'passColor':
+        'Mask pass colour. Transparent (alpha = 0) treats the child\'s alpha as the mask. Any non-transparent colour requires an exact match in the child to count as inside the shape',
+    'edgeBandPx':
+        'Standard deviation (σ, in pixels) of the GPU Gaussian blur used to approximate the distance-to-edge field that drives uContour. Effective reach is ~3σ inward from the boundary, so larger values let contour distortion penetrate further into the shape',
+    'edgeSmoothness':
+        'Smoothness of the distance-field approximation as a fraction of edge band σ. Higher values dissolve the faint radial wrinkles that can emanate from sharp interior corners of the mask, at the cost of slightly weaker contour response (the field reads a few percent higher than the true distance)',
+    'warpTimeScale':
+        'Animation speed of the domain warp; 0 freezes the pattern',
+    'warpFreqInner':
+        'Frequency of the innermost (fastest) domain-warp layer',
+    'warpFreqMiddle': 'Frequency of the middle domain-warp layer',
+    'warpFreqHigh':
+        'Frequency of the outermost (slowest) domain-warp layer',
+    'fbmScaleFactor':
+        'Global scale on the inner warp — coarser features at higher values',
+    'stripeRippleStrength':
+        'Mix between the fbm shape (0) and the palette-coloured stripes (1) when indexing the palette',
+    'bumpWarpWeight':
+        'How much the warp leaks into the bump pipeline (0 keeps the clean radial bump, 1 makes the stripes track the fbm)',
+    'paletteStops':
+        'Number of active palette stops (2..10); first N of color0..color9 are interpolated across the pattern',
+    'color0': 'Palette stop 0',
+    'color1': 'Palette stop 1',
+    'color2': 'Palette stop 2',
+    'color3': 'Palette stop 3',
+    'color4': 'Palette stop 4',
+    'color5': 'Palette stop 5',
+    'color6': 'Palette stop 6',
+    'color7': 'Palette stop 7',
+    'color8': 'Palette stop 8',
+    'color9': 'Palette stop 9',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -2228,6 +2450,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.kuwaharaWrap: kuwaharaShaderDef,
   ShaderNames.liquidMetal: liquidMetalShaderDef,
   ShaderNames.layeredMetal: layeredMetalShaderDef,
+  ShaderNames.iridescentLiquidWrap: iridescentLiquidWrapShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -2268,6 +2491,7 @@ const List<String> allShaderNames = [
   ShaderNames.kuwaharaWrap,
   ShaderNames.liquidMetal,
   ShaderNames.layeredMetal,
+  ShaderNames.iridescentLiquidWrap,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
@@ -2276,6 +2500,7 @@ const List<String> allParamNames = [
   'ambientGain',
   'amplitude',
   'angle',
+  'angleDeg',
   'animAmpInput',
   'animAmpWarp',
   'animSpeed',
@@ -2285,7 +2510,16 @@ const List<String> allParamNames = [
   'animSpeedWarpY',
   'baseFrequency',
   'bgColor',
+  'bumpExponent',
+  'bumpFloorBias',
+  'bumpFloorMin',
+  'bumpRadius',
+  'bumpShape',
+  'bumpShearX',
+  'bumpShearY',
   'bumpStrength',
+  'bumpTopBias',
+  'bumpWarpWeight',
   'burnCenterX',
   'burnCenterY',
   'burnLifetime',
@@ -2306,7 +2540,10 @@ const List<String> allParamNames = [
   'color7',
   'color8',
   'color9',
+  'colorBack',
   'colorCount',
+  'colorTint',
+  'contour',
   'contrast',
   'contrastPower',
   'curlRadius',
@@ -2314,9 +2551,11 @@ const List<String> allParamNames = [
   'density',
   'displacementStrength',
   'distanceType',
+  'distortion',
   'ditherScale',
   'ditherStrength',
   'easing',
+  'edgeBandPx',
   'edgeFade',
   'edgeFadeMode',
   'edgeGain',
@@ -2325,6 +2564,7 @@ const List<String> allParamNames = [
   'edgeTint',
   'edgeWidth',
   'exposure',
+  'fbmScaleFactor',
   'fillLightColor',
   'fillLightDirX',
   'fillLightDirY',
@@ -2390,6 +2630,7 @@ const List<String> allParamNames = [
   'pixelSize',
   'planeOffset',
   'radius',
+  'repetition',
   'rimGain',
   'rimLightColor',
   'rimLightDirX',
@@ -2407,6 +2648,8 @@ const List<String> allParamNames = [
   'shapeProportion',
   'shapeScale',
   'sharpness',
+  'shiftBlue',
+  'shiftRed',
   'shininess',
   'showSun',
   'smokeColor',
@@ -2417,6 +2660,9 @@ const List<String> allParamNames = [
   'specular',
   'speed',
   'stippleStrength',
+  'stripeDiagaBias',
+  'stripeRippleStrength',
+  'stripeTwist',
   'sunColor',
   'sunDiscColor',
   'sunPosX',
@@ -2434,6 +2680,7 @@ const List<String> allParamNames = [
   'warpFreqInner',
   'warpFreqMiddle',
   'warpStrength',
+  'warpTimeScale',
   'waveletAmplitude',
   'waveletDecay',
   'waveletFreq',

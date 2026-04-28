@@ -10,6 +10,7 @@ import 'shader_wrap_demo_page.dart';
 import 'tappable_demo_page.dart';
 import 'dither_wrap_demo_page.dart';
 import 'fur_wrap_demo_page.dart';
+import 'iridescent_liquid_wrap_demo_page.dart';
 import 'kuwahara_wrap_demo_page.dart';
 import 'peel_wrap_demo_page.dart';
 import 'turbulence_wrap_demo_page.dart';
@@ -85,6 +86,7 @@ class _TestDemosHomeState extends State<TestDemosHome> {
     CrepuscularRaysDemoPage(),
     CrepuscularRaysFbmDemoPage(),
     KuwaharaWrapDemoPage(),
+    IridescentLiquidWrapDemoPage(),
   ];
 
   @override
@@ -148,6 +150,10 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               NavigationRailDestination(
                 icon: Icon(Icons.brush),
                 label: Text('Kuwahara'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.water_drop),
+                label: Text('Iridescent'),
               ),
             ],
           ),
