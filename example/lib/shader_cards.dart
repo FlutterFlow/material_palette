@@ -4272,15 +4272,10 @@ class _IridescentLiquidWrapShaderCardState
                 onChanged: (v) => setState(
                     () => _params = _params.withValue('bumpTopBias', v))),
             ControlSlider.fromRange(
-                range: _ui['bumpFloorBias']!,
-                value: _params.get('bumpFloorBias'),
+                range: _ui['bumpFloor']!,
+                value: _params.get('bumpFloor'),
                 onChanged: (v) => setState(
-                    () => _params = _params.withValue('bumpFloorBias', v))),
-            ControlSlider.fromRange(
-                range: _ui['bumpFloorMin']!,
-                value: _params.get('bumpFloorMin'),
-                onChanged: (v) => setState(
-                    () => _params = _params.withValue('bumpFloorMin', v))),
+                    () => _params = _params.withValue('bumpFloor', v))),
             const SizedBox(height: 12),
             const ControlSectionTitle('Domain Warp'),
             ControlSlider.fromRange(

@@ -2192,8 +2192,7 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     const UniformField('bumpShearX'),
     const UniformField('bumpShearY'),
     const UniformField('bumpTopBias'),
-    const UniformField('bumpFloorBias'),
-    const UniformField('bumpFloorMin'),
+    const UniformField('bumpFloor'),
     // Chromatic aberration
     const UniformField('shiftRed'),
     const UniformField('shiftBlue'),
@@ -2240,8 +2239,7 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
       'bumpShearX': 0.0,
       'bumpShearY': 0.2,
       'bumpTopBias': 0.3,
-      'bumpFloorBias': 0.1,
-      'bumpFloorMin': 0.3,
+      'bumpFloor': 0.3,
       'shiftRed': 0.2,
       'shiftBlue': 0.2,
       'edgeBandPx': 16.0,
@@ -2291,10 +2289,8 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
         const SliderRange('Bump Shear Y', min: -1.0, max: 1.0),
     'bumpTopBias':
         const SliderRange('Top Bias', min: 0.0, max: 2.0),
-    'bumpFloorBias':
-        const SliderRange('Floor Bias', min: 0.0, max: 2.0),
-    'bumpFloorMin':
-        const SliderRange('Floor Min', min: 0.0, max: 1.0),
+    'bumpFloor':
+        const SliderRange('Bottom Floor', min: 0.0, max: 1.0),
     'shiftRed': const SliderRange('Shift R', min: 0.0, max: 1.0),
     'shiftBlue': const SliderRange('Shift B', min: 0.0, max: 1.0),
     'edgeBandPx':
@@ -2342,11 +2338,9 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     'bumpShearY':
         'Vertical shear of the radial dome along the diagonal (0 = circular)',
     'bumpTopBias':
-        '"Lit from above" gradient exponent applied to the radial dome',
-    'bumpFloorBias':
-        'Secondary downward gradient exponent floored by Floor Min',
-    'bumpFloorMin':
-        'Lower bound of the secondary gradient so bottom stripes survive',
+        'Strength of the top-down lighting gradient applied to the bump shape. 0 disables it (uniform brightness top-to-bottom); higher values fall off faster, making the top brighter than the bottom',
+    'bumpFloor':
+        'Minimum brightness floor applied to the bottom of the top-bias gradient, so contour stripes at the bottom of the shape stay visible. 0 lets the bottom go fully dark; 1 cancels the gradient entirely (floor wins everywhere)',
     'shiftRed':
         'Red-channel chromatic aberration amount on the stripe pattern',
     'shiftBlue':
@@ -2511,8 +2505,7 @@ const List<String> allParamNames = [
   'baseFrequency',
   'bgColor',
   'bumpExponent',
-  'bumpFloorBias',
-  'bumpFloorMin',
+  'bumpFloor',
   'bumpRadius',
   'bumpShape',
   'bumpShearX',

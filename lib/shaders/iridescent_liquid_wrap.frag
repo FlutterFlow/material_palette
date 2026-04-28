@@ -36,9 +36,20 @@ uniform float uStripeTwist;           // per-pixel rotation perturbation
 uniform float uBumpRadius;            // inverse radius (larger = tighter peak)
 uniform float uBumpExponent;          // falloff: 1 = cone, 2 = parabolic
 uniform vec2  uBumpShear;             // radial dome shear along diagA
-uniform float uBumpTopBias;           // primary "lit from above" gradient
-uniform float uBumpFloorBias;         // secondary gradient exponent (floored)
-uniform float uBumpFloorMin;          // minimum value of the secondary gradient
+
+// Top-down lighting on the bump shape: stripes get progressively dimmer as
+// uv.y → 0 (bottom of the shape).
+//
+//   uBumpTopBias = 0  →  gradient disabled (uniform brightness top-to-bottom)
+//   uBumpTopBias > 0  →  brighter at the top, falling off toward the bottom.
+//                         Larger values fall off faster (sharper top-lit feel).
+//
+// `uBumpFloor` then clamps the bottom of that gradient so the lower edge of
+// the shape never goes fully unlit — without it, the contour stripes at
+// the bottom would vanish at large uBumpTopBias values. 0 = let it go
+// fully dark; 1 = uniform (floor wins everywhere).
+uniform float uBumpTopBias;
+uniform float uBumpFloor;
 
 // Chromatic aberration
 uniform float uShiftRed;
@@ -431,19 +442,14 @@ void main() {
     vec2 p = uv - 0.5;
     int  shapeIdx = int(uBumpShape + 0.5);
 
-    // `max(_, 1e-5)` floors the pow base so `uBumpRadius == 0` and/or the
-    // shape's distance term being exactly zero (e.g. the centre pixel of
-    // the radial dome) don't combine with `uBumpExponent == 0` into an
-    // undefined `pow(0, 0)` — that's implementation-defined in GLSL/SkSL
-    // and on some backends evaluates to NaN, which would propagate
-    // through the entire fragment.
+    // Each `pow` base is floored at 1e-5 so `pow(0, 0)` (implementation-
+    // defined in GLSL — NaN on some Skia backends) can't appear when the
+    // user dials radius/exponent or top-bias to zero.
     float bump;
     if (shapeIdx == 0) {
-        // RADIAL: dome peaking at center, lit-from-above.
+        // RADIAL: dome peaking at center.
         float dist = length(p + diagA * uBumpShear);
-        bump  = 1.0 - pow(max(uBumpRadius * dist, 1e-5), uBumpExponent);
-        bump *= pow(uv.y, uBumpTopBias);
-        bump *= clamp(pow(uv.y, uBumpFloorBias), uBumpFloorMin, 1.0);
+        bump = 1.0 - pow(max(uBumpRadius * dist, 1e-5), uBumpExponent);
     } else if (shapeIdx == 1) {
         // CYLINDER_H: horizontal ridge (peak on y = 0).
         bump = 1.0 - pow(max(uBumpRadius * abs(p.y), 1e-5), uBumpExponent);
@@ -459,6 +465,16 @@ void main() {
         bump = 1.0;
     }
     bump = clamp(bump, 0.0, 1.0);
+
+    // Top-down lighting: gradient by uv.y, then *actually* floored so the
+    // bottom can't go below uBumpFloor. The previous design multiplied two
+    // gradients and tried to floor the second — but with the multiplicative
+    // structure the first gradient already drove the product to zero at
+    // uv.y = 0, so the "floor" never floored anything. One curve + one
+    // honest floor does the job in one less control.
+    float vertical = pow(max(uv.y, 1e-5), uBumpTopBias);
+    vertical = max(vertical, uBumpFloor);
+    bump *= vertical;
 
     // ---- 4. Warp tap: drives `noise` and blends into `bump` ---------------
     float tw         = uWarpTimeScale * uTime;
