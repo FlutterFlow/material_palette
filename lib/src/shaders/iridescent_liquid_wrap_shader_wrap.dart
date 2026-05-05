@@ -48,8 +48,6 @@ class IridescentLiquidShaderWrap extends StatelessWidget {
         uniforms
           ..setSize(size)
           ..setFloat(time)
-          // Bump shape selector
-          ..setFloat(p.get('bumpShape'))
           // Pattern tuning
           ..setFloat(p.get('repetition'))
           ..setFloat(p.get('softness'))
@@ -63,8 +61,6 @@ class IridescentLiquidShaderWrap extends StatelessWidget {
           ..setFloat(p.get('bumpExponent'))
           ..setFloat(p.get('bumpShearX'))
           ..setFloat(p.get('bumpShearY'))
-          ..setFloat(p.get('bumpTopBias'))
-          ..setFloat(p.get('bumpFloor'))
           // Chromatic aberration
           ..setFloat(p.get('shiftRed'))
           ..setFloat(p.get('shiftBlue'))

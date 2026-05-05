@@ -2176,8 +2176,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
   assetPath:
       'packages/material_palette/shaders/iridescent_liquid_wrap.frag',
   layout: UniformLayout([
-    // Bump shape selector
-    const UniformField('bumpShape'),
     // Pattern tuning
     const UniformField('repetition'),
     const UniformField('softness'),
@@ -2191,8 +2189,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     const UniformField('bumpExponent'),
     const UniformField('bumpShearX'),
     const UniformField('bumpShearY'),
-    const UniformField('bumpTopBias'),
-    const UniformField('bumpFloor'),
     // Chromatic aberration
     const UniformField('shiftRed'),
     const UniformField('shiftBlue'),
@@ -2226,7 +2222,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
   ]),
   defaults: ShaderParams(
     values: {
-      'bumpShape': 0.0,
       'repetition': 4.0,
       'softness': 0.5,
       'distortion': 0.3,
@@ -2238,8 +2233,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
       'bumpExponent': 1.2,
       'bumpShearX': 0.0,
       'bumpShearY': 0.2,
-      'bumpTopBias': 0.3,
-      'bumpFloor': 0.3,
       'shiftRed': 0.2,
       'shiftBlue': 0.2,
       'edgeBandPx': 16.0,
@@ -2270,8 +2263,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     },
   ),
   uiDefaults: ShaderUIDefaults({
-    'bumpShape':
-        const SliderRange('Bump Shape', min: 0.0, max: 4.0),
     'repetition': const SliderRange('Repetition', min: 1.0, max: 10.0),
     'softness': const SliderRange('Stripe Softness', min: 0.0, max: 1.0),
     'distortion': const SliderRange('Distortion', min: 0.0, max: 1.0),
@@ -2287,10 +2278,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
         const SliderRange('Bump Shear X', min: -1.0, max: 1.0),
     'bumpShearY':
         const SliderRange('Bump Shear Y', min: -1.0, max: 1.0),
-    'bumpTopBias':
-        const SliderRange('Top Bias', min: 0.0, max: 2.0),
-    'bumpFloor':
-        const SliderRange('Bottom Floor', min: 0.0, max: 1.0),
     'shiftRed': const SliderRange('Shift R', min: 0.0, max: 1.0),
     'shiftBlue': const SliderRange('Shift B', min: 0.0, max: 1.0),
     'edgeBandPx':
@@ -2315,8 +2302,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
         const SliderRange('Palette Stops', min: 2.0, max: 10.0),
   }),
   paramDescriptions: {
-    'bumpShape':
-        'Bump surface preset. 0 = radial dome, 1 = horizontal cylinder, 2 = vertical cylinder, 3 = diagonal ridge, 4 = flat plane',
     'repetition':
         'Stripe density across the masked shape (1 = a couple of bands, 10 = dense pinstripes)',
     'softness': 'Stripe edge blur — 0 = crisp, 1 = soft',
@@ -2337,10 +2322,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
         'Horizontal shear of the radial dome along the diagonal (0 = circular)',
     'bumpShearY':
         'Vertical shear of the radial dome along the diagonal (0 = circular)',
-    'bumpTopBias':
-        'Strength of the top-down lighting gradient applied to the bump shape. 0 disables it (uniform brightness top-to-bottom); higher values fall off faster, making the top brighter than the bottom',
-    'bumpFloor':
-        'Minimum brightness floor applied to the bottom of the top-bias gradient, so contour stripes at the bottom of the shape stay visible. 0 lets the bottom go fully dark; 1 cancels the gradient entirely (floor wins everywhere)',
     'shiftRed':
         'Red-channel chromatic aberration amount on the stripe pattern',
     'shiftBlue':
@@ -2505,13 +2486,10 @@ const List<String> allParamNames = [
   'baseFrequency',
   'bgColor',
   'bumpExponent',
-  'bumpFloor',
   'bumpRadius',
-  'bumpShape',
   'bumpShearX',
   'bumpShearY',
   'bumpStrength',
-  'bumpTopBias',
   'bumpWarpWeight',
   'burnCenterX',
   'burnCenterY',
