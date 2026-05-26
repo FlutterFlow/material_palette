@@ -110,24 +110,15 @@ vec2 rotate2(vec2 v, float a) {
     return mat2(c, -s, s, c) * v;
 }
 
-// Soft top-hat window: 0 below a, 1 across b..c, 0 above d.
-float window(float x, float a, float b, float c, float d) {
-    return smoothstep(a, b, x) * (1.0 - smoothstep(c, d, x));
-}
-
-float dispersionRed(vec2 uv, float bump, float noise, float diagA) {
+float dispersionRed(float bump, float noise, float diagA) {
     float d = clamp(1.0 - bump, 0.0, 1.0);
     d += 0.03 * bump * noise;
-    d += 5.0 * window(uv.y, -0.1, 0.2, 0.1, 0.5)
-            * window(bump,   0.4, 0.6, 0.4, 1.0);
     d -= diagA;
     return d * (uShiftRed / 20.0);
 }
 
-float dispersionBlue(vec2 uv, float bump, float edge) {
+float dispersionBlue(float bump, float edge) {
     float d = clamp(1.0 - bump, 0.0, 1.0) * 1.3;
-    d += window(uv.y, 0.0, 0.4, 0.1, 0.8)
-       * window(bump, 0.4, 0.6, 0.4, 0.8);
     d -= 0.2 * edge;
     return d * (uShiftBlue / 20.0);
 }
@@ -376,9 +367,9 @@ void main() {
     w.y -= 0.02 * smoothstep(0.0, 1.0, edgeN + bump);
 
     // ---- 6. Per-channel stripe scalars (chromatic aberration) -------------
-    float phaseR = fract(direction + dispersionRed (uv, bump, noise, diagA));
+    float phaseR = fract(direction + dispersionRed (bump, noise, diagA));
     float phaseG = fract(direction);
-    float phaseB = fract(direction - dispersionBlue(uv, bump, edgeN));
+    float phaseB = fract(direction - dispersionBlue(bump, edgeN));
 
     // SkSL has no derivative ops; fwidth(phase) is approximated as
     // uRepetition * (1 / uSize.y) — the scale at which `phase` advances per
