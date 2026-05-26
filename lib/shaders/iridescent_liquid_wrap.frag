@@ -3,7 +3,7 @@ precision highp float;
 
 // Iridescent liquid wrap — stripes + fbm domain warp masked onto a child.
 //   uStripeRippleStrength  0 = pure fbm warp, 1 = pure stripes
-//   uBumpWarpWeight        0 = clean radial,   1 = stripes track the fbm
+//   uBumpWarpWeight        0 = stripes ignore fbm, 1 = stripes track the fbm
 
 // Standard header
 uniform vec2  uSize;
@@ -16,14 +16,9 @@ uniform float uDistortion;            // noise warp into stripe phase
 uniform float uContour;               // stripe bending at the shape edge
 uniform float uAngleDeg;              // pattern rotation (degrees)
 
-// Diagonal asymmetries — set both (and uBumpShear) to 0 for a symmetric look.
+// Diagonal asymmetries — set both to 0 for a symmetric look.
 uniform float uStripeDiagaBias;       // linear diagA → direction
 uniform float uStripeTwist;           // per-pixel rotation perturbation
-
-// Bump tuning
-uniform float uBumpRadius;            // inverse radius (larger = tighter peak)
-uniform float uBumpExponent;          // falloff: 1 = cone, 2 = parabolic
-uniform vec2  uBumpShear;             // radial dome shear along diagA
 
 // Chromatic aberration
 uniform float uShiftRed;
@@ -339,20 +334,14 @@ void main() {
     vec2  rUV   = rotate2(uv - 0.5, angle) + 0.5;
     float diagA = rUV.x - rUV.y;
 
-    // ---- 3. Bump (fake 3D surface curvature) ------------------------------
-    // pow base floored at 1e-5 to avoid pow(0,0) → NaN on some Skia backends.
-    vec2  p    = uv - 0.5;
-    float dist = length(p + diagA * uBumpShear);
-    float bump = 1.0 - pow(max(uBumpRadius * dist, 1e-5), uBumpExponent);
-    bump = clamp(bump, 0.0, 1.0);
-
-    // ---- 4. Warp tap: drives `noise` and blends into `bump` ---------------
+    // ---- 3. Warp tap: drives `noise` and `bump` ---------------------------
+    vec2  p          = uv - 0.5;
     float tw         = uWarpTimeScale * uTime;
     float warpShapeV = warpShape(2.0 * p, tw);
     float noise      = mix(snoise(uv - t),
                            2.0 * warpShapeV - 1.0,
                            uBumpWarpWeight);
-    bump             = mix(bump, warpShapeV, uBumpWarpWeight);
+    float bump       = uBumpWarpWeight * warpShapeV;
 
     // Contrast-boost the bump driving the stripes.
     float bumpStripe = smoothstep(0.2, 0.8, bump);
@@ -362,12 +351,12 @@ void main() {
     float edgePeak = edgeS * (1.0 - edgeS);
     float contourB = smoothstep(0.5, 1.0, uContour);
 
-    // ---- 5. Warp sampling coord (edge-driven contour distortion) ----------
+    // ---- 4. Warp sampling coord (edge-driven contour distortion) ----------
     vec2 warpUV = 2.0 * p;
     warpUV += rotate2(p, 0.5 * PI) * edgePeak * contourB * 2.0;
     warpUV += 0.3 * pow(uContour, 4.0) * (1.0 - edgeS);
 
-    // ---- 6. Stripe accumulator -------------------------------------------
+    // ---- 5. Stripe accumulator -------------------------------------------
     float direction = rotate2(p, (0.25 - uStripeTwist * diagA) * PI).x;
     direction += uStripeDiagaBias * diagA;
     direction -= 2.0 * noise * diagA * edgePeak;
@@ -386,7 +375,7 @@ void main() {
                        1.0 - (thin1 + thin2) / max(uRepetition, 0.001));
     w.y -= 0.02 * smoothstep(0.0, 1.0, edgeN + bump);
 
-    // ---- 7. Per-channel stripe scalars (chromatic aberration) -------------
+    // ---- 6. Per-channel stripe scalars (chromatic aberration) -------------
     float phaseR = fract(direction + dispersionRed (uv, bump, noise, diagA));
     float phaseG = fract(direction);
     float phaseB = fract(direction - dispersionBlue(uv, bump, edgeN));
@@ -410,7 +399,7 @@ void main() {
     float stripeB = sampleStripe(1.0, 0.0, phaseB, w,
                                  blur + phaseFw,          bumpStripe);
 
-    // ---- 8. Per-channel warpMap taps (fbm + palette) ---------------------
+    // ---- 7. Per-channel warpMap taps (fbm + palette) ---------------------
     vec2 offUvR = vec2(uShiftRed  / 50.0, 0.0);
     vec2 offUvB = vec2(uShiftBlue / 50.0, 0.0);
 
@@ -427,7 +416,7 @@ void main() {
               uColorTint.a);
     col *= opacity;
 
-    // ---- 9. Composite over uColorBack + dither ---------------------------
+    // ---- 8. Composite over uColorBack + dither ---------------------------
     col        += uColorBack.rgb * uColorBack.a * (1.0 - opacity);
     float alpha = opacity + uColorBack.a * (1.0 - opacity);
 

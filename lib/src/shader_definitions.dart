@@ -2184,11 +2184,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     const UniformField('angleDeg'),
     const UniformField('stripeDiagaBias'),
     const UniformField('stripeTwist'),
-    // Bump tuning
-    const UniformField('bumpRadius'),
-    const UniformField('bumpExponent'),
-    const UniformField('bumpShearX'),
-    const UniformField('bumpShearY'),
     // Chromatic aberration
     const UniformField('shiftRed'),
     const UniformField('shiftBlue'),
@@ -2229,10 +2224,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
       'angleDeg': 0.0,
       'stripeDiagaBias': 1.0,
       'stripeTwist': 0.2,
-      'bumpRadius': 1.8,
-      'bumpExponent': 1.2,
-      'bumpShearX': 0.0,
-      'bumpShearY': 0.2,
       'shiftRed': 0.2,
       'shiftBlue': 0.2,
       'edgeBandPx': 16.0,
@@ -2271,13 +2262,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     'stripeDiagaBias':
         const SliderRange('Diag Bias', min: 0.0, max: 2.0),
     'stripeTwist': const SliderRange('Twist', min: 0.0, max: 1.0),
-    'bumpRadius': const SliderRange('Bump Radius', min: 0.0, max: 4.0),
-    'bumpExponent':
-        const SliderRange('Bump Exponent', min: 0.0, max: 4.0),
-    'bumpShearX':
-        const SliderRange('Bump Shear X', min: -1.0, max: 1.0),
-    'bumpShearY':
-        const SliderRange('Bump Shear Y', min: -1.0, max: 1.0),
     'shiftRed': const SliderRange('Shift R', min: 0.0, max: 1.0),
     'shiftBlue': const SliderRange('Shift B', min: 0.0, max: 1.0),
     'edgeBandPx':
@@ -2314,14 +2298,6 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
         'Linear bias of the stripe direction along the BL↔TR diagonal (0 disables for a symmetric look)',
     'stripeTwist':
         'Per-pixel rotation perturbation that flows the pattern along the diagonal',
-    'bumpRadius':
-        'Inverse radius of the bump shape — larger = tighter peak / faster falloff',
-    'bumpExponent':
-        'Bump falloff exponent — 1 = linear cone, 2 = parabolic dome',
-    'bumpShearX':
-        'Horizontal shear of the radial dome along the diagonal (0 = circular)',
-    'bumpShearY':
-        'Vertical shear of the radial dome along the diagonal (0 = circular)',
     'shiftRed':
         'Red-channel chromatic aberration amount on the stripe pattern',
     'shiftBlue':
@@ -2348,7 +2324,7 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     'stripeRippleStrength':
         'Mix between the fbm shape (0) and the palette-coloured stripes (1) when indexing the palette',
     'bumpWarpWeight':
-        'How much the warp leaks into the bump pipeline (0 keeps the clean radial bump, 1 makes the stripes track the fbm)',
+        'How much the warp drives the stripe-shape pipeline (0 disables, 1 makes the stripes fully track the fbm)',
     'paletteStops':
         'Number of active palette stops (2..10); first N of color0..color9 are interpolated across the pattern',
     'color0': 'Palette stop 0',
@@ -2485,10 +2461,6 @@ const List<String> allParamNames = [
   'animSpeedWarpY',
   'baseFrequency',
   'bgColor',
-  'bumpExponent',
-  'bumpRadius',
-  'bumpShearX',
-  'bumpShearY',
   'bumpStrength',
   'bumpWarpWeight',
   'burnCenterX',

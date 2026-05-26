@@ -4239,28 +4239,6 @@ class _IridescentLiquidWrapShaderCardState
                 onChanged: (v) => setState(
                     () => _params = _params.withValue('stripeTwist', v))),
             const SizedBox(height: 12),
-            const ControlSectionTitle('Bump'),
-            ControlSlider.fromRange(
-                range: _ui['bumpRadius']!,
-                value: _params.get('bumpRadius'),
-                onChanged: (v) => setState(
-                    () => _params = _params.withValue('bumpRadius', v))),
-            ControlSlider.fromRange(
-                range: _ui['bumpExponent']!,
-                value: _params.get('bumpExponent'),
-                onChanged: (v) => setState(
-                    () => _params = _params.withValue('bumpExponent', v))),
-            ControlSlider.fromRange(
-                range: _ui['bumpShearX']!,
-                value: _params.get('bumpShearX'),
-                onChanged: (v) => setState(
-                    () => _params = _params.withValue('bumpShearX', v))),
-            ControlSlider.fromRange(
-                range: _ui['bumpShearY']!,
-                value: _params.get('bumpShearY'),
-                onChanged: (v) => setState(
-                    () => _params = _params.withValue('bumpShearY', v))),
-            const SizedBox(height: 12),
             const ControlSectionTitle('Domain Warp'),
             ControlSlider.fromRange(
                 range: _ui['warpTimeScale']!,

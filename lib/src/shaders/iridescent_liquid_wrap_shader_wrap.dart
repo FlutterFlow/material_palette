@@ -56,11 +56,6 @@ class IridescentLiquidShaderWrap extends StatelessWidget {
           ..setFloat(p.get('angleDeg'))
           ..setFloat(p.get('stripeDiagaBias'))
           ..setFloat(p.get('stripeTwist'))
-          // Bump tuning
-          ..setFloat(p.get('bumpRadius'))
-          ..setFloat(p.get('bumpExponent'))
-          ..setFloat(p.get('bumpShearX'))
-          ..setFloat(p.get('bumpShearY'))
           // Chromatic aberration
           ..setFloat(p.get('shiftRed'))
           ..setFloat(p.get('shiftBlue'))
