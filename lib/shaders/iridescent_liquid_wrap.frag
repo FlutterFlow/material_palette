@@ -1,17 +1,9 @@
 #include <flutter/runtime_effect.glsl>
 precision highp float;
 
-// =============================================================================
-//  Iridescent liquid wrap — animated chrome-over-fbm material.
-//
-//  A rotated stripe pattern blended with an iq-style triple-nested fbm domain
-//  warp, painted onto the wrapped child via a passColor mask. All former const
-//  knobs are uniforms so the entire look is tunable from Dart.
-//
-//  Two key blend knobs:
-//    uStripeRippleStrength  0 = pure fbm warp,  1 = pure palette-coloured stripes
-//    uBumpWarpWeight        0 = clean radial,    1 = stripe shape tracks the fbm
-// =============================================================================
+// Iridescent liquid wrap — stripes + fbm domain warp masked onto a child.
+//   uStripeRippleStrength  0 = pure fbm warp, 1 = pure stripes
+//   uBumpWarpWeight        0 = clean radial,   1 = stripes track the fbm
 
 // Standard header
 uniform vec2  uSize;
@@ -44,26 +36,14 @@ uniform vec4  uColorTint;             // colour-burn tint (alpha = strength)
 // Mask pass colour. alpha == 0 → alpha-driven mask, anything else → exact match.
 uniform vec4  uPassColor;
 
-// Inward thickness (in pixels) of the synthetic distance-to-edge band that
-// drives `uContour`. The reference Shadertoy expects a Poisson-preprocessed
-// distance field as input; without that, we approximate by sampling the mask
-// at a ring of offsets up to this radius. Larger values let the contour bend
-// stripes deeper inside the shape (at the cost of more texture taps).
+// Width (px) of the synthetic distance-to-edge band that drives uContour.
+// Larger values bend stripes deeper into the shape at higher tap cost.
 uniform float uEdgeBandPx;
 
-// Smoothness of the GPU distance approximation, as a fraction of
-// uEdgeBandPx. Controls the exponential weighting across the ray fan when
-// combining individual ray distances into the final field:
-//
-//   softness (px) = max(uEdgeBandPx · uEdgeSmoothness, 0.5)
-//
-// Higher values smooth out residual angular sampling artifacts (the faint
-// radial "wrinkles" that emanate from sharp interior corners of the mask
-// because all pixels share the same fixed ray angles). The trade-off is
-// a small constant bias: the field reads slightly higher than the true
-// distance, which makes the contour effect appear slightly softer.
+// Smoothing factor (fraction of uEdgeBandPx) for the ray-fan blend. Higher
+// values dissolve radial "wrinkles" from fixed ray angles, at the cost of
+// a slightly softer-reading field.
 uniform float uEdgeSmoothness;
-
 
 // Domain warp tuning
 uniform float uWarpTimeScale;
@@ -97,9 +77,7 @@ out vec4 fragColor;
 // 45° rotation between fbm octaves, decorrelates layers.
 const mat2 FBM_ROT = mat2(0.70710678, 0.70710678, -0.70710678, 0.70710678);
 
-// =============================================================================
-// 2D simplex noise — Ashima / Gustavson texture-free GLSL variant.
-// =============================================================================
+// 2D simplex noise (Ashima/Gustavson).
 vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 
 float snoise(vec2 p) {
@@ -207,27 +185,11 @@ vec2 fbm2(vec2 p) {
     return vec2(fbm(p), fbm(p.yx + vec2(3.2, 13.7)));
 }
 
-// Mask value at `uv`. The child texture is premultiplied. Always uses the
-// alpha channel as the primary "inside the shape" signal — that's the only
-// quantity that's perfectly smooth across anti-aliased edges and unaffected
-// by sub-pixel rendering wobble. When `uPassColor.a > 0` chromaticity acts
-// as a *gate* on top: pixels whose un-premultiplied colour is far from the
-// pass colour (e.g. a coloured background that happens to be opaque) get
-// rejected, but pixels that match — including AA edges, where chromaticity
-// is invariant — pass through with their alpha intact.
-//
-// Earlier revisions used chromaticity as the primary signal with a tight
-// threshold, which dropped any interior pixel whose rendering wobbled even
-// 0.05 in chroma. With a Gaussian distance field on top, those scattered
-// rejected pixels then dragged the field haywire over a wide neighbourhood,
-// producing region-scale "shards" aligned with stroke skeletons.
-//
-// Out-of-bounds UVs explicitly return 0. The default sampler tile mode
-// outside [0, 1] is implementation-defined in Flutter (clamp, decal, or
-// repeat depending on the backend), and at large σ the spiral samples can
-// stray outside the texture — repeating would silently feed the field with
-// content from the opposite edge, which is exactly the "sampling from the
-// wrong section" failure mode.
+// Mask value at `uv`. Alpha is the primary signal — it's smooth across AA
+// edges, unlike chromaticity which wobbles enough to wreck the distance
+// field. When uPassColor.a > 0, chromaticity acts as a gate on top.
+// Out-of-bounds returns 0; Flutter's default tile mode is implementation-
+// defined and large-σ rays would otherwise sample the opposite edge.
 float maskAt(vec2 uv) {
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
         return 0.0;
@@ -239,29 +201,21 @@ float maskAt(vec2 uv) {
         return pixel.a;
     }
 
-    // Floor the alpha before dividing so fully-transparent regions don't
-    // produce NaN/Inf from 0/0 — the multiplication by pixel.a at the end
-    // zeroes out any garbage chromaticity in those regions anyway.
+    // Floor alpha so 0/0 in transparent regions stays finite (the trailing
+    // * pixel.a zeroes any garbage chroma).
     float a      = max(pixel.a, 1e-4);
     vec3  unp    = pixel.rgb / a;
     float chroma = length(unp - uPassColor.rgb);
 
-    // Wide tolerance: keep pixels whose colour is broadly the same hue as
-    // uPassColor, only rejecting cleanly different colours (chroma > ~0.5
-    // means a clearly distinct colour in unit-cube RGB).
+    // Wide tolerance — reject only clearly different colours.
     float gate   = 1.0 - smoothstep(0.15, 0.55, chroma);
     return gate * pixel.a;
 }
 
-// Distance along a single ray from `uv` at angle `ang`. Coarse linear walk
-// (NUM_COARSE steps) brackets the first inside→outside crossing; bisection
-// (NUM_BISECT iterations) refines the bracket. 4 iterations narrows the
-// bracket by 16×, so an 8-px coarse step ends at ~0.5 px precision —
-// deliberately less than the 6-iteration ~0.125 px version, because at
-// that finer precision the bisection starts tracking sub-pixel mask
-// rasterisation noise and the rays propagate it as visible jaggies.
-// Coarser per-ray distances let the exp-weighted average across rays
-// blend out the noise instead.
+// Distance along a single ray. Coarse walk brackets the inside→outside
+// crossing, then bisection refines to ~0.5 px. Stopping at 4 iterations
+// (not 6) is deliberate: finer precision picks up sub-pixel rasterisation
+// noise that propagates as visible jaggies.
 float rayDistancePx(vec2 uv, float ang,
                     float maxDistPx, float coarseStepPx) {
     const int NUM_COARSE = 8;
@@ -288,35 +242,12 @@ float rayDistancePx(vec2 uv, float ang,
     return maxDistPx;
 }
 
-// Single-pass approximation of a Poisson-style distance-to-boundary field
-// for an arbitrary mask. Replaces what the reference Shadertoy gets from a
-// CPU-side Poisson solve packed into the texture's R channel — a continuous
-// "hill" that's 0 deep inside the shape, rising smoothly toward 1 at the
-// boundary.
-//
-// Algorithm: cast NUM_DIRS rays from the current pixel; each ray returns a
-// boundary distance via coarse-walk + bisection (sub-pixel radial
-// resolution). Combine via an exponentially-weighted average:
-//
-//     d̂ = Σ (d_i · exp(−d_i / softness)) / Σ exp(−d_i / softness)
-//
-// This is C∞ smooth in every input d_i — there is no `min()` switch, no
-// "winning ray" boundary, no parabolic-fit blow-up at inside corners
-// where neighbouring rays point at different boundary segments. Closer
-// rays dominate (their weight is exponentially larger), and farther rays
-// taper smoothly toward zero contribution. The result is the continuous
-// "hill" shape the Poisson solve produces, at the cost of a small
-// constant bias (~3–5% high) that's tunable via `uEdgeSmoothness`.
-//
-// 32 rays at fixed angles is the dominant lever for reducing the residual
-// radial pattern that emanates from sharp interior corners — those
-// wrinkles are a direct consequence of all pixels sharing the same fixed
-// ray angles, so halving the angular gap (22.5° → 11.25°) both densifies
-// and dims them. `uEdgeSmoothness` then lets the user blend across rays
-// to dissolve whatever's left.
-//
-// Worst-case cost is NUM_DIRS × (NUM_COARSE + NUM_BISECT) texture taps.
-// A pixel whose own mask is < 0.5 short-circuits to 0.
+// Single-pass approximation of a Poisson distance-to-boundary field.
+// Casts NUM_DIRS rays and combines them via exp-weighted average:
+//   d̂ = Σ (dᵢ · exp(−dᵢ / softness)) / Σ exp(−dᵢ / softness)
+// C∞-smooth (no min() switch) so inside corners don't blow up. 32 fixed
+// angles minimise the residual radial wrinkles; uEdgeSmoothness blends
+// across rays to dissolve what's left. mask < 0.5 short-circuits to 0.
 float distanceToEdgePx(vec2 uv, float maxDistPx) {
     const int NUM_DIRS = 32;
 
@@ -325,14 +256,9 @@ float distanceToEdgePx(vec2 uv, float maxDistPx) {
     }
 
     float coarseStepPx = maxDistPx / 8.0;
-    // Smoothing scale (px). Scales with σ so the blend stays consistent
-    // across band widths; floored so very small σ values don't drive
-    // softness toward zero (re-introducing hard-min facets), and *capped*
-    // at 8 px so very large σ + high smoothness doesn't push softness so
-    // far that exp-weighting becomes a plain mean of all rays — at that
-    // point unfound-boundary rays (returning maxDistPx) bias the result
-    // so high that distanceField saturates to 0 and the contour effect
-    // collapses entirely. The cap keeps the field useful at all settings.
+    // Softness floor avoids hard-min facets at small σ; cap at 8 px stops
+    // unfound-boundary rays (returning maxDistPx) from biasing the mean so
+    // high the field saturates to 0.
     float softness     = clamp(uEdgeBandPx * uEdgeSmoothness, 0.5, 8.0);
 
     float weightedSum = 0.0;
@@ -375,8 +301,7 @@ vec4 warpMap(vec2 p, float tw, float stripe) {
 void main() {
     vec2 fragCoord = FlutterFragCoord().xy;
 
-    // Sample the child at the unmodified UV (before the aspect squish) so the
-    // texture lookup stays inside [0, 1].
+    // Pre-aspect-squish UV so the texture lookup stays inside [0, 1].
     vec2  sampleUV = fragCoord / uSize;
 
     // Aspect-correct UV — pattern runs in a unit square on the short axis,
@@ -392,20 +317,14 @@ void main() {
     // ---- 1. Mask & edge field ---------------------------------------------
     float mask = maskAt(sampleUV);
 
-    // The contour effect needs a distance-to-edge field that's 1 at the
-    // boundary and decays smoothly to 0 deep inside. With a plain binary
-    // mask the naive `1 - mask` is 0 everywhere inside and 1 outside — it
-    // never penetrates the visible interior, so contour bending becomes
-    // invisible. Replace with a true single-pass distance probe; skip when
-    // contour is effectively off so deeply-interior pixels don't pay the
-    // ~320 worst-case texture-tap budget for a value that gets multiplied
-    // out anyway.
+    // Distance field: 1 at boundary, decays to 0 inside. Naive `1 - mask`
+    // doesn't penetrate the interior, so we run a real distance probe —
+    // skipped when contour is off to save ~320 taps per pixel.
     float distanceField;
     if (uContour < 0.001) {
         distanceField = 1.0 - mask;
     } else {
-        // Search up to 2σ — beyond that the smoothstep below saturates at
-        // 0 anyway, so further taps are wasted.
+        // 2σ search radius — smoothstep saturates beyond that.
         float maxDistPx = uEdgeBandPx * 2.0;
         float distPx    = distanceToEdgePx(sampleUV, maxDistPx);
         distanceField   = 1.0 - smoothstep(0.0, uEdgeBandPx, distPx);
@@ -421,9 +340,7 @@ void main() {
     float diagA = rUV.x - rUV.y;
 
     // ---- 3. Bump (fake 3D surface curvature) ------------------------------
-    // Radial dome peaking at center. `pow` base floored at 1e-5 so
-    // pow(0, 0) (implementation-defined in GLSL — NaN on some Skia
-    // backends) can't appear when the user dials radius/exponent to zero.
+    // pow base floored at 1e-5 to avoid pow(0,0) → NaN on some Skia backends.
     vec2  p    = uv - 0.5;
     float dist = length(p + diagA * uBumpShear);
     float bump = 1.0 - pow(max(uBumpRadius * dist, 1e-5), uBumpExponent);
@@ -437,7 +354,7 @@ void main() {
                            uBumpWarpWeight);
     bump             = mix(bump, warpShapeV, uBumpWarpWeight);
 
-    // mask-mode: contrast-boost the bump that drives the stripes.
+    // Contrast-boost the bump driving the stripes.
     float bumpStripe = smoothstep(0.2, 0.8, bump);
 
     float edgeN    = edge + (1.0 - edge) * uDistortion * noise;
@@ -463,8 +380,8 @@ void main() {
     direction -= t;
 
     // Stripe widths: one cycle = thin1 + thin2 + wide gradient.
-    float thin1 = 0.12 * (1.0 - 0.4 * bump);
-    float thin2 = 0.07 * (1.0 + 0.4 * bump);
+    float thin1 = 0.14 * (1.0 - 0.3 * bump);
+    float thin2 = 0.09 * (1.0 + 0.3 * bump);
     vec3  w     = vec3(thin1, thin2,
                        1.0 - (thin1 + thin2) / max(uRepetition, 0.001));
     w.y -= 0.02 * smoothstep(0.0, 1.0, edgeN + bump);
