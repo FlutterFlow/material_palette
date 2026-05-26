@@ -1590,6 +1590,7 @@ final furPlanarMaskedShaderDef = ShaderDefinition(
   assetPath: 'packages/material_palette/shaders/fur_planar_mask.frag',
   layout: UniformLayout([
     const UniformField.color('bgColor'),
+    const UniformField('bgOpacity'),
     const UniformField('planeOffset'),
     const UniformField('furThickness'),
     const UniformField('furNoiseStrength'),
@@ -1640,6 +1641,7 @@ final furPlanarMaskedShaderDef = ShaderDefinition(
       'waveletSpeed': 1.43, 'waveletFreq': 6.98,
       'waveletAmplitude': 0.10, 'waveletDecay': 1.76, 'waveletWidth': 0.59,
       'maskThreshold': 0.16, 'edgeLeanStrength': 0.07,
+      'bgOpacity': 1.0,
     },
     colors: {
       'bgColor': const Color(0xFF202329),
@@ -1679,6 +1681,7 @@ final furPlanarMaskedShaderDef = ShaderDefinition(
     'waveletWidth': const SliderRange('Wavelet Width', min: 0.1, max: 1.0),
     'maskThreshold': const SliderRange('Mask Threshold', min: 0.0, max: 1.0),
     'edgeLeanStrength': const SliderRange('Edge Lean', min: 0.0, max: 0.5),
+    'bgOpacity': const SliderRange('Bg Opacity', min: 0.0, max: 1.0),
   }),
   paramDescriptions: {
     'planeOffset': 'Z-offset of the fur plane from the camera',
@@ -1709,6 +1712,8 @@ final furPlanarMaskedShaderDef = ShaderDefinition(
     'waveletWidth': 'Width of the wavelet ring',
     'maskThreshold': 'Color distance threshold for mask matching',
     'edgeLeanStrength': 'How much fur leans outward at mask edges',
+    'bgOpacity':
+        'Opacity of the background fill outside the fur mask (0 = transparent, useful for stacking on top of another shader; 1 = bgColor visible)',
   },
 );
 
@@ -2671,6 +2676,7 @@ const List<String> allParamNames = [
   'animSpeedWarpY',
   'baseFrequency',
   'bgColor',
+  'bgOpacity',
   'bumpStrength',
   'bumpWarpWeight',
   'burnCenterX',

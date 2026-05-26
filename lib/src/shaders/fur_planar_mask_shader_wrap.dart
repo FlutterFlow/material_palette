@@ -117,9 +117,10 @@ class _FurPlanarMaskShaderWrapState extends State<FurPlanarMaskShaderWrap> {
         uniforms.setSize(size);
         uniforms.setFloat(time);
 
-        // bgColor (vec3)
+        // bgColor (vec3) + bgOpacity (float)
         final bg = p.getColor('bgColor');
         uniforms.setFloats([bg.r, bg.g, bg.b]);
+        uniforms.setFloat(p.get('bgOpacity'));
 
         // Plane shape
         uniforms.setFloat(p.get('planeOffset'));

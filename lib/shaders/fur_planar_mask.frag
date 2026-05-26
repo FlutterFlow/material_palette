@@ -5,6 +5,7 @@ precision highp float;
 uniform vec2 uSize;
 uniform float time;
 uniform vec3 uBgColor;  // sRGB space input
+uniform float uBgOpacity;  // 0 = transparent outside fur (for stacking), 1 = fill bgColor
 
 // Plane shape uniforms
 uniform float uPlaneOffset;
@@ -373,9 +374,12 @@ void main() {
     // Tone map the accumulated fur color
     V furToneMapped = accumulatedColor / (1.0 + accumulatedColor);
 
-    // Composite with background
-    V finalLinear = furToneMapped + bgLinear * transmittance;
+    // Composite with background, scaled by uBgOpacity.
+    // furToneMapped is already premultiplied-style (front-to-back accumulation),
+    // so output alpha is the union of fur coverage and bg fill.
+    V finalLinear = furToneMapped + bgLinear * transmittance * uBgOpacity;
+    float outAlpha = 1.0 - transmittance * (1.0 - uBgOpacity);
 
     // Convert from linear to sRGB for output
-    fragColor = vec4(linearToSrgb(finalLinear), 1.0);
+    fragColor = vec4(linearToSrgb(finalLinear), outAlpha);
 }
