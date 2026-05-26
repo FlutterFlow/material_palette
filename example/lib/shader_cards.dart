@@ -291,6 +291,8 @@ class ShaderCard extends StatelessWidget {
         return LiquidMetalShaderCard(dimensions: dimensions);
       case ShaderNames.layeredMetal:
         return LayeredMetalShaderCard(dimensions: dimensions);
+      case ShaderNames.iridescentLiquidWrap:
+        return IridescentLiquidWrapShaderCard(dimensions: dimensions);
       default:
         return ShaderCardContent(
           width: dimensions.width,
@@ -4108,6 +4110,241 @@ class _LayeredMetalShaderCardState extends State<LayeredMetalShaderCard> {
               color: _params.getColor('edgeTint'),
               onChanged: (c) =>
                   setState(() => _params = _params.withColor('edgeTint', c)),
+            ),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Palette'),
+            ColorSchemeGeneratorWidget(
+              colorCount: _stops,
+              initialColors: [
+                for (int i = 0; i < _stops; i++) _params.getColor('color$i'),
+              ],
+              onColorsChanged: (colors) => setState(() {
+                for (int i = 0; i < colors.length; i++) {
+                  _params = _params.withColor('color$i', colors[i]);
+                }
+              }),
+            ),
+            ControlSlider.fromRange(
+              range: _ui['paletteStops']!,
+              value: _params.get('paletteStops'),
+              onChanged: (v) => setState(() =>
+                  _params = _params.withValue('paletteStops', v.roundToDouble())),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _generatePreset() => PresetGenerator.shaderParams(_params);
+}
+
+class IridescentLiquidWrapShaderCard extends StatefulWidget {
+  final CardDimensions dimensions;
+
+  const IridescentLiquidWrapShaderCard({super.key, required this.dimensions});
+
+  @override
+  State<IridescentLiquidWrapShaderCard> createState() =>
+      _IridescentLiquidWrapShaderCardState();
+}
+
+class _IridescentLiquidWrapShaderCardState
+    extends State<IridescentLiquidWrapShaderCard> {
+  static const Color _maskColor = Color(0xFFFFFFFF);
+
+  ShaderParams _params = iridescentLiquidWrapShaderDef.defaults
+      .withColor('passColor', _maskColor);
+  bool _showControls = false;
+
+  ShaderUIDefaults get _ui => iridescentLiquidWrapShaderDef.uiDefaults;
+
+  int get _stops => _params.get('paletteStops').round().clamp(2, 10);
+
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = widget.dimensions;
+    final controlsHeight = calculateControlsHeight(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ShaderCardContent(
+          width: dimensions.width,
+          height: dimensions.height,
+          child: Container(
+            color: const Color(0xFF101218),
+            child: IridescentLiquidShaderWrap(
+              params: _params,
+              child: Center(
+                child: Text(
+                  'HD',
+                  style: TextStyle(
+                    color: _params.getColor('passColor'),
+                    fontSize: dimensions.height * 0.35,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0,
+                    height: 1,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        ShaderControlsPanel(
+          showControls: _showControls,
+          onToggle: () => setState(() => _showControls = !_showControls),
+          controlsWidth: dimensions.controlsWidth,
+          controlsHeight: controlsHeight,
+          onReset: () => setState(() => _params = iridescentLiquidWrapShaderDef
+              .defaults
+              .withColor('passColor', _maskColor)),
+          shaderName: 'Iridescent Liquid',
+          onCopyPreset: () => _generatePreset(),
+          children: [
+            const ControlSectionTitle('Pattern'),
+            ControlSlider.fromRange(
+                range: _ui['repetition']!,
+                value: _params.get('repetition'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('repetition', v))),
+            ControlSlider.fromRange(
+                range: _ui['softness']!,
+                value: _params.get('softness'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('softness', v))),
+            ControlSlider.fromRange(
+                range: _ui['distortion']!,
+                value: _params.get('distortion'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('distortion', v))),
+            ControlSlider.fromRange(
+                range: _ui['contour']!,
+                value: _params.get('contour'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('contour', v))),
+            ControlSlider.fromRange(
+                range: _ui['angleDeg']!,
+                value: _params.get('angleDeg'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('angleDeg', v))),
+            ControlSlider.fromRange(
+                range: _ui['stripeDiagaBias']!,
+                value: _params.get('stripeDiagaBias'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('stripeDiagaBias', v))),
+            ControlSlider.fromRange(
+                range: _ui['stripeTwist']!,
+                value: _params.get('stripeTwist'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('stripeTwist', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Stripes'),
+            ControlSlider.fromRange(
+                range: _ui['stripeCount']!,
+                value: _params.get('stripeCount'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('stripeCount', v))),
+            ControlSlider.fromRange(
+                range: _ui['stripeThickness']!,
+                value: _params.get('stripeThickness'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('stripeThickness', v))),
+            ControlSlider.fromRange(
+                range: _ui['stripeOffset']!,
+                value: _params.get('stripeOffset'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('stripeOffset', v))),
+            ControlSlider.fromRange(
+                range: _ui['stripeFalloff']!,
+                value: _params.get('stripeFalloff'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('stripeFalloff', v))),
+            ControlSlider.fromRange(
+                range: _ui['stripeSpeed']!,
+                value: _params.get('stripeSpeed'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('stripeSpeed', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Domain Warp'),
+            ControlSlider.fromRange(
+                range: _ui['warpTimeScale']!,
+                value: _params.get('warpTimeScale'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('warpTimeScale', v))),
+            ControlSlider.fromRange(
+                range: _ui['warpFreqInner']!,
+                value: _params.get('warpFreqInner'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('warpFreqInner', v))),
+            ControlSlider.fromRange(
+                range: _ui['warpFreqMiddle']!,
+                value: _params.get('warpFreqMiddle'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('warpFreqMiddle', v))),
+            ControlSlider.fromRange(
+                range: _ui['warpFreqHigh']!,
+                value: _params.get('warpFreqHigh'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('warpFreqHigh', v))),
+            ControlSlider.fromRange(
+                range: _ui['fbmScaleFactor']!,
+                value: _params.get('fbmScaleFactor'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('fbmScaleFactor', v))),
+            ControlSlider.fromRange(
+                range: _ui['stripeRippleStrength']!,
+                value: _params.get('stripeRippleStrength'),
+                onChanged: (v) => setState(() =>
+                    _params = _params.withValue('stripeRippleStrength', v))),
+            ControlSlider.fromRange(
+                range: _ui['bumpWarpWeight']!,
+                value: _params.get('bumpWarpWeight'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('bumpWarpWeight', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Chromatic'),
+            ControlSlider.fromRange(
+                range: _ui['shiftRed']!,
+                value: _params.get('shiftRed'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('shiftRed', v))),
+            ControlSlider.fromRange(
+                range: _ui['shiftBlue']!,
+                value: _params.get('shiftBlue'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('shiftBlue', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Mask'),
+            ControlColorPicker(
+              label: 'Pass Color',
+              color: _params.getColor('passColor'),
+              onChanged: (c) =>
+                  setState(() => _params = _params.withColor('passColor', c)),
+            ),
+            ControlSlider.fromRange(
+                range: _ui['edgeBandPx']!,
+                value: _params.get('edgeBandPx'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('edgeBandPx', v))),
+            ControlSlider.fromRange(
+                range: _ui['edgeSmoothness']!,
+                value: _params.get('edgeSmoothness'),
+                onChanged: (v) => setState(
+                    () => _params = _params.withValue('edgeSmoothness', v))),
+            const SizedBox(height: 12),
+            const ControlSectionTitle('Composition'),
+            ControlColorPicker(
+              label: 'Backdrop',
+              color: _params.getColor('colorBack'),
+              onChanged: (c) =>
+                  setState(() => _params = _params.withColor('colorBack', c)),
+            ),
+            ControlColorPicker(
+              label: 'Tint',
+              color: _params.getColor('colorTint'),
+              onChanged: (c) =>
+                  setState(() => _params = _params.withColor('colorTint', c)),
             ),
             const SizedBox(height: 12),
             const ControlSectionTitle('Palette'),
