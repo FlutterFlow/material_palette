@@ -41,6 +41,7 @@ abstract class ShaderNames {
   static const String liquidMetal = 'Liquid Metal';
   static const String layeredMetal = 'Layered Metal';
   static const String iridescentLiquidWrap = 'Iridescent Liquid';
+  static const String iridescentLiquid = 'Iridescent Liquid Fill';
 }
 
 /// Data for a shader card
@@ -205,5 +206,10 @@ const List<ShaderCardData> allShaders = [
     title: ShaderNames.iridescentLiquidWrap,
     description:
         'Iridescent chrome-over-fbm material masked onto the wrapped child',
+  ),
+  ShaderCardData(
+    title: ShaderNames.iridescentLiquid,
+    description:
+        'Iridescent chrome-over-fbm material filling the widget, no mask',
   ),
 ];

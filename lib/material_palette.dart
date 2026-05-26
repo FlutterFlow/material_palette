@@ -60,3 +60,5 @@ export 'package:material_palette/src/shaders/crepuscular_rays_shader_wrap.dart';
 export 'package:material_palette/src/shaders/kuwahara_shader_wrap.dart';
 // Iridescent liquid wraps
 export 'package:material_palette/src/shaders/iridescent_liquid_wrap_shader_wrap.dart';
+// Iridescent liquid fills
+export 'package:material_palette/src/shaders/iridescent_liquid_shader_fill.dart';

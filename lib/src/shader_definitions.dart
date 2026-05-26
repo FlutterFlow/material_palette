@@ -2372,6 +2372,183 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// IRIDESCENT LIQUID (fill — stripes + fbm domain warp, no mask, no contour)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+final iridescentLiquidShaderDef = ShaderDefinition(
+  hasChildren: false,
+  assetPath: 'packages/material_palette/shaders/iridescent_liquid.frag',
+  layout: UniformLayout([
+    // Pattern tuning
+    const UniformField('repetition'),
+    const UniformField('softness'),
+    const UniformField('distortion'),
+    const UniformField('angleDeg'),
+    const UniformField('stripeDiagaBias'),
+    const UniformField('stripeTwist'),
+    // Stripe pattern
+    const UniformField('stripeCount'),
+    const UniformField('stripeThickness'),
+    const UniformField('stripeOffset'),
+    const UniformField('stripeFalloff'),
+    const UniformField('stripeSpeed'),
+    // Chromatic aberration
+    const UniformField('shiftRed'),
+    const UniformField('shiftBlue'),
+    // Composition
+    const UniformField.colorRgba('colorTint'),
+    // Domain warp
+    const UniformField('warpTimeScale'),
+    const UniformField('warpFreqInner'),
+    const UniformField('warpFreqMiddle'),
+    const UniformField('warpFreqHigh'),
+    const UniformField('fbmScaleFactor'),
+    const UniformField('stripeRippleStrength'),
+    const UniformField('bumpWarpWeight'),
+    // Palette
+    const UniformField('paletteStops'),
+    const UniformField.colorRgba('color0'),
+    const UniformField.colorRgba('color1'),
+    const UniformField.colorRgba('color2'),
+    const UniformField.colorRgba('color3'),
+    const UniformField.colorRgba('color4'),
+    const UniformField.colorRgba('color5'),
+    const UniformField.colorRgba('color6'),
+    const UniformField.colorRgba('color7'),
+    const UniformField.colorRgba('color8'),
+    const UniformField.colorRgba('color9'),
+  ]),
+  defaults: ShaderParams(
+    values: {
+      'repetition': 4.0,
+      'softness': 0.5,
+      'distortion': 0.3,
+      'angleDeg': 0.0,
+      'stripeDiagaBias': 1.0,
+      'stripeTwist': 0.2,
+      'stripeCount': 3.0,
+      'stripeThickness': 0.4,
+      'stripeOffset': 0.0,
+      'stripeFalloff': 0.0,
+      'stripeSpeed': 1.0,
+      'shiftRed': 0.2,
+      'shiftBlue': 0.2,
+      'warpTimeScale': 0.05,
+      'warpFreqInner': 0.9,
+      'warpFreqMiddle': 0.6,
+      'warpFreqHigh': 0.3,
+      'fbmScaleFactor': 3.9,
+      'stripeRippleStrength': 0.5,
+      'bumpWarpWeight': 0.2,
+      'paletteStops': 3.0,
+    },
+    colors: {
+      'colorTint': const Color.fromRGBO(255, 255, 255, 0),
+      'color0': const Color.fromRGBO(0, 0, 76, 1.0),
+      'color1': const Color.fromRGBO(97, 0, 0, 1.0),
+      'color2': const Color.fromRGBO(255, 188, 76, 1.0),
+      'color3': const Color.fromRGBO(140, 31, 20, 1.0),
+      'color4': const Color.fromRGBO(229, 102, 38, 1.0),
+      'color5': const Color.fromRGBO(255, 191, 89, 1.0),
+      'color6': const Color.fromRGBO(255, 235, 153, 1.0),
+      'color7': const Color.fromRGBO(255, 247, 217, 1.0),
+      'color8': const Color.fromRGBO(179, 204, 255, 1.0),
+      'color9': const Color.fromRGBO(64, 89, 140, 1.0),
+    },
+  ),
+  uiDefaults: ShaderUIDefaults({
+    'repetition': const SliderRange('Repetition', min: 1.0, max: 10.0),
+    'softness': const SliderRange('Stripe Softness', min: 0.0, max: 1.0),
+    'distortion': const SliderRange('Distortion', min: 0.0, max: 1.0),
+    'angleDeg': const SliderRange('Angle°', min: 0.0, max: 360.0),
+    'stripeDiagaBias':
+        const SliderRange('Diag Bias', min: 0.0, max: 2.0),
+    'stripeTwist': const SliderRange('Twist', min: 0.0, max: 1.0),
+    'stripeCount':
+        const SliderRange('Stripe Count', min: 0.0, max: 5.0),
+    'stripeThickness':
+        const SliderRange('Stripe Thickness', min: 0.0, max: 1.0),
+    'stripeOffset':
+        const SliderRange('Stripe Offset', min: 0.0, max: 1.0),
+    'stripeFalloff':
+        const SliderRange('Stripe Falloff', min: 0.0, max: 1.0),
+    'stripeSpeed':
+        const SliderRange('Stripe Speed', min: 0.0, max: 3.0),
+    'shiftRed': const SliderRange('Shift R', min: 0.0, max: 1.0),
+    'shiftBlue': const SliderRange('Shift B', min: 0.0, max: 1.0),
+    'warpTimeScale':
+        const SliderRange('Flow Speed', min: 0.0, max: 0.5),
+    'warpFreqInner':
+        const SliderRange('Warp Freq (Inner)', min: 0.1, max: 4.0),
+    'warpFreqMiddle':
+        const SliderRange('Warp Freq (Middle)', min: 0.1, max: 4.0),
+    'warpFreqHigh':
+        const SliderRange('Warp Freq (Outer)', min: 0.1, max: 2.0),
+    'fbmScaleFactor':
+        const SliderRange('FBM Scale', min: 0.5, max: 8.0),
+    'stripeRippleStrength':
+        const SliderRange('Stripe / FBM Mix', min: 0.0, max: 1.0),
+    'bumpWarpWeight':
+        const SliderRange('Bump Warp', min: 0.0, max: 1.0),
+    'paletteStops':
+        const SliderRange('Palette Stops', min: 2.0, max: 10.0),
+  }),
+  paramDescriptions: {
+    'repetition':
+        'Stripe density across the fill (1 = a couple of bands, 10 = dense pinstripes)',
+    'softness': 'Stripe edge blur — 0 = crisp, 1 = soft',
+    'distortion':
+        'How much the warp noise displaces the stripe phase (0 = clean stripes, 1 = strongly liquid)',
+    'angleDeg': 'Pattern rotation in degrees',
+    'stripeDiagaBias':
+        'Linear bias of the stripe direction along the BL↔TR diagonal (0 disables for a symmetric look)',
+    'stripeTwist':
+        'Per-pixel rotation perturbation that flows the pattern along the diagonal',
+    'stripeCount':
+        'Number of bright stripes per cycle (0 disables, 5 is densest)',
+    'stripeThickness':
+        'Stripe width as a fraction of its slot (0 = invisible, 1 = full slot)',
+    'stripeOffset':
+        'Phase offset shifting the stripe pattern within each cycle (0..1)',
+    'stripeFalloff':
+        'Width of the bright→dark gradient zone; controls how thick the intermediate palette colours appear (0 = sharp stripes, 1 = full gradient)',
+    'stripeSpeed':
+        'Animation speed of the stripe motion (0 = frozen, 1 = default, higher = faster)',
+    'shiftRed':
+        'Red-channel chromatic aberration amount on the stripe pattern',
+    'shiftBlue':
+        'Blue-channel chromatic aberration amount on the stripe pattern',
+    'colorTint':
+        'Colour-burn tint composited over the iridescent material (alpha = strength)',
+    'warpTimeScale':
+        'Animation speed of the domain warp; 0 freezes the pattern',
+    'warpFreqInner':
+        'Frequency of the innermost (fastest) domain-warp layer',
+    'warpFreqMiddle': 'Frequency of the middle domain-warp layer',
+    'warpFreqHigh':
+        'Frequency of the outermost (slowest) domain-warp layer',
+    'fbmScaleFactor':
+        'Global scale on the inner warp — coarser features at higher values',
+    'stripeRippleStrength':
+        'Mix between the fbm shape (0) and the palette-coloured stripes (1) when indexing the palette',
+    'bumpWarpWeight':
+        'How much the warp drives the stripe-shape pipeline (0 disables, 1 makes the stripes fully track the fbm)',
+    'paletteStops':
+        'Number of active palette stops (2..10); first N of color0..color9 are interpolated across the pattern',
+    'color0': 'Palette stop 0',
+    'color1': 'Palette stop 1',
+    'color2': 'Palette stop 2',
+    'color3': 'Palette stop 3',
+    'color4': 'Palette stop 4',
+    'color5': 'Palette stop 5',
+    'color6': 'Palette stop 6',
+    'color7': 'Palette stop 7',
+    'color8': 'Palette stop 8',
+    'color9': 'Palette stop 9',
+  },
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // REGISTRY: maps ShaderMaterialType → ShaderDefinition
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -2433,6 +2610,7 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.liquidMetal: liquidMetalShaderDef,
   ShaderNames.layeredMetal: layeredMetalShaderDef,
   ShaderNames.iridescentLiquidWrap: iridescentLiquidWrapShaderDef,
+  ShaderNames.iridescentLiquid: iridescentLiquidShaderDef,
 };
 
 /// Canonical list of all shader names in display order.
@@ -2474,6 +2652,7 @@ const List<String> allShaderNames = [
   ShaderNames.liquidMetal,
   ShaderNames.layeredMetal,
   ShaderNames.iridescentLiquidWrap,
+  ShaderNames.iridescentLiquid,
 ];
 
 /// Every unique parameter name string used across all shader definitions.
