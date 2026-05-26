@@ -380,15 +380,12 @@ void main() {
     float softness = 0.05 * uSoftness;
     float blur     = softness
                    + 0.5 * smoothstep(1.0, 10.0, uRepetition) * edgeS;
-    float extraR   = softness * (0.05 + 0.1 * (uShiftRed / 20.0) * bump);
-    float extraG   = softness * 0.05 / max(0.001, abs(1.0 - diagA));
-
     float stripeR = sampleStripe(1.0, 0.0, phaseR, w,
-                                 blur + phaseFw + extraR, bumpStripe);
+                                 blur + phaseFw, bumpStripe);
     float stripeG = sampleStripe(1.0, 0.0, phaseG, w,
-                                 blur + phaseFw + extraG, bumpStripe);
+                                 blur + phaseFw, bumpStripe);
     float stripeB = sampleStripe(1.0, 0.0, phaseB, w,
-                                 blur + phaseFw,          bumpStripe);
+                                 blur + phaseFw, bumpStripe);
 
     // ---- 7. Per-channel warpMap taps (fbm + palette) ---------------------
     vec2 offUvR = vec2(uShiftRed  / 50.0, 0.0);
