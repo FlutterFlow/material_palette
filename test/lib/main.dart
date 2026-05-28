@@ -11,6 +11,7 @@ import 'tappable_demo_page.dart';
 import 'dither_wrap_demo_page.dart';
 import 'fur_wrap_demo_page.dart';
 import 'ff_logo_mask_demo_page.dart';
+import 'iridescent_liquid_demo_page.dart';
 import 'iridescent_liquid_wrap_demo_page.dart';
 import 'kuwahara_wrap_demo_page.dart';
 import 'peel_wrap_demo_page.dart';
@@ -87,6 +88,7 @@ class _TestDemosHomeState extends State<TestDemosHome> {
     CrepuscularRaysDemoPage(),
     CrepuscularRaysFbmDemoPage(),
     KuwaharaWrapDemoPage(),
+    IridescentLiquidDemoPage(),
     IridescentLiquidWrapDemoPage(),
     FfLogoMaskDemoPage(),
   ];
@@ -156,6 +158,10 @@ class _TestDemosHomeState extends State<TestDemosHome> {
               NavigationRailDestination(
                 icon: Icon(Icons.water_drop),
                 label: Text('Iridescent'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.opacity),
+                label: Text('Iridescent Wrap'),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.image),
