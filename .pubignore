@@ -1,3 +1,8 @@
+# The published package is intentionally minimal: lib/ (code + shader
+# assets), README, CHANGELOG, LICENSE, pubspec.yaml. Everything else —
+# demo apps, benchmarking/profiling artifacts, dev config — stays in the
+# repo only. Verify with: dart pub publish --dry-run
+
 # Internal test/demo app (not part of the published package)
 test/
 
@@ -22,5 +27,9 @@ Thumbs.db
 # Claude Code
 .claude/
 
-# Profiling raw data, logs & visual snapshots (dev-only, heavy)
+# Benchmarking & profiling artifacts (dev-only)
 bench_logs/
+docs/
+
+# Dev tooling config (no effect for package consumers)
+analysis_options.yaml
