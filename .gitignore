@@ -93,3 +93,6 @@ app.*.symbols
 !**/ios/**/default.mode2v3
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
+
+# Bench visual snapshots (heavy PNGs, regenerable via BENCH_SNAPSHOT)
+bench_logs/snapshots/

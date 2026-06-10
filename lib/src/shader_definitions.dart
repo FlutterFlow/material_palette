@@ -2243,7 +2243,9 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
       'shiftRed': 0.2,
       'shiftBlue': 0.2,
       'edgeBandPx': 16.0,
-      'edgeSmoothness': 0.25,
+      // 0.35 (was 0.25 with a 32-ray fan): dissolves the faint angular
+      // wrinkles of the 16-ray edge-distance fan (docs/PROFILING.md §6.1).
+      'edgeSmoothness': 0.35,
       'warpTimeScale': 0.05,
       'warpFreqInner': 0.9,
       'warpFreqMiddle': 0.6,

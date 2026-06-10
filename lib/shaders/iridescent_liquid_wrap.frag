@@ -205,7 +205,9 @@ float maskAt(vec2 uv) {
 // noise that propagates as visible jaggies.
 float rayDistancePx(vec2 uv, float ang,
                     float maxDistPx, float coarseStepPx) {
-    const int NUM_COARSE = 8;
+    // Caller's coarseStepPx is maxDistPx / NUM_COARSE so the search span is
+    // preserved; bisection still lands well under the ~1 px it needs.
+    const int NUM_COARSE = 4;
     const int NUM_BISECT = 4;
 
     vec2 dir = vec2(cos(ang), sin(ang));
@@ -232,9 +234,9 @@ float rayDistancePx(vec2 uv, float ang,
 // Single-pass approximation of a Poisson distance-to-boundary field.
 // Casts NUM_DIRS rays and combines them via exp-weighted average:
 //   d̂ = Σ (dᵢ · exp(−dᵢ / softness)) / Σ exp(−dᵢ / softness)
-// C∞-smooth (no min() switch) so inside corners don't blow up. 32 fixed
-// angles minimise the residual radial wrinkles; uEdgeSmoothness blends
-// across rays to dissolve what's left. mask < 0.5 short-circuits to 0.
+// C∞-smooth (no min() switch) so inside corners don't blow up. 16 fixed
+// angles leave faint residual radial wrinkles; uEdgeSmoothness blends
+// across rays to dissolve them. mask < 0.5 short-circuits to 0.
 float distanceToEdgePx(vec2 uv, float maxDistPx) {
     const int NUM_DIRS = 32;
 
@@ -242,7 +244,29 @@ float distanceToEdgePx(vec2 uv, float maxDistPx) {
         return 0.0;
     }
 
-    float coarseStepPx = maxDistPx / 8.0;
+    // Interior early-out: probe a ring at the band radius. If every probe
+    // is inside the mask, the true edge distance exceeds uEdgeBandPx and
+    // the consumer's smoothstep saturates to 0 regardless of the exact
+    // value — 8 taps replace the full ray fan for the deep-interior pixels
+    // that dominate full-coverage children (their rays never find an edge,
+    // so every coarse step of every ray runs). A mask notch narrower than
+    // the 45° probe spacing is missed, slightly under-bending stripes near
+    // very intricate edges.
+    float probeR = min(uEdgeBandPx, maxDistPx);
+    bool interior = true;
+    for (int k = 0; k < 8; k++) {
+        float probeAng = float(k) * (0.25 * PI);
+        vec2 probeDir = vec2(cos(probeAng), sin(probeAng));
+        if (maskAt(uv + probeDir * (probeR / uSize)) < 0.5) {
+            interior = false;
+            break;
+        }
+    }
+    if (interior) {
+        return maxDistPx;
+    }
+
+    float coarseStepPx = maxDistPx / 4.0;
     // Softness floor avoids hard-min facets at small σ; cap at 8 px stops
     // unfound-boundary rays (returning maxDistPx) from biasing the mean so
     // high the field saturates to 0.
@@ -270,15 +294,17 @@ float warpShape(vec2 p, float tw) {
     return clamp(0.5 + 0.5 * f, 0.0, 1.0);
 }
 
-// Domain warp → palette lookup. `stripe` is blended into the fbm shape via
-// uStripeRippleStrength before indexing the palette.
-vec4 warpMap(vec2 p, float tw, float stripe) {
-    float shape = mix(warpShape(p, tw), stripe, uStripeRippleStrength);
+// Palette lookup for a warp-shape scalar — the cheap per-channel tail of
+// the domain warp. The expensive warpShape eval is computed once in main
+// and shared across RGB; `stripe` is blended in via uStripeRippleStrength
+// before indexing the palette.
+vec4 warpPalette(float shape, float stripe) {
+    float v = mix(shape, stripe, uStripeRippleStrength);
 
     // SkSL has no integer clamp/min overloads — clamp in floats then cast.
     float nF  = clamp(uPaletteStops + 0.5, 2.0, 10.0);
     float nm1 = nF - 1.0;
-    float tp  = shape * nm1;
+    float tp  = v * nm1;
     float i0F = floor(tp);
     float i1F = min(i0F + 1.0, nm1);
     float fp  = smoothstep(0.0, 1.0, tp - i0F);
@@ -375,14 +401,18 @@ void main() {
     float stripeG = sampleStripe(1.0, 0.0, phaseG, blur + phaseFw);
     float stripeB = sampleStripe(1.0, 0.0, phaseB, blur + phaseFw);
 
-    // ---- 7. Per-channel warpMap taps (fbm + palette) ---------------------
-    vec2 offUvR = vec2(uShiftRed  / 50.0, 0.0);
-    vec2 offUvB = vec2(uShiftBlue / 50.0, 0.0);
+    // ---- 7. Shared warp + per-channel palette taps -------------------------
+    // One warpShape serves all three channels: the visible chromatic
+    // dispersion lives in the per-channel stripe phases above, which the
+    // warp shape barely noticed at its old ±uShift/50 coordinate offsets.
+    // When contour is off, warpUV == 2.0 * p exactly, so the bump-term
+    // eval from section 3 is reused — one warpShape per pixel in total.
+    float shapeW = (uContour < 0.001) ? warpShapeV : warpShape(warpUV, tw);
 
     vec3 col = vec3(
-        warpMap(warpUV + offUvR, tw, stripeR).r,
-        warpMap(warpUV,          tw, stripeG).g,
-        warpMap(warpUV - offUvB, tw, stripeB).b
+        warpPalette(shapeW, stripeR).r,
+        warpPalette(shapeW, stripeG).g,
+        warpPalette(shapeW, stripeB).b
     );
 
     // Color-burn tint (alpha = strength).

@@ -88,7 +88,7 @@ Widget _prodIliq(double t, Size size) => IridescentLiquidShaderFill(
     );
 
 /// Generic-widget binding for iridescent wrap variants (and parity).
-Widget _benchIwrap(double t, String asset, {ShaderParams? params}) {
+Widget _benchIwrap(double t, String asset, {ShaderParams? params, Widget? child}) {
   final p = params ?? _iwrapDef.defaults;
   return ShaderWrap(
     shaderPath: asset,
@@ -96,7 +96,7 @@ Widget _benchIwrap(double t, String asset, {ShaderParams? params}) {
         setIridescentWrapUniforms(uniforms, size, time, p),
     animationMode: ShaderAnimationMode.implicit,
     time: t,
-    child: benchCircle(_iwrapChildColor),
+    child: child ?? benchCircle(_iwrapChildColor),
   );
 }
 
@@ -348,6 +348,15 @@ List<BenchConfig> prodConfigs() => [
         builder: (t, size) => _prodFur(t,
             params: _furDef.defaults.withValue('furNoiseScale', 80.0)),
       ),
+      BenchConfig(
+        id: 'prod.fur.edge',
+        size: kStdSize,
+        notes: 'glyph on non-matching backdrop: real mask edges, '
+            'spill-over band active (per-step base-trace)',
+        shaderAssets: const [_furAsset],
+        builder: (t, size) => _prodFur(t,
+            child: benchGlyphOnBackdrop(_furChildColor, Colors.white)),
+      ),
     ];
 
 List<BenchConfig> variantConfigs() {
@@ -402,5 +411,32 @@ List<BenchConfig> variantConfigs() {
         shaderAssets: [_iliqVariant(e.key)],
         builder: (t, size) => _benchIliq(t, size, _iliqVariant(e.key)),
       ),
+    // Pre-optimization worst-case anchors: the `base` byte-copies under the
+    // same load as the hottest prod configs, for same-run old-vs-new deltas
+    // (and synced BENCH_COMPARE visual A/B against prod.fur.clicks5 /
+    // prod.iwrap.child_rect).
+    BenchConfig(
+      id: 'bench.fur.base_clicks5',
+      size: kStdSize,
+      notes: 'parity anchor + 5 deterministic mid-life clicks',
+      shaderAssets: [_furVariant('base')],
+      builder: (t, size) => _benchFur(t, _furVariant('base'), clicks: 5),
+    ),
+    BenchConfig(
+      id: 'bench.iwrap.base_rect',
+      size: kStdSize,
+      notes: 'parity anchor + full-coverage rect child (raycast worst case)',
+      shaderAssets: [_iwrapVariant('base')],
+      builder: (t, size) =>
+          _benchIwrap(t, _iwrapVariant('base'), child: benchRect(_iwrapChildColor)),
+    ),
+    BenchConfig(
+      id: 'bench.fur.base_edge',
+      size: kStdSize,
+      notes: 'parity anchor + glyph-on-backdrop child (mask-edge spill-over)',
+      shaderAssets: [_furVariant('base')],
+      builder: (t, size) => _benchFur(t, _furVariant('base'),
+          child: benchGlyphOnBackdrop(_furChildColor, Colors.white)),
+    ),
   ];
 }

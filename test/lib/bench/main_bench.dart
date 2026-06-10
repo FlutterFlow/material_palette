@@ -7,8 +7,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_palette/material_palette.dart';
 
+import 'bench_compare.dart';
 import 'bench_configs.dart';
 import 'bench_runner.dart';
+import 'bench_snapshot.dart';
 import 'bench_stats.dart';
 import 'bench_survey.dart';
 
@@ -31,6 +33,9 @@ const _dValidate = String.fromEnvironment('BENCH_VALIDATE_ONLY');
 const _dRepeat = String.fromEnvironment('BENCH_REPEAT');
 const _dReverse = String.fromEnvironment('BENCH_REVERSE');
 const _dFullsize = String.fromEnvironment('BENCH_FULLSIZE');
+const _dCompare = String.fromEnvironment('BENCH_COMPARE');
+const _dSnapshot = String.fromEnvironment('BENCH_SNAPSHOT');
+const _dSnapshotT = String.fromEnvironment('BENCH_SNAPSHOT_T');
 
 String _opt(String defineValue, String envKey) => defineValue.isNotEmpty
     ? defineValue
@@ -57,6 +62,60 @@ void main() {
     ...prodConfigs(),
     ...variantConfigs(),
   ];
+
+  // Deterministic PNG snapshots: BENCH_SNAPSHOT=<id>[,<id>...] captures each
+  // config at the virtual times in BENCH_SNAPSHOT_T (default "2.0", comma-
+  // separated seconds), writes PNGs to the sandbox temp dir, prints paths,
+  // exits. Same-`t` snapshots of two configs are exactly comparable.
+  final snapshot = _opt(_dSnapshot, 'BENCH_SNAPSHOT');
+  if (snapshot.isNotEmpty) {
+    final ids = snapshot.split(',').map((s) => s.trim()).toList();
+    final byId = {for (final c in configs) c.id: c};
+    final unknown = ids.where((id) => !byId.containsKey(id)).toList();
+    if (unknown.isNotEmpty) {
+      print('BENCH_SNAPSHOT error: unknown ids: ${unknown.join(', ')}');
+      exit(64);
+    }
+    final tSpec = _opt(_dSnapshotT, 'BENCH_SNAPSHOT_T');
+    final times = (tSpec.isEmpty ? '2.0' : tSpec)
+        .split(',')
+        .map((s) => double.parse(s.trim()))
+        .toList();
+    runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: BenchSnapshot(
+        configs: [for (final id in ids) byId[id]!],
+        times: times,
+      ),
+    ));
+    return;
+  }
+
+  // Visual A/B: BENCH_COMPARE=<idLeft>,<idRight> renders two configs
+  // side-by-side on the same deterministic clock. Runs forever (q to quit).
+  final compare = _opt(_dCompare, 'BENCH_COMPARE');
+  if (compare.isNotEmpty) {
+    final ids = compare.split(',').map((s) => s.trim()).toList();
+    final byId = {for (final c in configs) c.id: c};
+    final missing = [
+      if (ids.length != 2) 'need exactly two ids, got ${ids.length}',
+      for (final id in ids)
+        if (!byId.containsKey(id)) 'unknown id "$id"',
+    ];
+    if (missing.isNotEmpty) {
+      print('BENCH_COMPARE error: ${missing.join('; ')}');
+      print('Valid ids:');
+      for (final id in byId.keys) {
+        print('  $id');
+      }
+      exit(64);
+    }
+    runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: BenchCompare(left: byId[ids[0]]!, right: byId[ids[1]]!),
+    ));
+    return;
+  }
   if (filter.isNotEmpty) {
     configs = configs.where((c) => c.id.contains(filter)).toList();
   }

@@ -10,7 +10,8 @@ import 'package:material_palette/src/shader_definitions.dart';
 /// The child widget is captured as a texture. The shader grows fur on regions
 /// whose color matches [maskColor] (within [maskThreshold]). Fur at mask edges
 /// leans outward based on [edgeLeanStrength]. Tapping creates wavelet ripples.
-/// Supports up to 5 simultaneous tap points.
+/// Interactive taps keep up to [maxClicks] simultaneous ripples (a newer tap
+/// recycles the oldest); [touchPoints] can drive up to [shaderClickSlots].
 class FurPlanarMaskShaderWrap extends StatefulWidget {
   FurPlanarMaskShaderWrap({
     super.key,
@@ -37,7 +38,16 @@ class FurPlanarMaskShaderWrap extends StatefulWidget {
   final bool persistTaps;
   final List<ShaderTouchPoint>? touchPoints;
 
-  static const int maxClicks = 5;
+  /// Cap on simultaneous interactive ripples. Each active click costs
+  /// ~1.3 ms/frame at full window on Apple-Silicon-class GPUs (see
+  /// docs/PROFILING.md §6.2), so the worst case is bounded below the shader's
+  /// slot count.
+  static const int maxClicks = 3;
+
+  /// Number of click uniform slots in fur_planar_mask.frag. The uniform
+  /// layout is fixed: exactly this many positions/times are written per frame
+  /// regardless of [maxClicks].
+  static const int shaderClickSlots = 5;
 
   static Future<void> precacheShader() =>
       ShaderBuilder.precacheShader('packages/material_palette/shaders/fur_planar_mask.frag');
@@ -173,8 +183,8 @@ class _FurPlanarMaskShaderWrapState extends State<FurPlanarMaskShaderWrap> {
         // Click count
         uniforms.setFloat(clicks.length.toDouble());
 
-        // Click positions (always send 5, padding with zeros)
-        for (int i = 0; i < FurPlanarMaskShaderWrap.maxClicks; i++) {
+        // Click positions (always send all slots, padding with zeros)
+        for (int i = 0; i < FurPlanarMaskShaderWrap.shaderClickSlots; i++) {
           if (i < clicks.length) {
             final pos = _normalizePosition(clicks[i].position, size);
             uniforms.setFloats([pos.dx, pos.dy]);
@@ -184,7 +194,7 @@ class _FurPlanarMaskShaderWrapState extends State<FurPlanarMaskShaderWrap> {
         }
 
         // Click times — raw elapsed seconds
-        for (int i = 0; i < FurPlanarMaskShaderWrap.maxClicks; i++) {
+        for (int i = 0; i < FurPlanarMaskShaderWrap.shaderClickSlots; i++) {
           uniforms.setFloat(i < clicks.length ? clicks[i].elapsed : 0.0);
         }
       },

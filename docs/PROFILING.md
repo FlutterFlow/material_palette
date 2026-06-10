@@ -6,6 +6,8 @@
 
 Targets: `iridescent_liquid_wrap.frag`, `iridescent_liquid.frag`, `fur_planar_mask.frag`, plus a default-parameters survey of all 38 registered shaders.
 
+> **Update 2026-06-10:** the recommended optimizations were applied and re-measured — every saturating workload below now holds a locked 120 fps at full window. §1–§10 are kept as the historical record; see **§11** for the changes, post-optimization numbers, and visual review.
+
 ---
 
 ## 1. Executive summary
@@ -212,3 +214,51 @@ For ALU-vs-texture limiter percentages and per-line shader cost (not automatable
 - Unsaturated GPU-interval comparisons are DVFS-confounded (documented in §2.1); used only as shares/bounds.
 - Interaction-gated survey rows measured passive (flagged `*`).
 - `bench.fur.noedgelean` / `bench.fur.noise_const` change rendered content; conclusions rest on converging independent variants.
+
+---
+
+## 11. Optimizations applied (2026-06-10)
+
+### 11.1 Changes
+
+Production shaders (uniform layouts unchanged — no consumer-facing API change):
+
+1. **fur_planar_mask.frag — mask field hoisted out of the ray loop** (rec #1). The surface is exactly planar, so the ray is intersected with the *mid-shell* plane analytically before the loop (`rayDir.z == 1`, one subtraction); the 4 mask-gradient taps + the strand-root tap are fetched once per pixel instead of once per step (**320 taps → 5 taps/pixel** away from mask edges). The loop keeps the height-dependent lean (`h01² · edgeStrength · uEdgeLeanStrength`) as pure ALU on the hoisted values. Mid-shell sampling halves the xy-drift error at grazing angles vs sampling at the shell top.
+   **Edge-band exception (follow-up fix):** the *base-trace* sample stays per-step wherever `edgeStrength > 0.001`. The inward lean grows with height, so hair rooted inside the mask overhangs the boundary at the tip — the "spill-over" that sells the 3D effect. A single fixed-lean sample replaces that overhang with a hard cut at the region edge (caught in review on a real-edge child; the bench children couldn't show it, see §11.3). The band is bounded by the ±8 px gradient stencil — the same stencil that bounded the spill reach before the hoist — so only a thin ring of pixels pays 1 tap/step; everywhere else stays at 5 taps/pixel.
+2. **fur_planar_mask.frag — wavelet field hoisted** (rec #4). `totalWavelet` + `waveletGradient` are evaluated once per pixel at the hoisted plane position instead of per step (≈320×C → ≤5×C wavelet evals; displacement becomes constant along each strand). The gradient (specular shimmer) additionally sums only clicks younger than ~½ lifetime (`decay ≥ √0.001`); displacement keeps the full lifetime.
+3. **FurPlanarMaskShaderWrap — interactive `maxClicks` 5 → 3** (rec #4). The shader keeps 5 uniform slots (`shaderClickSlots`); a 4th simultaneous interactive tap recycles the oldest ripple. Externally supplied `touchPoints` can still drive all 5 (the bench does).
+4. **iridescent_liquid_wrap.frag — contour raycast** (rec #3 + interior early-out). (a) Before the ray fan, 8 probe taps on a ring of radius `uEdgeBandPx`: if all are inside the mask the true edge distance exceeds the band and the field saturates to 0 — return immediately (8 taps replace the full fan for deep-interior pixels, the exact mechanism behind the +3.8 ms full-coverage worst case). (b) `NUM_DIRS` 32 → 16. (c) `NUM_COARSE` 8 → 4 with the search span kept. `edgeSmoothness` default 0.25 → 0.35 to dissolve the residual 16-ray angular wrinkles.
+5. **iridescent_liquid_wrap.frag + iridescent_liquid.frag — chromatic aberration restructured** (rec #2). One shared `warpShape` eval serves all three channels (`warpMap` → cheap per-channel `warpPalette` tail); the visible rainbow dispersion lives in the per-channel stripe phases, which are kept. In the wrap, the bump-term `warpShape(2p)` eval is also reused for the color path when `uContour < 0.001` (bit-exact there, since `warpUV == 2p`); in the fill that dedupe is unconditional and exact. Fill noise tree: ≈97 → ≈25 snoise/px.
+
+Deliberately **not** applied: fur `RAY_STEPS` 64→32 (rec #5 — hoists already clear the budget; would add visible slice-coarsening), fbm 4→2 octaves (rec #6 — fine-grain loss, not needed on this hardware class), `NUM_DIRS`→8, the per-capture distance-field texture (architectural), a quality param for the exact 3-warp aberration path (defaults never needed it; add if a "max quality" tier appears), and rec #7 (child re-capture caching) which is unaddressed and still costs ~1 ms raster CPU per wrap instance.
+
+### 11.2 Post-optimization measurements
+
+Same harness, window restored to 800×1042 logical (3.33 Mpx), saturated full-window mode, `BENCH_REPEAT=2` (both passes agreed; pass-2 values shown). **Old = the `bench.*.base` byte-copies of the pre-optimization shaders, measured in the same run** as the new production code, so the comparison shares clock/thermal conditions. The old anchors reproduce §6's numbers (92↔10.7 ms, 63↔15.8 ms, 92↔10.9 ms, 68↔14.7 ms), validating the environment.
+
+| workload (full window) | old | new |
+|---|---|---|
+| fur, circle child, 0 clicks | 90 fps (~10 ms/frame) | **120 fps (vsync-locked)** |
+| fur, 5 active clicks | **62 fps (15.4–15.9 ms)** | **120 fps** |
+| fur, full-coverage / sparse / noise80 children | ≈ base (coverage-independent) | 119–120 fps |
+| fur, real-edge glyph child (spill-over band active) | 100 fps | **120 fps** (p50 raster 2.0 ms) |
+| iwrap, circle child, contour 0.5 | 92 fps (~10.9 ms) | **120 fps** |
+| iwrap, full-coverage rect child | **68 fps (~14.7 ms), raster p90 28–37 ms** | **120 fps, raster p90 2.3 ms** |
+| iwrap contour=1 / edgeBand 48 / 3×3 grid | 92 fps / 92 fps / — | all 120 fps |
+| iliq fill (every config) | 119–120 fps (never saturated) | 120 fps |
+
+The fill never saturated this GPU before or after; its change is mobile insurance — the dedupe + shared chromatic remove ~74 % of its snoise tree analytically, consistent with §6.3's measured warp1 (−40 %) and fbm→0 (−92 %) bounds.
+
+### 11.3 Visual review
+
+20 deterministic snapshots (new `BENCH_SNAPSHOT` mode, below) at identical virtual times t = 2.0 s and 7.3 s, old vs new: fur ±5 clicks, iwrap circle + full-coverage rect, iliq fill — **indistinguishable in side-by-side review** (`bench_logs/snapshots/`). This matches expectation: the iwrap interior early-out is exact wherever the mask has no sub-45° notch; the fill dedupe is bit-exact for the G channel; the aberration keeps the per-channel stripe phases that carry the visible fringing. The young-click gradient cutoff (½ lifetime ≈ 2.0 s at default decay 1.76) is not exercised by the bench clicks (ages cycle 0.3–1.8 s); on real taps it fades ripple shimmer over the second half of a ~3.9 s lifetime, by design.
+
+**A/B blind spot, found the hard way:** the fur snapshots above could not catch mask-edge regressions. Fur's default `maskColor` is black, and transparent capture regions also read rgb(0,0,0) — so every shape-on-transparent bench child masks as "fur everywhere" and exercises no real edge. The initial fully-hoisted base-trace shipped a real regression (spill-over replaced by a jagged cut, caught in use on a real child) that all 8 fur snapshot pairs missed. Fixed by the §11.1 edge-band exception and verified on a new glyph-on-opaque-backdrop child (`prod.fur.edge` vs `bench.fur.base_edge`): old and fixed renders match, soft overhang restored on every edge.
+
+### 11.4 Harness additions
+
+- `BENCH_WINDOW=800x1042` (env var, handled in the macOS Runner): sets the window content size at launch — the default is 800×600, and macOS state restoration silently brings back whatever the last manual size was, which is exactly how a measurement session ends up at the wrong fill-rate. All §11 numbers used it. The runner now needs `-ApplePersistenceIgnoreState YES` semantics anyway; the Runner re-applies the size on the next runloop turn to beat restoration.
+- `BENCH_SNAPSHOT=<id>[,<id>…]` + `BENCH_SNAPSHOT_T=2.0,7.3`: renders each config at fixed virtual times and writes PNGs via `RepaintBoundary.toImage` (no screen-recording permission needed; pixel-exact and reproducible). Files land in the sandboxed app container's tmp dir; paths are printed.
+- New worst-case anchors `bench.fur.base_clicks5` and `bench.iwrap.base_rect` keep the pre-optimization shaders measurable under the same load as the hottest prod configs (and BENCH_COMPARE-able against them on a synced clock).
+- New edge-exercising fur configs `prod.fur.edge` / `bench.fur.base_edge` (`benchGlyphOnBackdrop`: glyph on an opaque non-matching backdrop) — the only fur configs whose mask has real edges (see §11.3). Use these for any future change touching fur's mask/lean path.
+- Caveat: `bench.fur.noedgelean` (old stub variant) now spams a Metal pipeline "division by zero" compile error before falling back — an artifact of its stubbed `edgeStrength = 0` being constant-folded into a division during Metal specialization. Harness-only; fix or delete the stub if it's needed again.

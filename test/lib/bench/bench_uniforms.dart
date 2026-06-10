@@ -197,6 +197,16 @@ Widget benchCircle(Color color) => Center(
       ),
     );
 
+/// Glyph on an opaque backdrop. The shape-on-transparent children above
+/// cannot exercise the fur shader's mask edges: its default maskColor is
+/// black and transparent capture regions also read rgb(0,0,0), so they
+/// match everywhere. A non-matching backdrop produces real mask edges
+/// (and therefore a real edge-lean/spill-over band).
+Widget benchGlyphOnBackdrop(Color glyph, Color backdrop) => ColoredBox(
+      color: backdrop,
+      child: benchText(glyph),
+    );
+
 /// Large glyph: ~15% coverage, lots of edges. Best case for early
 /// mask-exit paths.
 Widget benchText(Color color) => Center(

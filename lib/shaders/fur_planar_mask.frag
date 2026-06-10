@@ -134,11 +134,18 @@ float sdPlane(float pz) {
     return -uPlaneOffset - pz;
 }
 
+// Wavelet decay cutoffs. Displacement is kept for the whole ripple
+// lifetime; the gradient (specular shimmer) only matters while the ripple
+// is young and high-amplitude, so it stops at ~half the lifetime
+// (sqrt(0.001) = decay at lifetime/2).
+const float WAVELET_DISP_CUTOFF = 0.001;
+const float WAVELET_GRAD_CUTOFF = 0.0316;
+
 // Calculate wavelet displacement from a single click (3D version)
-float wavelet(V pos, vec2 clickPos, float clickTime) {
+float wavelet(V pos, vec2 clickPos, float clickTime, float decayCutoff) {
     if (clickTime <= 0.0) return 0.0;
     float decay = exp(-clickTime * uWaveletDecay);
-    if (decay < 0.001) return 0.0;
+    if (decay < decayCutoff) return 0.0;
 
     // clickPos arrives in screen-UV space; project to world XY at the fur plane
     // (pz = -uPlaneOffset) so distances match pos.xy.
@@ -158,19 +165,19 @@ float wavelet(V pos, vec2 clickPos, float clickTime) {
 }
 
 // Calculate total wavelet displacement from all clicks
-float totalWavelet(V pos) {
+float totalWavelet(V pos, float decayCutoff) {
     int clicks = int(uClickCount);
     if (clicks == 0) return 0.0;
 
-    float total = wavelet(pos, uClickPos0, uClickTime0);
+    float total = wavelet(pos, uClickPos0, uClickTime0, decayCutoff);
     if (clicks == 1) return total;
-    total += wavelet(pos, uClickPos1, uClickTime1);
+    total += wavelet(pos, uClickPos1, uClickTime1, decayCutoff);
     if (clicks == 2) return total;
-    total += wavelet(pos, uClickPos2, uClickTime2);
+    total += wavelet(pos, uClickPos2, uClickTime2, decayCutoff);
     if (clicks == 3) return total;
-    total += wavelet(pos, uClickPos3, uClickTime3);
+    total += wavelet(pos, uClickPos3, uClickTime3, decayCutoff);
     if (clicks == 4) return total;
-    total += wavelet(pos, uClickPos4, uClickTime4);
+    total += wavelet(pos, uClickPos4, uClickTime4, decayCutoff);
 
     return total;
 }
@@ -187,11 +194,6 @@ float fForGradient(V p) {
     return baseShape - furNoise - furWave;
 }
 
-// Full density function for the furry plane
-float f(V p, float waveletDisp) {
-    return max(0.0, fForGradient(p) + waveletDisp);
-}
-
 // Gradient using forward differences (3 samples instead of 6)
 V fastGradient(V p) {
     float center = fForGradient(p);
@@ -202,13 +204,15 @@ V fastGradient(V p) {
     );
 }
 
-// Compute wavelet gradient contribution (for visible ripple effect)
+// Compute wavelet gradient contribution (for visible ripple effect).
+// Sums young clicks only (WAVELET_GRAD_CUTOFF) — old ripples keep their
+// displacement but their lighting shimmer has decayed below notice.
 V waveletGradient(V p) {
-    float center = totalWavelet(p);
+    float center = totalWavelet(p, WAVELET_GRAD_CUTOFF);
     return V(
-        center - totalWavelet(p + V(uGradientEps, 0.0, 0.0)),
-        center - totalWavelet(p + V(0.0, uGradientEps, 0.0)),
-        center - totalWavelet(p + V(0.0, 0.0, uGradientEps))
+        center - totalWavelet(p + V(uGradientEps, 0.0, 0.0), WAVELET_GRAD_CUTOFF),
+        center - totalWavelet(p + V(0.0, uGradientEps, 0.0), WAVELET_GRAD_CUTOFF),
+        center - totalWavelet(p + V(0.0, 0.0, uGradientEps), WAVELET_GRAD_CUTOFF)
     );
 }
 
@@ -249,6 +253,60 @@ void main() {
     V rayPos = rayDir * 2.3 - V(0.0, 0.0, CAMERA_DISTANCE);
     V rayStep = rayDir * RAY_STEP;
 
+    // === Hoisted mask field (once per pixel, not per step) ===
+    // The fur surface is exactly planar, so the mask gradient and the
+    // strand-root sample barely change across the shell's depth. Intersect
+    // the ray with the mid-shell plane analytically (rayDir.z == 1.0) and
+    // fetch all 5 mask taps there; the loop keeps only the height-dependent
+    // lean math as ALU on these values. Mid-shell halves the xy drift error
+    // at grazing angles vs sampling at the shell top.
+    float zMid = -uPlaneOffset - 0.5 * uFurThickness;
+    vec2 midXY = rayPos.xy + uv * (zMid - rayPos.z);
+    vec2 toMaskTC = (minDim / uSize) / projScale;
+    vec2 maskTC = midXY * toMaskTC + vec2(0.5);
+
+    // Mask gradient (edge lean direction/strength)
+    vec2 gStep = 8.0 / uSize;
+    float maskR = getMaskValue(maskTC + vec2(gStep.x, 0.0));
+    float maskL = getMaskValue(maskTC - vec2(gStep.x, 0.0));
+    float maskU = getMaskValue(maskTC + vec2(0.0, gStep.y));
+    float maskD = getMaskValue(maskTC - vec2(0.0, gStep.y));
+
+    vec2 maskGradTC = vec2(maskR - maskL, maskU - maskD);
+    float edgeStrength = length(maskGradTC);
+
+    // Lean direction in world space:
+    // outward = -maskGrad direction, aspect-corrected back to world
+    vec2 edgeDir = edgeStrength > 0.001 ? -maskGradTC / edgeStrength : vec2(0.0);
+    vec2 edgeDirWorld = normalize(edgeDir * uSize / minDim + vec2(0.0001));
+
+    // Strand-root sample at the unleaned plane projection — the height
+    // taper for pixels away from mask edges, where the base-trace is
+    // constant along the strand.
+    float rootMask = getMaskValue(maskTC);
+    float heightReductionFlat =
+        uFurThickness * (1.0 - smoothstep(0.0, 0.4, rootMask));
+
+    // Within the edge band the base-trace must stay per-step: the inward
+    // lean grows with height, so hair rooted inside the mask overhangs the
+    // boundary at the tip (spill-over). A single fixed-lean sample would
+    // turn that overhang into a hard cut at the region edge. The band is
+    // bounded by the gradient stencil (edgeStrength is 0 beyond ~8 px of
+    // the boundary, which also bounded the spill reach before the hoist),
+    // so only a thin ring of pixels pays the per-step tap.
+    bool edgeBand = edgeStrength > 0.001;
+
+    // === Hoisted wavelet field (once per pixel, not per step) ===
+    // The click ripple expands on the plane; across the thin shell its
+    // value barely changes, so displacement is constant along each strand.
+    float waveletDisp = 0.0;
+    V waveletGrad = V(0.0);
+    if (uClickCount > 0.0) {
+        V wavePos = V(midXY, zMid);
+        waveletDisp = totalWavelet(wavePos, WAVELET_DISP_CUTOFF);
+        waveletGrad = waveletGradient(wavePos);
+    }
+
     // Light accumulator (for self-shadowing within fur)
     V lightAccum = V(LIGHT_INITIAL);
 
@@ -265,41 +323,26 @@ void main() {
         float h = sdPlane(rayPos.z);           // 0 at surface, uFurThickness at tip
         float h01 = clamp(h / uFurThickness, 0.0, 1.0);
 
-        // === STEP B: Mask gradient at vertical projection ===
-        vec2 rootUV = rayPos.xy / projScale;
-        vec2 maskTC = rootUV * (minDim / uSize) + vec2(0.5);
-
-        vec2 gStep = 8.0 / uSize;
-        float maskR = getMaskValue(maskTC + vec2(gStep.x, 0.0));
-        float maskL = getMaskValue(maskTC - vec2(gStep.x, 0.0));
-        float maskU = getMaskValue(maskTC + vec2(0.0, gStep.y));
-        float maskD = getMaskValue(maskTC - vec2(0.0, gStep.y));
-
-        vec2 maskGradTC = vec2(maskR - maskL, maskU - maskD);
-        float edgeStrength = length(maskGradTC);
-
-        // === STEP C: Lean direction in world space ===
-        // Outward = -maskGrad direction, aspect-corrected back to world
-        vec2 edgeDir = edgeStrength > 0.001 ? -maskGradTC / edgeStrength : vec2(0.0);
-        vec2 edgeDirWorld = normalize(edgeDir * uSize / minDim + vec2(0.0001));
+        // === STEP B: Edge lean on the hoisted mask field ===
         // Quadratic growth with height, scaled by edge proximity
         float leanAmount = h01 * h01 * edgeStrength * uEdgeLeanStrength;
-        vec2 leanOffsetWorld = edgeDirWorld * leanAmount;
 
-        // === STEP D: Base-trace — find strand root ===
         // Tip is at rayPos.xy (displaced outward). Base is inward:
-        vec2 baseWorldXY = rayPos.xy - leanOffsetWorld;
-        vec2 baseMaskTC = (baseWorldXY / projScale) * (minDim / uSize) + vec2(0.5);
-        float baseMask = getMaskValue(baseMaskTC);  // THE KEY CHANGE
+        vec2 baseWorldXY = rayPos.xy - edgeDirWorld * leanAmount;
 
-        // === STEP E: Height falloff (moss taper) ===
-        float effectiveThickness = uFurThickness * smoothstep(0.0, 0.4, baseMask);
-        float heightReduction = uFurThickness - effectiveThickness;
-
-        // === STEP F: Density at strand-following position ===
+        // === STEP C: Density at strand-following position ===
         // Noise sampled at base XY (strand continuity), height at actual z
         V strandPos = V(baseWorldXY, rayPos.z);
-        float waveletDisp = totalWavelet(rayPos);
+
+        // Height falloff (moss taper): per-step base-trace inside the edge
+        // band (this is what lets hair tips spill over the mask boundary),
+        // hoisted constant everywhere else.
+        float heightReduction = heightReductionFlat;
+        if (edgeBand) {
+            float baseMask = getMaskValue(baseWorldXY * toMaskTC + vec2(0.5));
+            heightReduction =
+                uFurThickness * (1.0 - smoothstep(0.0, 0.4, baseMask));
+        }
         float density = max(0.0, fForGradient(strandPos) + waveletDisp - heightReduction);
 
         // Skip lighting for masked-out regions
@@ -308,13 +351,8 @@ void main() {
         // Attenuate light through fur (for self-shadowing)
         lightAccum *= uFurColor - density / LIGHT_ABSORPTION;
 
-        // === STEP G: Normals with edge lean bias ===
-        V gradient = fastGradient(strandPos);
-
-        // Only compute wavelet gradient when there are active clicks
-        if (uClickCount > 0.0) {
-            gradient += waveletGradient(rayPos);
-        }
+        // === STEP D: Normals with edge lean bias ===
+        V gradient = fastGradient(strandPos) + waveletGrad;
 
         // Surface brightness from gradient magnitude
         float gradMag = length(gradient);

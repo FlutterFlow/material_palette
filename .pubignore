@@ -21,3 +21,6 @@ Thumbs.db
 
 # Claude Code
 .claude/
+
+# Profiling raw data, logs & visual snapshots (dev-only, heavy)
+bench_logs/

@@ -165,15 +165,17 @@ float warpShape(vec2 p, float tw) {
     return clamp(0.5 + 0.5 * f, 0.0, 1.0);
 }
 
-// Domain warp → palette lookup. `stripe` is blended into the fbm shape via
-// uStripeRippleStrength before indexing the palette.
-vec4 warpMap(vec2 p, float tw, float stripe) {
-    float shape = mix(warpShape(p, tw), stripe, uStripeRippleStrength);
+// Palette lookup for a warp-shape scalar — the cheap per-channel tail of
+// the domain warp. The expensive warpShape eval is computed once in main
+// and shared across RGB; `stripe` is blended in via uStripeRippleStrength
+// before indexing the palette.
+vec4 warpPalette(float shape, float stripe) {
+    float v = mix(shape, stripe, uStripeRippleStrength);
 
     // SkSL has no integer clamp/min overloads — clamp in floats then cast.
     float nF  = clamp(uPaletteStops + 0.5, 2.0, 10.0);
     float nm1 = nF - 1.0;
-    float tp  = shape * nm1;
+    float tp  = v * nm1;
     float i0F = floor(tp);
     float i1F = min(i0F + 1.0, nm1);
     float fp  = smoothstep(0.0, 1.0, tp - i0F);
@@ -238,15 +240,17 @@ void main() {
     float stripeG = sampleStripe(1.0, 0.0, phaseG, blur + phaseFw);
     float stripeB = sampleStripe(1.0, 0.0, phaseB, blur + phaseFw);
 
-    // ---- 5. Per-channel warpMap taps (fbm + palette) ---------------------
-    vec2 warpUV = 2.0 * p;
-    vec2 offUvR = vec2(uShiftRed  / 50.0, 0.0);
-    vec2 offUvB = vec2(uShiftBlue / 50.0, 0.0);
-
+    // ---- 5. Shared warp + per-channel palette taps -------------------------
+    // The color path samples the warp at 2.0 * p — the identical arguments
+    // already evaluated for the bump term in section 2, so that eval is
+    // reused (exact dedupe). One shape serves all three channels: the
+    // visible chromatic dispersion lives in the per-channel stripe phases
+    // above, which the warp shape barely noticed at its old ±uShift/50
+    // coordinate offsets.
     vec3 col = vec3(
-        warpMap(warpUV + offUvR, tw, stripeR).r,
-        warpMap(warpUV,          tw, stripeG).g,
-        warpMap(warpUV - offUvB, tw, stripeB).b
+        warpPalette(warpShapeV, stripeR).r,
+        warpPalette(warpShapeV, stripeG).g,
+        warpPalette(warpShapeV, stripeB).b
     );
 
     // Color-burn tint (alpha = strength).
