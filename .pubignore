@@ -30,6 +30,7 @@ Thumbs.db
 # Benchmarking & profiling artifacts (dev-only)
 bench_logs/
 docs/
+*.log
 
 # Dev tooling config (no effect for package consumers)
 analysis_options.yaml

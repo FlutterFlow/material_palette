@@ -1579,6 +1579,7 @@ final furPlanarShaderDef = ShaderDefinition(
     'waveletDecay': 'Exponential decay rate of wavelets',
     'waveletWidth': 'Width of the wavelet ring',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1715,6 +1716,7 @@ final furPlanarMaskedShaderDef = ShaderDefinition(
     'bgOpacity':
         'Opacity of the background fill outside the fur mask (0 = transparent, useful for stacking on top of another shader; 1 = bgColor visible)',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1755,6 +1757,7 @@ final turbulenceMaskShaderDef = ShaderDefinition(
     'animSpeed': 'Speed multiplier for noise evolution over time',
     'displacementStrength': 'Maximum UV displacement strength',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1783,6 +1786,7 @@ final ditherWrapShaderDef = ShaderDefinition(
     'ditherScale': 'Cell size for dither grid (lower = larger pixels)',
     'colorSteps': 'Number of discrete luminance levels for quantization',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1811,6 +1815,7 @@ final peelWrapShaderDef = ShaderDefinition(
     'curlRadius': 'Radius of the curl cylinder in pixels',
     'shadowStrength': 'Darkness of shadow behind the curl',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1883,6 +1888,7 @@ final crepuscularRaysShaderDef = ShaderDefinition(
     'passColor':
         'Color that counts as "light passes" in the mask. Transparent (alpha=0, default) uses the classic alpha-driven mask — partial pass for semi-transparent pixels. Any non-transparent color requires an exact match to pass (all-or-nothing); everything else blocks.',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1913,6 +1919,7 @@ final kuwaharaShaderDef = ShaderDefinition(
     'sharpness':
         'Anisotropic ellipse bias. Higher values keep the kernel rounder (more uniform blobs); lower values allow strong elongation along detected edges (streak-like brush strokes)',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2035,6 +2042,7 @@ final liquidMetalShaderDef = ShaderDefinition(
     'color8': 'Palette stop 8',
     'color9': 'Palette stop 9 (brightest highlight)',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2170,6 +2178,7 @@ final layeredMetalShaderDef = ShaderDefinition(
     'color8': 'Palette stop 8',
     'color9': 'Palette stop 9 (brightest highlight)',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2376,6 +2385,7 @@ final iridescentLiquidWrapShaderDef = ShaderDefinition(
     'color8': 'Palette stop 8',
     'color9': 'Palette stop 9',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2553,6 +2563,7 @@ final iridescentLiquidShaderDef = ShaderDefinition(
     'color8': 'Palette stop 8',
     'color9': 'Palette stop 9',
   },
+  stableVersion: '1.5.0',
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2703,6 +2714,7 @@ const List<String> allParamNames = [
   'color9',
   'colorBack',
   'colorCount',
+  'colorSteps',
   'colorTint',
   'contour',
   'contrast',

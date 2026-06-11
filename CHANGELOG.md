@@ -1,3 +1,13 @@
+## 1.5.0
+
+- Add fur shaders: Fur (fill) and Fur Mask (wrap) with tap-ripple wavelets and mask-edge spill-over.
+- Add iridescent liquid shaders: Iridescent Liquid (wrap) and Iridescent Liquid Fill.
+- Add Liquid Metal and Layered Metal fill shaders.
+- Add Kuwahara Wrap, Crepuscular Rays, Dither Wrap, Peel Wrap, and Turbulence Mask wrap shaders.
+- Optimize Fur Mask and Iridescent Liquid shaders to hold 120 Hz at full-window render areas on Apple-Silicon-class GPUs.
+- Limit simultaneous interactive fur tap ripples to 3 (shader still accepts 5 via touchPoints).
+- Add missing precacheShader statics to Kuwahara, Dither, Peel, and Turbulence Mask wraps.
+
 ## 1.4.0
 
 - Add basic presets for wrap shaders.

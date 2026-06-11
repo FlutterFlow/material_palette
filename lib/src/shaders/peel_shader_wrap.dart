@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_shaders/flutter_shaders.dart';
 import 'package:material_palette/src/shader_animation.dart';
 import 'package:material_palette/src/shader_definitions.dart';
 import 'package:material_palette/src/shader_params.dart';
@@ -26,6 +27,9 @@ class PeelShaderWrap extends StatelessWidget {
   final double time;
   final ShaderAnimationConfig? animationConfig;
   final bool cache;
+
+  static Future<void> precacheShader() => ShaderBuilder.precacheShader(
+      'packages/material_palette/shaders/peel_wrap.frag');
 
   @override
   Widget build(BuildContext context) {
