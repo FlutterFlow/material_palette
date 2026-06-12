@@ -122,11 +122,11 @@ Widget _buildSurveyWidget(
     case ShaderNames.smarble:
       return MarbleSmearShaderFill(
           width: w, height: h, animationMode: mode, time: tt);
-    case ShaderNames.liquidMetal:
-      return LiquidMetalShaderFill(
+    case ShaderNames.liquidPatina:
+      return LiquidPatinaShaderFill(
           width: w, height: h, animationMode: mode, time: tt);
-    case ShaderNames.layeredMetal:
-      return LayeredMetalShaderFill(
+    case ShaderNames.metalSmoke:
+      return MetalSmokeShaderFill(
           width: w, height: h, animationMode: mode, time: tt);
     case ShaderNames.iridescentLiquid:
       return IridescentLiquidShaderFill(
@@ -172,8 +172,8 @@ Widget _buildSurveyWidget(
     case ShaderNames.tapSlurp:
       return TappableSlurpShaderWrap(
           animationMode: mode, time: tt, child: benchImage());
-    case ShaderNames.turbulenceMask:
-      return TurbulenceMaskShaderWrap(
+    case ShaderNames.turbulenceWrap:
+      return TurbulenceShaderWrap(
           animationMode: mode, time: tt, child: benchImage());
     case ShaderNames.ditherWrap:
       return DitherShaderWrap(

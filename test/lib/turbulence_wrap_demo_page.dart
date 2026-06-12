@@ -12,9 +12,9 @@ class TurbulenceWrapDemoPage extends StatefulWidget {
 }
 
 class _TurbulenceWrapDemoPageState extends State<TurbulenceWrapDemoPage> {
-  ShaderParams _params = turbulenceMaskShaderDef.defaults;
+  ShaderParams _params = turbulenceWrapShaderDef.defaults;
 
-  ShaderUIDefaults get _ui => turbulenceMaskShaderDef.uiDefaults;
+  ShaderUIDefaults get _ui => turbulenceWrapShaderDef.uiDefaults;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class _TurbulenceWrapDemoPageState extends State<TurbulenceWrapDemoPage> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  TurbulenceMaskShaderWrap(
+                  TurbulenceShaderWrap(
                     params: _params,
                     child: Padding(
                       padding: const EdgeInsets.all(30),
@@ -125,7 +125,7 @@ class _TurbulenceWrapDemoPageState extends State<TurbulenceWrapDemoPage> {
                     const SizedBox(height: 8),
                     ElevatedButton(
                       onPressed: () => setState(
-                          () => _params = turbulenceMaskShaderDef.defaults),
+                          () => _params = turbulenceWrapShaderDef.defaults),
                       child: const Text('Reset'),
                     ),
                   ],

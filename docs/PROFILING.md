@@ -40,7 +40,7 @@ Four instruments, because no single one is sufficient on macOS/Metal:
 ### 2.1 Two measurement traps these instruments exist to defeat
 
 - **Async GPU**: `FrameTiming.rasterDuration` is raster-*thread CPU* time. Metal executes asynchronously, so at card sizes *every* shader variant measures ~1.6 ms regardless of GPU cost (even deleting all noise math changed nothing). GPU cost only appears in FrameTiming once it exceeds the frame budget (backpressure → fps drop, p90/jank spikes). Raster-thread numbers measure the *widget machinery*, not the shader.
-- **GPU DVFS**: the GPU governor downclocks until busy ≈ 66 % of frame time, so sub-budget workloads of very different sizes all read "~66 % util / ~5.5 ms busy" at *different unknown clocks* (`prod.iwrap.480` ≈ `prod.iliq.480` ≈ `prod.fur.480` ≈ kuwahara ≈ liquid_metal ≈ 5.5 ms). Absolute GPU-interval durations are only comparable between configs in the same clock regime. **Saturated throughput (fps at full window) is the clean comparator** and is what §1/§6 deltas use; unsaturated trace deltas are reported as conservative lower bounds.
+- **GPU DVFS**: the GPU governor downclocks until busy ≈ 66 % of frame time, so sub-budget workloads of very different sizes all read "~66 % util / ~5.5 ms busy" at *different unknown clocks* (`prod.iwrap.480` ≈ `prod.iliq.480` ≈ `prod.fur.480` ≈ kuwahara ≈ liquid_patina ≈ 5.5 ms). Absolute GPU-interval durations are only comparable between configs in the same clock regime. **Saturated throughput (fps at full window) is the clean comparator** and is what §1/§6 deltas use; unsaturated trace deltas are reported as conservative lower bounds.
 
 ### 2.2 Shader bisection
 
@@ -81,15 +81,15 @@ Mean of 3 observations, sorted by raster p50. **This column is CPU-side cost** (
 | shader (survey id) | kind | raster p50 ms | GPU note |
 |---|---|---|---|
 | smoke_radial | wrap | 2.11 | 0.6 ms GPU at card size — CPU number is capture tax, GPU trivial |
-| smoke_tap*, burn_tap*, dither, pixel_dissolve_tap*, pixel_dissolve, peel, smoke, slurp_tap*, pixel_dissolve_radial, turbulence_mask, burn_radial, ripples, taplets*, burn | wrap | 1.92–1.98 | all dominated by capture tax |
+| smoke_tap*, burn_tap*, dither, pixel_dissolve_tap*, pixel_dissolve, peel, smoke, slurp_tap*, pixel_dissolve_radial, turbulence_wrap, burn_radial, ripples, taplets*, burn | wrap | 1.92–1.98 | all dominated by capture tax |
 | crepuscular_rays | wrap | 1.81 | ~4 ms GPU @DVFS; fits 120 fps full-window |
 | iridescent_liquid (wrap) | wrap | 1.71 | **saturates full-window: 8.9 ms/frame** (text child) |
 | kuwahara_wrap | wrap | 1.70 | **saturates full-window: 9.6 ms/frame** — only non-target hot shader |
 | fur_mask | wrap | 1.65 | **saturates full-window: 11.1 ms/frame** |
 | gradient fills (simplex/perlin/voronoi/fbm/turbulence/voronoise ± radial) | fill | 0.87–0.97 | trivial GPU |
-| layered_metal | fill | 0.93 | 2.1 ms GPU @DVFS; fits full-window |
+| metal_smoke | fill | 0.93 | 2.1 ms GPU @DVFS; fits full-window |
 | fur (fill)* | fill | 0.91 | ~5.5 ms GPU @DVFS; fits full-window |
-| grit, liquid_metal, perlin, smarble*, iridescent_liquid_fill, turbulence, fbm_radial, grit_radial | fill | 0.74–0.90 | liquid_metal 5.5 ms GPU @DVFS, still fits full-window |
+| grit, liquid_patina, perlin, smarble*, iridescent_liquid_fill, turbulence, fbm_radial, grit_radial | fill | 0.74–0.90 | liquid_patina 5.5 ms GPU @DVFS, still fits full-window |
 
 `*` measured in **passive default state** — tap/drag-activated paths (tappables, marble smudges, fur wavelets) not exercised; their active cost is not in this table. The fur deep-dive (§6.2) shows wavelets add ~+1.3 ms/click at full window, so treat starred rows as lower bounds under interaction.
 

@@ -53,13 +53,13 @@ flutter:
     - packages/material_palette/shaders/radial_voronoise_gradient.frag
     - packages/material_palette/shaders/fur_planar.frag
     - packages/material_palette/shaders/fur_planar_mask.frag
-    - packages/material_palette/shaders/turbulence_mask.frag
+    - packages/material_palette/shaders/turbulence_wrap.frag
     - packages/material_palette/shaders/dither_wrap.frag
     - packages/material_palette/shaders/peel_wrap.frag
     - packages/material_palette/shaders/crepuscular_rays.frag
     - packages/material_palette/shaders/kuwahara.frag
-    - packages/material_palette/shaders/liquid_metal.frag
-    - packages/material_palette/shaders/layered_metal.frag
+    - packages/material_palette/shaders/liquid_patina.frag
+    - packages/material_palette/shaders/metal_smoke.frag
     - packages/material_palette/shaders/iridescent_liquid_wrap.frag
     - packages/material_palette/shaders/iridescent_liquid.frag
     # Benchmark-only instrumented variants (lib/bench/) — never shipped.

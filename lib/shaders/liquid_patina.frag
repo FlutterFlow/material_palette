@@ -3,7 +3,7 @@
 precision highp float;
 
 // ============================================================
-//  Liquid metal — procedural fill with a triple-nested domain
+//  Liquid patina — procedural fill with a triple-nested domain
 //  warp over 4-octave value noise, shaded as a heightfield with
 //  a warm edge glow. All former file-scope constants are
 //  exposed as uniforms so the entire look is tunable.

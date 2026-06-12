@@ -10,8 +10,8 @@ import 'package:material_palette/src/shader_wrap.dart';
 ///
 /// The child texture is warped by turbulence noise, creating organic,
 /// shimmer-like distortion.
-class TurbulenceMaskShaderWrap extends StatelessWidget {
-  TurbulenceMaskShaderWrap({
+class TurbulenceShaderWrap extends StatelessWidget {
+  TurbulenceShaderWrap({
     super.key,
     required this.child,
     ShaderParams? params,
@@ -19,7 +19,7 @@ class TurbulenceMaskShaderWrap extends StatelessWidget {
     this.time = 0,
     this.animationConfig,
     this.cache = false,
-  }) : params = params ?? turbulenceMaskShaderDef.defaults;
+  }) : params = params ?? turbulenceWrapShaderDef.defaults;
 
   final Widget child;
   final ShaderParams params;
@@ -29,14 +29,14 @@ class TurbulenceMaskShaderWrap extends StatelessWidget {
   final bool cache;
 
   static Future<void> precacheShader() => ShaderBuilder.precacheShader(
-      'packages/material_palette/shaders/turbulence_mask.frag');
+      'packages/material_palette/shaders/turbulence_wrap.frag');
 
   @override
   Widget build(BuildContext context) {
     final p = params;
 
     return ShaderWrap(
-      shaderPath: 'packages/material_palette/shaders/turbulence_mask.frag',
+      shaderPath: 'packages/material_palette/shaders/turbulence_wrap.frag',
       uniformsCallback: (uniforms, size, time) {
         uniforms.setSize(size);
         uniforms.setFloat(time);

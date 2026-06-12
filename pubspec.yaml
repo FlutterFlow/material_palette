@@ -58,12 +58,12 @@ flutter:
     - lib/shaders/tappable_slurp.frag
     - lib/shaders/fur_planar.frag
     - lib/shaders/fur_planar_mask.frag
-    - lib/shaders/turbulence_mask.frag
+    - lib/shaders/turbulence_wrap.frag
     - lib/shaders/dither_wrap.frag
     - lib/shaders/peel_wrap.frag
     - lib/shaders/crepuscular_rays.frag
     - lib/shaders/kuwahara.frag
-    - lib/shaders/liquid_metal.frag
-    - lib/shaders/layered_metal.frag
+    - lib/shaders/liquid_patina.frag
+    - lib/shaders/metal_smoke.frag
     - lib/shaders/iridescent_liquid_wrap.frag
     - lib/shaders/iridescent_liquid.frag

@@ -25,7 +25,7 @@ abstract class ShaderImageAssets {
   static const String radialPixelDissolve = 'assets/images/sunset.jpg';
   static const String tapPixelDissolve = 'assets/images/mountain.jpg';
   static const String tapSlurp = 'assets/images/mountain.jpg';
-  static const String turbulenceMask = 'assets/images/sunset.jpg';
+  static const String turbulenceWrap = 'assets/images/sunset.jpg';
   static const String dither = 'assets/images/sunset.jpg';
   static const String peelWrap = 'assets/images/sunset.jpg';
   static const String kuwahara = 'assets/images/mountain.jpg';
@@ -277,8 +277,8 @@ class ShaderCard extends StatelessWidget {
         return FurPlanarShaderCard(dimensions: dimensions);
       case ShaderNames.furPlanarMask:
         return FurPlanarMaskShaderCard(dimensions: dimensions);
-      case ShaderNames.turbulenceMask:
-        return TurbulenceMaskShaderCard(dimensions: dimensions);
+      case ShaderNames.turbulenceWrap:
+        return TurbulenceWrapShaderCard(dimensions: dimensions);
       case ShaderNames.ditherWrap:
         return DitherShaderCard(dimensions: dimensions);
       case ShaderNames.peelWrap:
@@ -287,10 +287,10 @@ class ShaderCard extends StatelessWidget {
         return CrepuscularRaysShaderCard(dimensions: dimensions);
       case ShaderNames.kuwaharaWrap:
         return KuwaharaShaderCard(dimensions: dimensions);
-      case ShaderNames.liquidMetal:
-        return LiquidMetalShaderCard(dimensions: dimensions);
-      case ShaderNames.layeredMetal:
-        return LayeredMetalShaderCard(dimensions: dimensions);
+      case ShaderNames.liquidPatina:
+        return LiquidPatinaShaderCard(dimensions: dimensions);
+      case ShaderNames.metalSmoke:
+        return MetalSmokeShaderCard(dimensions: dimensions);
       case ShaderNames.iridescentLiquidWrap:
         return IridescentLiquidWrapShaderCard(dimensions: dimensions);
       case ShaderNames.iridescentLiquid:
@@ -3290,21 +3290,21 @@ class _FurPlanarMaskShaderCardState extends State<FurPlanarMaskShaderCard> {
   String _generatePreset() => PresetGenerator.shaderParams(_params);
 }
 
-class TurbulenceMaskShaderCard extends StatefulWidget {
+class TurbulenceWrapShaderCard extends StatefulWidget {
   final CardDimensions dimensions;
 
-  const TurbulenceMaskShaderCard({super.key, required this.dimensions});
+  const TurbulenceWrapShaderCard({super.key, required this.dimensions});
 
   @override
-  State<TurbulenceMaskShaderCard> createState() =>
-      _TurbulenceMaskShaderCardState();
+  State<TurbulenceWrapShaderCard> createState() =>
+      _TurbulenceWrapShaderCardState();
 }
 
-class _TurbulenceMaskShaderCardState extends State<TurbulenceMaskShaderCard> {
-  ShaderParams _params = turbulenceMaskShaderDef.defaults;
+class _TurbulenceWrapShaderCardState extends State<TurbulenceWrapShaderCard> {
+  ShaderParams _params = turbulenceWrapShaderDef.defaults;
   bool _showControls = false;
 
-  ShaderUIDefaults get _ui => turbulenceMaskShaderDef.uiDefaults;
+  ShaderUIDefaults get _ui => turbulenceWrapShaderDef.uiDefaults;
 
   @override
   Widget build(BuildContext context) {
@@ -3317,10 +3317,10 @@ class _TurbulenceMaskShaderCardState extends State<TurbulenceMaskShaderCard> {
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: TurbulenceMaskShaderWrap(
+          child: TurbulenceShaderWrap(
             params: _params,
             child: Image.asset(
-              ShaderImageAssets.turbulenceMask,
+              ShaderImageAssets.turbulenceWrap,
               fit: BoxFit.cover,
               width: dimensions.width,
               height: dimensions.height,
@@ -3333,8 +3333,8 @@ class _TurbulenceMaskShaderCardState extends State<TurbulenceMaskShaderCard> {
           controlsWidth: dimensions.controlsWidth,
           controlsHeight: controlsHeight,
           onReset: () =>
-              setState(() => _params = turbulenceMaskShaderDef.defaults),
-          shaderName: 'Turbulence Mask',
+              setState(() => _params = turbulenceWrapShaderDef.defaults),
+          shaderName: 'Turbulence Wrap',
           onCopyPreset: () => _generatePreset(),
           children: [
             const ControlSectionTitle('Turbulence'),
@@ -3847,20 +3847,20 @@ class _KuwaharaShaderCardState extends State<KuwaharaShaderCard> {
   String _generatePreset() => PresetGenerator.shaderParams(_params);
 }
 
-class LiquidMetalShaderCard extends StatefulWidget {
+class LiquidPatinaShaderCard extends StatefulWidget {
   final CardDimensions dimensions;
 
-  const LiquidMetalShaderCard({super.key, required this.dimensions});
+  const LiquidPatinaShaderCard({super.key, required this.dimensions});
 
   @override
-  State<LiquidMetalShaderCard> createState() => _LiquidMetalShaderCardState();
+  State<LiquidPatinaShaderCard> createState() => _LiquidPatinaShaderCardState();
 }
 
-class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
-  ShaderParams _params = liquidMetalShaderDef.defaults;
+class _LiquidPatinaShaderCardState extends State<LiquidPatinaShaderCard> {
+  ShaderParams _params = liquidPatinaShaderDef.defaults;
   bool _showControls = false;
 
-  ShaderUIDefaults get _ui => liquidMetalShaderDef.uiDefaults;
+  ShaderUIDefaults get _ui => liquidPatinaShaderDef.uiDefaults;
 
   int get _stops => _params.get('paletteStops').round().clamp(2, 10);
 
@@ -3875,7 +3875,7 @@ class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: LiquidMetalShaderFill(
+          child: LiquidPatinaShaderFill(
             width: dimensions.width,
             height: dimensions.height,
             params: _params,
@@ -3886,8 +3886,8 @@ class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
           onToggle: () => setState(() => _showControls = !_showControls),
           controlsWidth: dimensions.controlsWidth,
           controlsHeight: controlsHeight,
-          onReset: () => setState(() => _params = liquidMetalShaderDef.defaults),
-          shaderName: 'Liquid Metal',
+          onReset: () => setState(() => _params = liquidPatinaShaderDef.defaults),
+          shaderName: 'Liquid Patina',
           onCopyPreset: () => _generatePreset(),
           children: [
             const ControlSectionTitle('Pattern'),
@@ -3987,20 +3987,20 @@ class _LiquidMetalShaderCardState extends State<LiquidMetalShaderCard> {
   String _generatePreset() => PresetGenerator.shaderParams(_params);
 }
 
-class LayeredMetalShaderCard extends StatefulWidget {
+class MetalSmokeShaderCard extends StatefulWidget {
   final CardDimensions dimensions;
 
-  const LayeredMetalShaderCard({super.key, required this.dimensions});
+  const MetalSmokeShaderCard({super.key, required this.dimensions});
 
   @override
-  State<LayeredMetalShaderCard> createState() => _LayeredMetalShaderCardState();
+  State<MetalSmokeShaderCard> createState() => _MetalSmokeShaderCardState();
 }
 
-class _LayeredMetalShaderCardState extends State<LayeredMetalShaderCard> {
-  ShaderParams _params = layeredMetalShaderDef.defaults;
+class _MetalSmokeShaderCardState extends State<MetalSmokeShaderCard> {
+  ShaderParams _params = metalSmokeShaderDef.defaults;
   bool _showControls = false;
 
-  ShaderUIDefaults get _ui => layeredMetalShaderDef.uiDefaults;
+  ShaderUIDefaults get _ui => metalSmokeShaderDef.uiDefaults;
 
   int get _stops => _params.get('paletteStops').round().clamp(2, 10);
 
@@ -4015,7 +4015,7 @@ class _LayeredMetalShaderCardState extends State<LayeredMetalShaderCard> {
         ShaderCardContent(
           width: dimensions.width,
           height: dimensions.height,
-          child: LayeredMetalShaderFill(
+          child: MetalSmokeShaderFill(
             width: dimensions.width,
             height: dimensions.height,
             params: _params,
@@ -4027,8 +4027,8 @@ class _LayeredMetalShaderCardState extends State<LayeredMetalShaderCard> {
           controlsWidth: dimensions.controlsWidth,
           controlsHeight: controlsHeight,
           onReset: () =>
-              setState(() => _params = layeredMetalShaderDef.defaults),
-          shaderName: 'Layered Metal',
+              setState(() => _params = metalSmokeShaderDef.defaults),
+          shaderName: 'Metal Smoke',
           onCopyPreset: () => _generatePreset(),
           children: [
             const ControlSectionTitle('Pattern'),

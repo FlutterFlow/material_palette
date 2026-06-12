@@ -7,15 +7,15 @@ import 'package:material_palette/src/shader_definitions.dart';
 import 'package:material_palette/src/shader_fill.dart';
 import 'package:material_palette/src/shader_params.dart';
 
-/// A procedural fill shader rendering an animated "layered metal" pattern:
+/// A procedural fill shader rendering an animated "metal smoke" pattern:
 /// a noise-rotated pre-warp feeds into an iterative swirl chain, which drives
 /// a checkerboard-like base shape. Coloured through a 10-stop RGBA palette
 /// and shaded as a heightfield with a warm edge glow.
 ///
 /// Every top-level constant in the original shader is exposed as a tunable
-/// uniform — see [layeredMetalShaderDef] for the default values.
-class LayeredMetalShaderFill extends StatelessWidget {
-  LayeredMetalShaderFill({
+/// uniform — see [metalSmokeShaderDef] for the default values.
+class MetalSmokeShaderFill extends StatelessWidget {
+  MetalSmokeShaderFill({
     super.key,
     required this.width,
     required this.height,
@@ -24,7 +24,7 @@ class LayeredMetalShaderFill extends StatelessWidget {
     this.time = 0,
     this.animationConfig,
     this.cache = false,
-  }) : params = params ?? layeredMetalShaderDef.defaults;
+  }) : params = params ?? metalSmokeShaderDef.defaults;
 
   final double width;
   final double height;
@@ -35,10 +35,10 @@ class LayeredMetalShaderFill extends StatelessWidget {
   final bool cache;
 
   static Future<void> precacheShader() => ShaderBuilder.precacheShader(
-      'packages/material_palette/shaders/layered_metal.frag');
+      'packages/material_palette/shaders/metal_smoke.frag');
 
   void _setUniforms(FragmentShader shader, Size size, double time) {
-    setShaderUniforms(shader, size, time, params, layeredMetalShaderDef.layout);
+    setShaderUniforms(shader, size, time, params, metalSmokeShaderDef.layout);
   }
 
   @override
@@ -46,7 +46,7 @@ class LayeredMetalShaderFill extends StatelessWidget {
     return ShaderFill(
       width: width,
       height: height,
-      shaderPath: 'packages/material_palette/shaders/layered_metal.frag',
+      shaderPath: 'packages/material_palette/shaders/metal_smoke.frag',
       uniformsCallback: _setUniforms,
       animationMode: animationMode,
       time: time,

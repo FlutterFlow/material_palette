@@ -2,7 +2,7 @@
 
 precision highp float;
 
-// Layered metal — noise-rotated pre-warp + iterative swirl + checkerboard,
+// Metal smoke — noise-rotated pre-warp + iterative swirl + checkerboard,
 // coloured through a 10-stop palette and shaded as a heightfield with an
 // edge glow.
 

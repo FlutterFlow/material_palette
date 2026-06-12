@@ -33,13 +33,13 @@ abstract class ShaderNames {
   static const String tapSlurp = 'Slurp Tap';
   static const String furPlanar = 'Fur';
   static const String furPlanarMask = 'Fur Mask';
-  static const String turbulenceMask = 'Turbulence Mask';
+  static const String turbulenceWrap = 'Turbulence Wrap';
   static const String ditherWrap = 'Dither Wrap';
   static const String peelWrap = 'Peel Wrap';
   static const String crepuscularRays = 'Crepuscular Rays';
   static const String kuwaharaWrap = 'Kuwahara Wrap';
-  static const String liquidMetal = 'Liquid Metal';
-  static const String layeredMetal = 'Layered Metal';
+  static const String liquidPatina = 'Liquid Patina';
+  static const String metalSmoke = 'Metal Smoke';
   static const String iridescentLiquidWrap = 'Iridescent Liquid';
   static const String iridescentLiquid = 'Iridescent Liquid Fill';
 }
@@ -174,7 +174,7 @@ const List<ShaderCardData> allShaders = [
     description: 'Fur grows on masked child regions',
   ),
   ShaderCardData(
-    title: ShaderNames.turbulenceMask,
+    title: ShaderNames.turbulenceWrap,
     description: 'Turbulence displacement at mask edges',
   ),
   ShaderCardData(
@@ -194,13 +194,13 @@ const List<ShaderCardData> allShaders = [
     description: 'Anisotropic Kuwahara painterly smoothing filter',
   ),
   ShaderCardData(
-    title: ShaderNames.liquidMetal,
-    description: 'Animated liquid-metal heat-map with warped FBM noise',
+    title: ShaderNames.liquidPatina,
+    description: 'Animated liquid-patina heat-map with warped FBM noise',
   ),
   ShaderCardData(
-    title: ShaderNames.layeredMetal,
+    title: ShaderNames.metalSmoke,
     description:
-        'Animated layered-metal pattern — noise-warped iterative swirl',
+        'Animated metal-smoke pattern — noise-warped iterative swirl',
   ),
   ShaderCardData(
     title: ShaderNames.iridescentLiquidWrap,

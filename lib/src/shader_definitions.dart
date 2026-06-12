@@ -1720,12 +1720,12 @@ final furPlanarMaskedShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// TURBULENCE MASK (wrap shader)
+// TURBULENCE WRAP (wrap shader)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-final turbulenceMaskShaderDef = ShaderDefinition(
+final turbulenceWrapShaderDef = ShaderDefinition(
   hasChildren: true,
-  assetPath: 'packages/material_palette/shaders/turbulence_mask.frag',
+  assetPath: 'packages/material_palette/shaders/turbulence_wrap.frag',
   layout: UniformLayout([
     const UniformField('octaves'),
     const UniformField('baseFrequency'),
@@ -1923,12 +1923,12 @@ final kuwaharaShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// LIQUID METAL (procedural fill — domain-warped FBM + heightfield shading)
+// LIQUID PATINA (procedural fill — domain-warped FBM + heightfield shading)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-final liquidMetalShaderDef = ShaderDefinition(
+final liquidPatinaShaderDef = ShaderDefinition(
   hasChildren: false,
-  assetPath: 'packages/material_palette/shaders/liquid_metal.frag',
+  assetPath: 'packages/material_palette/shaders/liquid_patina.frag',
   layout: UniformLayout([
     // Pattern / animation
     const UniformField('rotAngle'),
@@ -2046,12 +2046,12 @@ final liquidMetalShaderDef = ShaderDefinition(
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// LAYERED METAL (procedural fill — noise-rotated pre-warp + iterative swirl)
+// METAL SMOKE (procedural fill — noise-rotated pre-warp + iterative swirl)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-final layeredMetalShaderDef = ShaderDefinition(
+final metalSmokeShaderDef = ShaderDefinition(
   hasChildren: false,
-  assetPath: 'packages/material_palette/shaders/layered_metal.frag',
+  assetPath: 'packages/material_palette/shaders/metal_smoke.frag',
   layout: UniformLayout([
     // Pattern / animation
     const UniformField('patternScale'),
@@ -2620,13 +2620,13 @@ Map<String, ShaderDefinition> get shaderDefinitionsByName => {
   ShaderNames.tapSlurp: tappableSlurpShaderDef,
   ShaderNames.furPlanar: furPlanarShaderDef,
   ShaderNames.furPlanarMask: furPlanarMaskedShaderDef,
-  ShaderNames.turbulenceMask: turbulenceMaskShaderDef,
+  ShaderNames.turbulenceWrap: turbulenceWrapShaderDef,
   ShaderNames.ditherWrap: ditherWrapShaderDef,
   ShaderNames.peelWrap: peelWrapShaderDef,
   ShaderNames.crepuscularRays: crepuscularRaysShaderDef,
   ShaderNames.kuwaharaWrap: kuwaharaShaderDef,
-  ShaderNames.liquidMetal: liquidMetalShaderDef,
-  ShaderNames.layeredMetal: layeredMetalShaderDef,
+  ShaderNames.liquidPatina: liquidPatinaShaderDef,
+  ShaderNames.metalSmoke: metalSmokeShaderDef,
   ShaderNames.iridescentLiquidWrap: iridescentLiquidWrapShaderDef,
   ShaderNames.iridescentLiquid: iridescentLiquidShaderDef,
 };
@@ -2662,13 +2662,13 @@ const List<String> allShaderNames = [
   ShaderNames.tapSlurp,
   ShaderNames.furPlanar,
   ShaderNames.furPlanarMask,
-  ShaderNames.turbulenceMask,
+  ShaderNames.turbulenceWrap,
   ShaderNames.ditherWrap,
   ShaderNames.peelWrap,
   ShaderNames.crepuscularRays,
   ShaderNames.kuwaharaWrap,
-  ShaderNames.liquidMetal,
-  ShaderNames.layeredMetal,
+  ShaderNames.liquidPatina,
+  ShaderNames.metalSmoke,
   ShaderNames.iridescentLiquidWrap,
   ShaderNames.iridescentLiquid,
 ];
