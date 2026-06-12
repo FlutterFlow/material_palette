@@ -39,13 +39,32 @@ A collection of **material effects** implemented with shaders for Flutter.
 ### Slurp Effects
 - **Slurp Tap** - Tap to create a 'slurp' effect (wrap)
 
+## Gen2 Materials
+
+### Material Fills
+- **Liquid Patina** - Animated liquid-patina heat-map with warped FBM noise
+- **Metal Smoke** - Animated metal-smoke pattern of noise-warped iterative swirls
+- **Iridescent Liquid Fill** - Iridescent chrome-over-fbm material filling the widget
+- **Fur** - Interactive volumetric fur surface with tap ripples
+
+### Masked Materials
+- **Fur Mask** - Fur grows on masked child regions, leaning and spilling over mask edges (wrap)
+- **Iridescent Liquid** - Iridescent chrome-over-fbm material masked onto the child, with contour-bent stripes (wrap)
+
+### Filters & Transitions
+- **Turbulence Wrap** - Animated turbulence displacement across the child (wrap)
+- **Dither Wrap** - 4x4 Bayer ordered dither pixelation (wrap)
+- **Peel Wrap** - 3D page curl/peel transition (wrap)
+- **Crepuscular Rays** - Volumetric god rays from a soft sun source (wrap)
+- **Kuwahara Wrap** - Anisotropic Kuwahara painterly smoothing filter (wrap)
+
 ## Installation
 
 Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  material_palette: ^1.0.0
+  material_palette: ^1.5.0
 ```
 
 **Important:** Fragment shaders from packages must be declared in your app's `pubspec.yaml`.
@@ -88,6 +107,21 @@ flutter:
     - packages/material_palette/shaders/tappable_pixel_dissolve.frag
     # Slurp effects
     - packages/material_palette/shaders/tappable_slurp.frag
+    # Fur
+    - packages/material_palette/shaders/fur_planar.frag
+    - packages/material_palette/shaders/fur_planar_mask.frag
+    # Iridescent liquid
+    - packages/material_palette/shaders/iridescent_liquid.frag
+    - packages/material_palette/shaders/iridescent_liquid_wrap.frag
+    # Metal fills
+    - packages/material_palette/shaders/liquid_patina.frag
+    - packages/material_palette/shaders/metal_smoke.frag
+    # Filters & transitions
+    - packages/material_palette/shaders/turbulence_wrap.frag
+    - packages/material_palette/shaders/dither_wrap.frag
+    - packages/material_palette/shaders/peel_wrap.frag
+    - packages/material_palette/shaders/crepuscular_rays.frag
+    - packages/material_palette/shaders/kuwahara.frag
 ```
 
 ## Quick Start
@@ -104,15 +138,15 @@ import 'package:material_palette/material_palette.dart';
 GrittyGradientShaderFill(
   width: 300,
   height: 200,
-  params: grittyGradientDef.defaults.copyWith(
-    colors: {'colorA': Colors.blue, 'colorB': Colors.purple},
-  ),
+  params: grittyGradientDef.defaults
+      .withColor('color0', Colors.blue)
+      .withColor('color1', Colors.purple),
 )
 ```
 
 ### ShaderWrap
 
-Wraps an existing flutter widget an applies the shader effect to it.
+Wraps an existing flutter widget and applies the shader effect to it.
 
 ```dart
 import 'package:material_palette/material_palette.dart';
@@ -133,22 +167,22 @@ final params = perlinGradientDef.defaults;
 // Modify individual values
 final custom = params
   .withValue('noiseDensity', 60.0)
-  .withColor('colorA', Colors.teal);
+  .withColor('color0', Colors.teal);
 ```
 
 ## Animation Modes
 
 Every shader widget supports three animation modes:
 
-- `ShaderAnimationMode.running` - Internal ticker causes the shader to animate over time (default).
-- `ShaderAnimationMode.static` - Renders once and caches.
-- `ShaderAnimationMode.animation` - External `Animation<double>` drives the shader animation.
+- `ShaderAnimationMode.implicit` - Animation state follows the `time` value passed to the widget; no internal ticker runs.
+- `ShaderAnimationMode.continuous` - An internal ticker animates the shader continuously without rebuilding the widget. Interactive (pointer-driven) shaders require this mode.
+- `ShaderAnimationMode.explicit` - Runs the exact animation described by a `ShaderAnimationConfig` without rebuilding the widget.
 
 ```dart
 GrittyGradientShaderFill(
   width: 300,
   height: 200,
-  animationMode: ShaderAnimationMode.static,
+  animationMode: ShaderAnimationMode.continuous,
 )
 ```
 
@@ -183,6 +217,17 @@ GrittyGradientShaderFill(
 | `RadialPixelDissolveShaderWrap` | Wrap | Radial pixel dissolve from center |
 | `TappablePixelDissolveShaderWrap` | Wrap | Tap-triggered pixel dissolves |
 | `TappableSlurpShaderWrap` | Wrap | Tap-triggered slurp dissolves |
+| `FurPlanarShaderFill` | Fill | Interactive volumetric fur surface |
+| `FurPlanarMaskShaderWrap` | Wrap | Fur grows on masked child regions |
+| `IridescentLiquidShaderFill` | Fill | Iridescent chrome-over-fbm material, no mask |
+| `IridescentLiquidShaderWrap` | Wrap | Iridescent material masked onto the child |
+| `LiquidPatinaShaderFill` | Fill | Liquid-patina heat-map with warped FBM noise |
+| `MetalSmokeShaderFill` | Fill | Metal-smoke pattern of noise-warped swirls |
+| `TurbulenceShaderWrap` | Wrap | Animated turbulence displacement |
+| `DitherShaderWrap` | Wrap | 4x4 Bayer ordered dither pixelation |
+| `PeelShaderWrap` | Wrap | 3D page curl/peel transition |
+| `CrepuscularRaysShaderWrap` | Wrap | Volumetric god rays from a soft sun source |
+| `KuwaharaShaderWrap` | Wrap | Anisotropic Kuwahara painterly smoothing |
 
 ## Running the Demo
 

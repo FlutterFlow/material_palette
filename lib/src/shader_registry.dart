@@ -175,7 +175,7 @@ const List<ShaderCardData> allShaders = [
   ),
   ShaderCardData(
     title: ShaderNames.turbulenceWrap,
-    description: 'Turbulence displacement at mask edges',
+    description: 'Animated turbulence displacement across the child',
   ),
   ShaderCardData(
     title: ShaderNames.ditherWrap,
