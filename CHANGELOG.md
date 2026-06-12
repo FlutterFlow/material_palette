@@ -1,6 +1,7 @@
-## 1.5.1
+## 1.6.0
 
 - Fix iOS: the Fur, Fur Mask, Iridescent Liquid Fill, and Iridescent Liquid shaders failed to load (Impeller binds each uniform declaration to its own Metal buffer slot; iOS devices cap the table at 31 and the iOS Simulator at 14, while these shaders declared 34–42). Uniforms are now packed into vec4/mat4 slots (12–13 declarations each) with an unchanged float layout — no API, parameter, or visual change.
+- Bump the `stableVersion` of all shaders introduced in 1.5.0 to 1.6.0.
 
 ## 1.5.0
 
