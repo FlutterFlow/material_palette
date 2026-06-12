@@ -9,63 +9,79 @@ precision highp float;
 uniform vec2  uSize;
 uniform float uTime;
 
-// Pattern tuning
-uniform float uRepetition;            // stripe density (1..10)
-uniform float uSoftness;              // stripe-edge blur
-uniform float uDistortion;            // noise warp into stripe phase
-uniform float uContour;               // stripe bending at the shape edge
-uniform float uAngleDeg;              // pattern rotation (degrees)
+// Scalar uniforms are packed into vec4 slots: Impeller's Metal backend binds
+// every uniform declaration to its own [[buffer(N)]] and iOS rejects N > 30,
+// so the declaration count must stay ≤ 31 (see registry_audit_test.dart).
+// The flat float order is unchanged — the Dart writers are untouched; the
+// #define aliases keep the body readable.
 
-// Diagonal asymmetries — set both to 0 for a symmetric look.
-uniform float uStripeDiagaBias;       // linear diagA → direction
-uniform float uStripeTwist;           // per-pixel rotation perturbation
+// Pattern tuning
+uniform vec4 uPat0;
+#define uRepetition      uPat0.x  // stripe density (1..10)
+#define uSoftness        uPat0.y  // stripe-edge blur
+#define uDistortion      uPat0.z  // noise warp into stripe phase
+#define uContour         uPat0.w  // stripe bending at the shape edge
+
+// Rotation + diagonal asymmetries (set bias/twist to 0 for a symmetric look)
+uniform vec4 uPat1;
+#define uAngleDeg        uPat1.x  // pattern rotation (degrees)
+#define uStripeDiagaBias uPat1.y  // linear diagA → direction
+#define uStripeTwist     uPat1.z  // per-pixel rotation perturbation
+#define uStripeCount     uPat1.w  // bright stripes per cycle (0..5)
 
 // Stripe pattern (parametric)
-uniform float uStripeCount;           // bright stripes per cycle (0..5)
-uniform float uStripeThickness;       // stripe width as fraction of slot
-uniform float uStripeOffset;          // phase offset (0..1 cycles)
-uniform float uStripeFalloff;         // gradient zone width (intermediate-color thickness)
-uniform float uStripeSpeed;           // animation speed multiplier (1 = default)
+uniform vec4 uPat2;
+#define uStripeThickness uPat2.x  // stripe width as fraction of slot
+#define uStripeOffset    uPat2.y  // phase offset (0..1 cycles)
+#define uStripeFalloff   uPat2.z  // gradient zone width (intermediate-color thickness)
+#define uStripeSpeed     uPat2.w  // animation speed multiplier (1 = default)
 
 // Chromatic aberration
-uniform float uShiftRed;
-uniform float uShiftBlue;
+uniform vec2 uShift;
+#define uShiftRed        uShift.x
+#define uShiftBlue       uShift.y
 
-// Composition
-uniform vec4  uColorBack;             // backdrop beneath the masked shape
-uniform vec4  uColorTint;             // colour-burn tint (alpha = strength)
-
+// Composition + edge band + start of warp tuning, packed as mat4 columns
+// (the iOS Simulator caps Metal constant buffers at 14, tighter than the
+// device's 31).
+uniform mat4 uCmp;
+#define uColorBack       uCmp[0]  // backdrop beneath the masked shape
+#define uColorTint       uCmp[1]  // colour-burn tint (alpha = strength)
 // Mask pass colour. alpha == 0 → alpha-driven mask, anything else → exact match.
-uniform vec4  uPassColor;
-
+#define uPassColor       uCmp[2]
 // Width (px) of the synthetic distance-to-edge band that drives uContour.
 // Larger values bend stripes deeper into the shape at higher tap cost.
-uniform float uEdgeBandPx;
-
+#define uEdgeBandPx      uCmp[3].x
 // Smoothing factor (fraction of uEdgeBandPx) for the ray-fan blend. Higher
 // values dissolve radial "wrinkles" from fixed ray angles, at the cost of
 // a slightly softer-reading field.
-uniform float uEdgeSmoothness;
-
+#define uEdgeSmoothness  uCmp[3].y
 // Domain warp tuning
-uniform float uWarpTimeScale;
-uniform float uWarpFreqInner;
-uniform float uWarpFreqMiddle;
-uniform float uWarpFreqHigh;
-uniform float uFbmScaleFactor;
-uniform float uStripeRippleStrength;
-uniform float uBumpWarpWeight;
+#define uWarpTimeScale   uCmp[3].z
+#define uWarpFreqInner   uCmp[3].w
 
-// Palette (10 RGBA stops, first uPaletteStops active)
-uniform float uPaletteStops;
-uniform vec4  uColor0;
-uniform vec4  uColor1;
-uniform vec4  uColor2;
-uniform vec4  uColor3;
-uniform vec4  uColor4;
-uniform vec4  uColor5;
-uniform vec4  uColor6;
-uniform vec4  uColor7;
+uniform vec4 uWarp1;
+#define uWarpFreqMiddle       uWarp1.x
+#define uWarpFreqHigh         uWarp1.y
+#define uFbmScaleFactor       uWarp1.z
+#define uStripeRippleStrength uWarp1.w
+
+uniform vec2 uWarp2;
+#define uBumpWarpWeight       uWarp2.x
+#define uPaletteStops         uWarp2.y  // active stop count for the palette below
+
+// Palette (10 RGBA stops, first uPaletteStops active). Stops 0-7 are packed
+// as mat4 columns — one RGBA stop per column, same flat float order.
+uniform mat4 uPalette0;
+#define uColor0 uPalette0[0]
+#define uColor1 uPalette0[1]
+#define uColor2 uPalette0[2]
+#define uColor3 uPalette0[3]
+uniform mat4 uPalette1;
+#define uColor4 uPalette1[0]
+#define uColor5 uPalette1[1]
+#define uColor6 uPalette1[2]
+#define uColor7 uPalette1[3]
 uniform vec4  uColor8;
 uniform vec4  uColor9;
 

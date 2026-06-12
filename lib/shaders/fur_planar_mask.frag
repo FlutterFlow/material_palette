@@ -4,66 +4,80 @@ precision highp float;
 
 uniform vec2 uSize;
 uniform float time;
-uniform vec3 uBgColor;  // sRGB space input
-uniform float uBgOpacity;  // 0 = transparent outside fur (for stacking), 1 = fill bgColor
 
-// Plane shape uniforms
-uniform float uPlaneOffset;
-uniform float uFurThickness;
+// Scalar uniforms are packed into vec4 slots: Impeller's Metal backend binds
+// every uniform declaration to its own [[buffer(N)]] and iOS rejects N > 30,
+// so the declaration count must stay ≤ 31 (see registry_audit_test.dart).
+// The flat float order is unchanged — the Dart writers are untouched; the
+// #define aliases keep the body readable.
 
-// Fur pattern uniforms
-uniform float uFurNoiseStrength;
-uniform float uFurNoiseScale;    // Controls hair fineness (higher = thinner hairs)
-uniform float uFurWaveAmplitude;
-uniform float uFurWaveFreqX;
-uniform float uFurWaveFreqY;
-uniform float uFurAnimationSpeed;
+// Background
+uniform vec4 uBg;
+#define uBgColor           uBg.rgb  // sRGB space input
+#define uBgOpacity         uBg.a    // 0 = transparent outside fur (for stacking), 1 = fill bgColor
 
-// Key light uniforms
-uniform vec3 uKeyLightDir;
-uniform vec3 uKeyLightColor;
-uniform float uKeyLightIntensity;
+// Plane shape + fur pattern
+uniform vec4 uFur0;
+#define uPlaneOffset       uFur0.x
+#define uFurThickness      uFur0.y
+#define uFurNoiseStrength  uFur0.z
+#define uFurNoiseScale     uFur0.w  // Controls hair fineness (higher = thinner hairs)
+uniform vec4 uFur1;
+#define uFurWaveAmplitude  uFur1.x
+#define uFurWaveFreqX      uFur1.y
+#define uFurWaveFreqY      uFur1.z
+#define uFurAnimationSpeed uFur1.w
 
-// Fill light uniforms
-uniform vec3 uFillLightDir;
-uniform vec3 uFillLightColor;
-uniform float uFillLightIntensity;
-
-// Rim/back light uniforms
-uniform vec3 uRimLightDir;
-uniform vec3 uRimLightColor;
+// Key/fill/rim lights, packed as mat4 columns + vec4 + float to fit the iOS
+// Simulator's 14-buffer cap. Flat float order is keyDir(3), keyColor(3),
+// keyIntensity, fillDir(3), fillColor(3), fillIntensity, rimDir(3),
+// rimColor(3), rimIntensity — the vec3s straddle column boundaries, hence
+// the constructor #defines.
+uniform mat4 uLightsA;
+uniform vec4 uLightsB;
 uniform float uRimLightIntensity;
+#define uKeyLightDir        uLightsA[0].xyz
+#define uKeyLightColor      vec3(uLightsA[0].w, uLightsA[1].xy)
+#define uKeyLightIntensity  uLightsA[1].z
+#define uFillLightDir       vec3(uLightsA[1].w, uLightsA[2].xy)
+#define uFillLightColor     vec3(uLightsA[2].zw, uLightsA[3].x)
+#define uFillLightIntensity uLightsA[3].y
+#define uRimLightDir        vec3(uLightsA[3].zw, uLightsB.x)
+#define uRimLightColor      uLightsB.yzw
 
-// Fur color uniform
-uniform vec3 uFurColor;
+// Fur color + gradient epsilon
+uniform vec4 uFurColorEps;
+#define uFurColor          uFurColorEps.rgb
+#define uGradientEps       uFurColorEps.w
 
-// Gradient epsilon uniform
-uniform float uGradientEps;
-
-// Wavelet parameter uniforms
-uniform float uWaveletSpeed;
-uniform float uWaveletFreq;
-uniform float uWaveletAmplitude;
-uniform float uWaveletDecay;
-uniform float uWaveletWidth;
-
-// Mask uniforms
-uniform vec3 uMaskColor;
-uniform float uMaskThreshold;
-uniform float uEdgeLeanStrength;
-
-// Click/wavelet uniforms
-uniform float uClickCount;
-uniform vec2 uClickPos0;
-uniform vec2 uClickPos1;
-uniform vec2 uClickPos2;
-uniform vec2 uClickPos3;
-uniform vec2 uClickPos4;
-uniform float uClickTime0;
-uniform float uClickTime1;
-uniform float uClickTime2;
-uniform float uClickTime3;
-uniform float uClickTime4;
+// Wavelet params, mask params, click positions and times — packed to fit
+// the iOS Simulator's 14-buffer cap. mat4 columns: [speed, freq, amplitude,
+// decay][width, maskColor.rgb][threshold, lean, count, pos0.x][pos0.y,
+// pos1.xy, pos2.x]; the remaining pairs straddle uTailB/C/D, hence the
+// constructor #defines.
+uniform mat4 uTailA;
+uniform vec4 uTailB;
+uniform vec4 uTailC;
+uniform vec2 uTailD;
+#define uWaveletSpeed      uTailA[0].x
+#define uWaveletFreq       uTailA[0].y
+#define uWaveletAmplitude  uTailA[0].z
+#define uWaveletDecay      uTailA[0].w
+#define uWaveletWidth      uTailA[1].x
+#define uMaskColor         uTailA[1].yzw
+#define uMaskThreshold     uTailA[2].x
+#define uEdgeLeanStrength  uTailA[2].y
+#define uClickCount        uTailA[2].z
+#define uClickPos0         vec2(uTailA[2].w, uTailA[3].x)
+#define uClickPos1         uTailA[3].yz
+#define uClickPos2         vec2(uTailA[3].w, uTailB.x)
+#define uClickPos3         uTailB.yz
+#define uClickPos4         vec2(uTailB.w, uTailC.x)
+#define uClickTime0        uTailC.y
+#define uClickTime1        uTailC.z
+#define uClickTime2        uTailC.w
+#define uClickTime3        uTailD.x
+#define uClickTime4        uTailD.y
 
 // Mask texture sampler (child widget capture)
 uniform sampler2D uMaskTexture;
